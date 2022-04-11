@@ -1,6 +1,6 @@
 # Eunchurn blog
 
-Forked from [Tailwind Nextjs Starter Blog](https://github.com/timlrx/tailwind-nextjs-starter-blog)
+Heavily inspired by [Tailwind Nextjs Starter Blog](https://github.com/timlrx/tailwind-nextjs-starter-blog)
 
 ```
  @fontsource/inter                     4.5.2  →     4.5.7

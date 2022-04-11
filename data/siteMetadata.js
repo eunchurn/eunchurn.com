@@ -8,7 +8,7 @@ const siteMetadata = {
   language: "ko-kr",
   theme: "system", // system, dark or light
   siteUrl: "https://eunchurn.com",
-  siteRepo: "https://github.com/eunchurn/eunchurn.com-v3",
+  siteRepo: "https://github.com/eunchurn/eunchurn.com",
   siteLogo: "/static/images/logo.png",
   image: "/static/images/avatar.png",
   socialBanner: "/static/images/twitter-card.png",
