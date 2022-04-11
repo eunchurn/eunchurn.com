@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap');
+@font-face {
+  font-family: "NanumSquare";
+  src: url("https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css");
+  font-style: normal;
+}
+@font-face {
+  font-family: "NanumSquare";
+  src: url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
+  unicode-range: U+0020-007E;
+  font-style: normal;
+} */
+
+body {
+  font-family: "NanumSquare", sans-serif;
+}
+
+.task-list-item::before {
+  @apply hidden;
+}
+
+.task-list-item {
+  @apply list-none;
+}
+
+.footnotes {
+  @apply mt-12 border-t border-gray-200 pt-8 dark:border-gray-700;
+}
+
+.csl-entry {
+  @apply my-5;
+}
+
+/* https://stackoverflow.com/questions/61083813/how-to-avoid-internal-autofill-selected-style-to-be-applied */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
+
+/* This element defines the size the iframe will take.
+  In this example we want to have a ratio of 25:14 */
+.aspect-ratio {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56%; /* The height of the item will now be 56% of the width. */
+}
+
+/* Adjust the iframe so it's rendered in the outer-width and outer-height of it's parent */
+.aspect-ratio iframe {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
