@@ -1,15 +1,17 @@
-// const fs = require("fs");
-import fs from "fs";
+const fs = require("fs");
+// import fs from "fs";
 // const globby = require("globby");
-import globby from "globby";
-// const matter = require("gray-matter");
-import matter from "gray-matter";
-// const prettier = require("prettier");
-import prettier from "prettier";
-// const siteMetadata = require("../data/siteMetadata.jsx");
-import siteMetadata from "../data/siteMetadata";
+// const { globby } = require("globby");
+// import { globby } from "globby";
+const matter = require("gray-matter");
+// import matter from "gray-matter";
+const prettier = require("prettier");
+// import prettier from "prettier";
+const siteMetadata = require("../data/siteMetadata");
+// import siteMetadata from "../data/siteMetadata";
 
 (async () => {
+  const { globby } = await import("globby");
   const prettierConfig = await prettier.resolveConfig("./.prettierrc.js");
   const pages = await globby([
     "pages/*.js",

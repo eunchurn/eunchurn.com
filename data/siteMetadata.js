@@ -79,6 +79,6 @@ const siteMetadata = {
   },
 };
 
-// module.exports = siteMetadata;
+module.exports = siteMetadata;
 
-export default siteMetadata;
+// export default siteMetadata;

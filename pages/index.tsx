@@ -8,7 +8,6 @@ import formatDate from "@/lib/utils/formatDate";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { PostFrontMatter } from "types/PostFrontMatter";
 import NewsletterForm from "@/components/NewsletterForm";
-import config from "tailwind.config";
 
 const MAX_DISPLAY = 5;
 

@@ -21,17 +21,6 @@ export default function App({ Component, pageProps }: AppProps) {
     <ThemeProvider attribute="class" defaultTheme={siteMetadata.theme}>
       <Head>
         <meta content="width=device-width, initial-scale=1" name="viewport" />
-        <link
-          rel="stylesheet"
-          type="text/css"
-          href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css"
-        ></link>
-        <link rel="preconnect" href="https://fonts.googleapis.com"></link>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true"></link>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap"
-          rel="stylesheet"
-        ></link>
       </Head>
       {isDevelopment && isSocket && <ClientReload />}
       <Analytics />
