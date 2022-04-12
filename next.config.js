@@ -7,7 +7,7 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 // font-src 'self';
 // default-src 'self';
 const ContentSecurityPolicy = `
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' giscus.app youtube.com soundcloud.com;
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' data: giscus.app youtube.com soundcloud.com;
   img-src * blob: data:;
   media-src 'none';
   connect-src *;

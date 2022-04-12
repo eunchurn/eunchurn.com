@@ -4,7 +4,7 @@ summary: production note of music for mvio A/W collection 2011/2012
 title: MOT x EUNCHURN - 매일 그대와 작업일기
 draft: false
 featured: /static/images/2011/03/Poster-front.jpg
-categories: 
+categories:
   - runway
   - music
   - engineering
@@ -42,12 +42,9 @@ tags:
 
 비트작업은 꽤 복잡한 작업으로 이루어졌다. 깔끔하고 메탈릭한 텍스쳐를 가지는 그런 킥과 스네어 그리고 하이햇이 필요했다. 오래전부터 생각해오던 아이디어중에 음원을 N개의 소리로 분리해서 다시 합쳤을때 원음원의 소리가 나오게 할 수 없을까라는 고민에서 시작되었다. 여기서 부터는 공학적인 접근이 필요하다.
 
-
-음원이라함은 신호(signal)과 같다. 즉, 현재의 아웃보드라던지 이펙터는 [신호처리(signal processing)](https://en.wikipedia.org/wiki/Signal_processing)기법들의 조합이다. 예를들어 [LPF](https://en.wikipedia.org/wiki/Low-pass_filter)나 [HPF](https://en.wikipedia.org/wiki/High-pass_filter)는 [IIR필터](https://en.wikipedia.org/wiki/Infinite_impulse_response)와 [FIR필터](https://en.wikipedia.org/wiki/Finite_impulse_response) 방식으로 전달특성을 가지는 함수를 통과하는 것과 같다. 그리고 음원은 디지털신호로 변환이 되었기 때문에 [샘플링레이트(sampling rate)](https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate)와 [비트사이즈(bit-depth)](https://en.wikipedia.org/wiki/Audio_bit_depth)를 가진다. 아날로그 신호를 [양자화(discretize)](https://en.wikipedia.org/wiki/Quantization_(signal_processing))한다고 한다. AD과정만해도 많은 페이지를 차지하기 때문에 여기서는 거론하지 않고, [고조파(harmonics)](https://en.wikipedia.org/wiki/Harmonic)에 대해 생각해보고 신호분리하는 방법에 대해 말하고자 한다. [퓨리에](https://en.wikipedia.org/wiki/Joseph_Fourier)님 덕분에(?) 아니면 그후에도 발표했을 어떤 수학자 또는 과학자에 의해 sin과 cos이 가지는 주파수성분으로 모든 신호를 표현이 가능해진것인데. 여기서 sin과 cos에 주목할 필요가 있다. 우리가 흔히 쓰는 신디사이저에서 파형제조기인 오실레이터(oscillator)는 sin, sawtooth, square 그리고 noise등이 있지만 모든 파형의 근원은 sin파로 다른 파형들은 sin파형으로 조합이 가능하다는 이야기다. 여기서 중요한 사실은 퓨리에적분은 다 알다시피 음의 무한대에서 무한대까지의 적분이다. 수학적으로는 아날로그를 표현하기 때문에 컴퓨터계산을 위해 디지털화된 퓨리에변환이 필요하다 즉, [DFT](https://en.wikipedia.org/wiki/Discrete_Fourier_transform)와 [FFT](https://en.wikipedia.org/wiki/Fast_Fourier_transform)이 그 일종이다. 단 [sampling rate](https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate)영역이내의 성분이고 그것도 [Nyquist](https://en.wikipedia.org/wiki/Nyquist_frequency)이론에 의해 샘플링레이트 Fs의 절반이 그 영역이 된다. 디지털신호에서 다른 파형의 조합은 나중에 생각하자. 예를들어 디지털에서의 square파형과 sawtooth파형은 완벽하지 않다. 가청주파수 이상에서의 고조파도 적분 대상이기 때문에 꺽이는 지점 즉 roll-off 위치의 형태에 따라 신디사이저의 음색이 달라진다. 물론 이를 보완하려는 노력에 의해(?)서도 음색이 달라지긴 한다. 자연계에서 퓨리에변환은 무한대에서 무한대까지의 적분해야한다. 따라서 디지털 세상에서는 square파나 sawtooth파는 무한대까지 가지 못하기 때문에 완벽하지 않다. 하지만 몇개의 고조파의 파형만 형성이 되어도 일반인은 큰차이를 느끼지 못한다. Live의 Operator 신스는 그 고조파의 개수를 정해줄 수 있다. 아주 멋진 녀석이긴 하다. 하지만 가청주파수 이상은 어쩔 수 없다. 따라서 디지털에선 약간의 디더를 통해 노이즈를 추가해 뭉개버리거나 보정은 해준다. (너무 멀리왔다. 고조파에 대한 설명이 왜 필요했었지?...)
-
+음원이라함은 신호(signal)과 같다. 즉, 현재의 아웃보드라던지 이펙터는 [신호처리(signal processing)](https://en.wikipedia.org/wiki/Signal_processing)기법들의 조합이다. 예를들어 [LPF](https://en.wikipedia.org/wiki/Low-pass_filter)나 [HPF](https://en.wikipedia.org/wiki/High-pass_filter)는 [IIR필터](https://en.wikipedia.org/wiki/Infinite_impulse_response)와 [FIR필터](https://en.wikipedia.org/wiki/Finite_impulse_response) 방식으로 전달특성을 가지는 함수를 통과하는 것과 같다. 그리고 음원은 디지털신호로 변환이 되었기 때문에 [샘플링레이트(sampling rate)](<https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate>)와 [비트사이즈(bit-depth)](https://en.wikipedia.org/wiki/Audio_bit_depth)를 가진다. 아날로그 신호를 [양자화(discretize)](<https://en.wikipedia.org/wiki/Quantization_(signal_processing)>)한다고 한다. AD과정만해도 많은 페이지를 차지하기 때문에 여기서는 거론하지 않고, [고조파(harmonics)](https://en.wikipedia.org/wiki/Harmonic)에 대해 생각해보고 신호분리하는 방법에 대해 말하고자 한다. [퓨리에](https://en.wikipedia.org/wiki/Joseph_Fourier)님 덕분에(?) 아니면 그후에도 발표했을 어떤 수학자 또는 과학자에 의해 sin과 cos이 가지는 주파수성분으로 모든 신호를 표현이 가능해진것인데. 여기서 sin과 cos에 주목할 필요가 있다. 우리가 흔히 쓰는 신디사이저에서 파형제조기인 오실레이터(oscillator)는 sin, sawtooth, square 그리고 noise등이 있지만 모든 파형의 근원은 sin파로 다른 파형들은 sin파형으로 조합이 가능하다는 이야기다. 여기서 중요한 사실은 퓨리에적분은 다 알다시피 음의 무한대에서 무한대까지의 적분이다. 수학적으로는 아날로그를 표현하기 때문에 컴퓨터계산을 위해 디지털화된 퓨리에변환이 필요하다 즉, [DFT](https://en.wikipedia.org/wiki/Discrete_Fourier_transform)와 [FFT](https://en.wikipedia.org/wiki/Fast_Fourier_transform)이 그 일종이다. 단 [sampling rate](<https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate>)영역이내의 성분이고 그것도 [Nyquist](https://en.wikipedia.org/wiki/Nyquist_frequency)이론에 의해 샘플링레이트 Fs의 절반이 그 영역이 된다. 디지털신호에서 다른 파형의 조합은 나중에 생각하자. 예를들어 디지털에서의 square파형과 sawtooth파형은 완벽하지 않다. 가청주파수 이상에서의 고조파도 적분 대상이기 때문에 꺽이는 지점 즉 roll-off 위치의 형태에 따라 신디사이저의 음색이 달라진다. 물론 이를 보완하려는 노력에 의해(?)서도 음색이 달라지긴 한다. 자연계에서 퓨리에변환은 무한대에서 무한대까지의 적분해야한다. 따라서 디지털 세상에서는 square파나 sawtooth파는 무한대까지 가지 못하기 때문에 완벽하지 않다. 하지만 몇개의 고조파의 파형만 형성이 되어도 일반인은 큰차이를 느끼지 못한다. Live의 Operator 신스는 그 고조파의 개수를 정해줄 수 있다. 아주 멋진 녀석이긴 하다. 하지만 가청주파수 이상은 어쩔 수 없다. 따라서 디지털에선 약간의 디더를 통해 노이즈를 추가해 뭉개버리거나 보정은 해준다. (너무 멀리왔다. 고조파에 대한 설명이 왜 필요했었지?...)
 
 모든 변환은 역변환이 존재한다 따라서 자연계의 퓨리에변환도 역변환이 가능하다 그래서 신호의 원형대로의 조합이 가능하다는 것이다. 물론 FFT도 역변환으로 원래신호로 돌아올 수 있다. 그러나 오디오 믹스는 약간 요리에 비유할 수 있다. 물리적 결합과 화학적 결합이 동시에 일어나기 때문에 믹스된 음원을 원래 상태로 반환하는 일은 거의 불가능하다. 요리를 예를 들어 생각하면 요리에는 재료의 맛과 조미료의 맛(?)이 있다. 커피를 생각하더라도 중심인 바디감(브라질을 좋아함)과 다른향과 맛(신맛은 에티오피아)이 섞여 커피의 특성을 나타낸다. 하지만 요리된 음식을 원래 재료로 분리하거나, 블렌딩한 커피를 원래 생두로 반환하지 못하듯 물리적 화학적 결합의 특성은 이렇다. 마찬가지로 모든 악기(재료)에는 음색이라는 것이 있다. 기타, 베이스 그리고 타악기들 모두 음색이 존재한다. 이 음색이라는 재료 자체의 것도 바디감과 그 이외의 음색과 질감이 있다. 베이스나 킥의 경우는 바디감은 바로 메인주파수(fundamental frequency)에 있으며 소리의 질감을 결정하는 음색은 고조파(harmonics)에 존재한다. 엔지니어들은 보통 이들을 믹스할때 바디감이 적을땐 fundamental frequency를 부스트하거나 고조파 대역을 잡아 내리거나 음색이 선명하지 않을때 고조파 찾아 키우기 위해 바디의 레벨을 줄이거나 밴드패스필터를 적용하기도 한다. 주로 이퀄라이져(equalizer)를 사용하여 믹스의 균형을 잡아가지만, compressor도 동일한 역할을 할 때가 많다. 하지만 모든 주파수영역 컨트롤이 가능한 머신이나 이큐도 마찬가지로 IIR필터나 FIR필터 즉, 필터뱅크의 일종이다. 즉, 시간영역에서 필터를 통과하여 주파수대역을 조정하는 것이다. 여기서 필터의 내부구조를 파악하기 위해선 필터의 종류와 차수(order) 그리고 주파수 파라미터들이 있지만 한번 필터를 거친 음원을 원래대로 돌려주는 역변환 필터는 없다고 봐야한다. 왜냐하면 깍아내기 위한 필터의 zero를 인버스하면 pole이 되고 발산하기 때문이다.
-
 
 내가 구현하려고 하는것은 신호를 N개로 분리하고 다시 합치는 일이다. 필터의 가장 큰 특징은 인버스 필터를 만들기도 힘들기도 하지만 위상(phase)를 의도하지 않은대로 바꾸는 특징이 있다. 따라서 필터를 사용해서 신호를 N개로 나누는것은 가능하나 원래의 파형으로 복원하는 일은 단순 더하기방식(mix)로 되지 않는다. 음 그렇다면 다른 선형분리기가 있지 않을까? 고민하면 또다른 변환이 있다는 것을 알 수 있다. 바로 [웨이블릿변환(Wavelet Transform)](<https://en.wikipedia.org/wiki/Wavelet#Continuous_wavelet_transforms_(continuous_shift_and_scale_parameters)>)이다. 이것도 어떤 천재분이 엄마웨이블릿(mother wavelet)을 만들고 그 mother wavelet파형을 늘이고 줄이는 방식으로 sin과 cos을 대신하는 형태의 변환이다. 퓨리에 변환의 확장이라고 볼 수 있다. 그렇지만 wavelet 변환의 문제는 window사이즈가 가변적인데 저주파에서는 어쩔 수 없이 길다는 점이다. 따라서 다른접근이 필요했다. 바로 [Hankel matrix](https://en.wikipedia.org/wiki/Hankel_matrix) 구성과 [특이치분해(singular value decomposition)](https://en.wikipedia.org/wiki/Singular-value_decomposition)이다 이것은 선형대수에서 많이 사용되는 방법으로 행렬은 좌고유벡터(left eigenvector)와 우고유벡터(right eignevector)로 나뉜다. [Hankel matrix](https://en.wikipedia.org/wiki/Hankel_matrix)는 단순하다. 벡터(여기선 신호)를 한샘플씩 밀면서 매트릭스를 구성한다. [Hankel matrix](https://en.wikipedia.org/wiki/Hankel_matrix)는 주로 [자기상관함수(autocorrelation function)](https://en.wikipedia.org/wiki/Autocorrelation)를 통해 모델기반 부공간(subspace)을 식별하기 위해 만들어진다. 이것을 적용하여 신호를 N개로 분리해 보았다. 즉, 행렬의 행의 개수를 제한하며 음원의 Hankel Matrix를 구성하고 특이치분해를 하면 고유벡터들이 나오고 다시 그 고유벡터들의 기저(basis)가 된 신호를 합쳐주면 N개의 신호로 분리가 된다. 당연히 그냥믹스만해도 원래신호로 복원이 된다. 쉽게 말하자면 신호를 N개로 선형분리하고 다시 선형조합을 하고 싶었던 것이다. 음원을 생각해보자. 예를들어 내가 좋아하는 킥사운드의 음색을 808킥이나 606킥 중심 음원에 입혀보는 것이 가능하다. 단 공통의 고유벡터를 가진상태여야 한다. 이렇게 조합이 되면 단순히 킥사운드 위에 레이어드된 느낌이 아니라 원래의 킥소리의 음색으로 드러나게 된다. 각 파형의 고유벡터가 다르기 때문에 즉, 고유벡터는 서로 직교하기 때문에(고유벡터는 쉽게 우리가 흔히 쓰는 데카르트 좌표계 즉, 직교하는 X,Y,Z 좌표계와 유사하다.) 겹치지 않고 서로에 대해 독립적이다라고 생각하면 쉽다. 다시말해 파형이 겹쳐서 상쇄되거나 위상차에 의해 가감쇠가 되지 않는다. 정확히 N개의 소리로 분리가 되고 다시 믹스하면 원래 음원이 된다. 결론은 이번 트랙작업에서는 예전에 행해졌던 킥소리만 5개를 가지고 겹침이 생기지 않게 컴프레서를 사용하거나 이큐를 작동시켜서 만든 사운드에 비해 좀더 음색이 드러나는 사운드를 만들고 싶었다. 이번 컬렉션 음악의 비트는 그런형식으로 빌드되었다. (지나고 보니 쓸데없는데 시간을 많이 소모한 듯)
 
@@ -63,65 +60,60 @@ tags:
 
 하이햇은 비트에서 가장 비트를 맛깔나게 해주며 킥소리에서도 킥의 음색을 결정해준다. 하지만 위에서 킥소리를 결정했기 때문에 다른 컬러로 하이햇 시퀀스가 있어주어야 했다. NI사의 Massive 신스를 사용하였다. Massive는 아주막강하게도 스텝시퀀서와 퍼포먼서를 모듈레이팅과 사이드체인방식으로 사용할 수 있다. 알아서 모듈레이터의 엔벨로프가 스텝으로 컨트롤되기때문에 사용하기 아주 편리하다. 하이햇시퀀스는 음색이 듣기 편한 Brown Noise에 컬러를 첫번째 퍼포먼서에 어싸인시키고 레벨은 두번째 퍼포먼서로 어싸인시켜서 시퀀스를 만들어냈다. 그리고 스테레오딜레이와 코러스를 약간 사용하였다.
 
-
 ### Kick & Snare
+
 킥은 앞서 말한대로 신호분리기법으로 4가지의 음색을 만들어서 여러부분에서 변주되고 있고 스네어는 킥소리와 대조하며 작업을 했지만 원래 소스의 어택을 많이 줄여주지 못했다. 컬렉션장에서 스네어소리 들을때 맘이 좀 아팠던것 같다.
 
-
 ## Synths
+
 ### Long-Release
+
 초반부터 끝까지 이어지는 노이즈릴리즈 레벨이 높은 신스는 후부에 배치하여 리버스피아노와 함께 음악전체의 감성을 지배하도록 만들었다. 그리고 중음역대의 바디감이 높은 부분은 상승기류에서 옥타브를 올려가며 고조파가 겹치도록 하였다.
 
-
 ### Pattern Synth
+
 아르페지오가 전체적 감성에서 상승과정을 유발했다면, 패턴신스는 곡의 스타일링을 담당하도록 어택과 바디감이 강한 신스를 빌드해서 사용했으며, 패턴은 The Chemical Brothers의 [Another World](https://www.youtube.com/watch?v=fhzkeFiXfPI)에서 착안하였다. 그리고 배치는 이번 쇼 리허설에서 본 목이 없는 모델이 나오는 시점인 중후반부로 배치하였다. 그러기 위해 곡 구성은 전반부 원곡 에딧과 상승기류 그 이후로 설정하였다. 그리고 앤딩부분엔 실험하면서 새로구성된 스텝시퀀스드 신스가 등장한다.
 
-
 ### Noisy Synth
+
 패턴신스가 나오기 이전에 디더(dither)의 역할처럼 믹스가 잘되지 않고 진행되고 있는 부분에 전체적 밸런스를 맞춰주고 상승되는 부분에 추가빌드적 요소로 사용하였다.
 
-
 ## Vocoder
+
 사실 이언형의 목소리는 우울하다. 본인도 인정하셨다. 곡은 밝게 만들었어도 목소리가 들어가면 우울해진다고... 그리고 의상이 그레이톤등 색이 많이 사용되지 않은 관계로 밝게(?) 보코더를 사용해야했다. 의미는 들리게 그리고 캐리어는 폴리포니 신스를 사용하여 모든대역이 잘들리도록 하였다. 하이라이트부분은 '매일 그대와 얘기 하고파'가 두번 나오도록 했다. 의도된 그런 얘기를 하고싶었다.
 
-
 ## Bass
+
 기존엔 신스기반의 시퀀스된 베이스였다면, 이번엔 일렉트릭베이스를 사용하고 싶었다. Vitalic과 같은 킥에 찰싹 달라붙어 가는 그런 베이스라인을 가지고 싶었다. Trilogy등을 사용해봤지만 솔직히 맛깔나는 일렉트릭베이스는 녹음밖에 방법이 없다. 그래서 요즘 자주 연락하는 Skrew Attack의 리더 황정익군에게 연락을 해서 녹음을 했다. 사실 녹음한 시간보다 잡담한 시간이 길었다. 마샬앰프에 최근 새로샀다는 Mouse로 마이킹을 했으며 바디는 그대로 엠비언스는 꽤 많이 높이고 떨어져서 받았다. 최근 제작했다는 퍼즈는 느낌이 너무 빗나가서 사용못하고 디스토션걸린 음은 약간 섞었다. 중간에 템포가 바뀌기 때문에 오랫동안 다운피킹하느라 힘들어했던 정익이한테 고맙다. 아주 만족할만한 정도는 아니었지만 60%정도 만족할만한 결과를 얻었다.
 
-
 ## Reverse Piano, Additional Strings
+
 마지막날 아직도 전체곡의 본인만족도 수준 50%에도 미치지 못한 상태에서 80%이상으로 끌어올려준 사람은 바로 박꽃초롱(Cho!ong)양이었다. 더이상 감성을 자극할 만한 추가적인 라인이 나오지 않는 상태에서 변주를 맡겼는데 몇시간도 안되서 엄청난 결과를 주었다. 바로 모든 시련과 고통을 이겨내게 해준 곡 전체의 감성을 지배한 Reverse Piano였다(눈물). 리버스 피아노에 딜레이가 약간 걸려있어서 원소스로 다시 리버스하면 피아노를 여러번 치는 듯한 느낌을 준다. 쇼음악 엔딩에서야 비로소 원소스로 리버스 된다. 이런 방식은 예전 스네어롤이나 하이햇등을 그런방식으로 장난을 쳤던 기억이 있다. 정말 기발하고도 멋진 발상이었다. 초롱양이 작업해준 결과를 그대로 사용하기에는 템포가 바뀌는 부분에서는 80BPM에서 125BPM으로 바뀔때 비트는 125BPM이지만 원곡은 125BPM의 절반 즉 62.5BPM으로 바뀌기 때문에 어렌지 순서를 바꿔야했다. 뒷부분을 앞으로 올리고 앞을 뒤로 옮기며 음원을 바꿔주어 최종 트랙이 완성되었다.
 
+### Additional Strings
 
-### Additional Strings 
 Additional strings 는 초반 인트로에 사용되고 어택이 거의 없는 스트링도 추가되었다.
 
-
 ## Marcel Duchamp - THE CREATIVE ACT
-도입부에 나오는 강연은 Marcel Duchamp의 THE CREATIVE ACT로 [Sound Unbound:Exerpts And Allegories From The Sub Rosa Audio Archives](https://www.amazon.com/Sound-unbound-excerpts-allegories-archives/dp/B001I51WR6) 앨범에 들어 있는 음원이다. 전문은 [Duchamp_Creative_Act.pdf
-](/static/data/Duchamp_Creative_Act.pdf) 참조. 
 
+도입부에 나오는 강연은 Marcel Duchamp의 THE CREATIVE ACT로 [Sound Unbound:Exerpts And Allegories From The Sub Rosa Audio Archives](https://www.amazon.com/Sound-unbound-excerpts-allegories-archives/dp/B001I51WR6) 앨범에 들어 있는 음원이다. 전문은 [Duchamp_Creative_Act.pdf
+](/static/data/Duchamp_Creative_Act.pdf) 참조.
 
 ## Epilogue
-마지막부분엔 이언형의 원래 목소리가 나온다. 이부분 정말로 너무 좋아하는 부분. 꼭 살리고 싶었지만 곡 중간에 넣기에는 너무 뜬금이 없어 엔딩에 넣었다. 그리고 한시디님과 연출가님에게 모델 워킹이 끝나도 곡은 마지막까지 나왔으면 했는데, 결국은 너무 일찍 끝나버렸다. 사람들은 3~4분정도 앉혀놓을 수 없었다. 그래서 포기할 수 밖에 없었지만 쇼음악 다시듣기(?) 뭐 이런방식으로 사람들이 듣는 다면 저를 이해해주실지도...
 
+마지막부분엔 이언형의 원래 목소리가 나온다. 이부분 정말로 너무 좋아하는 부분. 꼭 살리고 싶었지만 곡 중간에 넣기에는 너무 뜬금이 없어 엔딩에 넣었다. 그리고 한시디님과 연출가님에게 모델 워킹이 끝나도 곡은 마지막까지 나왔으면 했는데, 결국은 너무 일찍 끝나버렸다. 사람들은 3~4분정도 앉혀놓을 수 없었다. 그래서 포기할 수 밖에 없었지만 쇼음악 다시듣기(?) 뭐 이런방식으로 사람들이 듣는 다면 저를 이해해주실지도...
 
 엠비오쇼는 나에겐 항상 대형 프로젝트로써 모든 집중력과 에너지를 쏟아내게 만든다. 다른쇼와 차이점을 둔다면 디제이라고 해서 원곡에서 약간 수정하여 디제이믹스셋을 만드는 개념보다는 기존곡에서 새로운 리믹스 방식으로 진행하기 때문이다. 그것도 1곡을 15분 정도.. 리믹스 프로듀싱이라 하지만 이건 거의 재창조에 가깝다. 한상혁시디님은 이야기를 만들어간다. 사실 한시디님은 작업전에 원곡과 이야기를 해준다. 모 잡지 인터뷰에서도 거론했던 이야기지만 이야기가 숙제의 전부다. 그것을 받아들이고 다시 난 내이야기를 풀어야 한다. 단, 원곡의 느낌은 살리면서... 그렇게 한시디님의 이야기와 내이야기를 담아낸 쇼음악이 만들어지고 의상과 함께 연출을 생각한다. 최초 한상혁디자이너가 엠비오 크리에이티브 디렉터 자리를 맡게되면서 부터...
 
-
-#### 참고문헌 
+#### 참고문헌
 
 [`Similarity of signal processing effect between Hankel matrix-based SVD and wavelet transform and its mechanism analysis`](https://www.sciencedirect.com/science/article/abs/pii/S0888327008002604) 키워드로 문헌을 더 찾아보자 `SVD`, `Wavelet transform`, `Hankel matrix`, `Orthonormal basis`, `Projection`, `Similarity`
 
-<div className="container flex justify-center">
-![1](/static/images/2011/03/Poster-front.jpg)
-</div>
-<div className="container flex justify-center">
-![2](/static/images/2011/03/Poster-back.jpg)
-</div>
+<div className="container flex justify-center">![1](/static/images/2011/03/Poster-front.jpg)</div>
+<div className="container flex justify-center">![2](/static/images/2011/03/Poster-back.jpg)</div>
 
 01 _SEASON autumn winter 2011 _ 2012
-  APRON COLLECTION
+APRON COLLECTION
 
 02 \_THEME 'C O M P L E X'
 
@@ -149,7 +141,7 @@ Additional strings 는 초반 인트로에 사용되고 어택이 거의 없는 
 * remix produced by Eunchurn
 * special thanks to Cho!ong(additional strings & reverse piano), Jung-Ik Hwang(electric bass)
 
-<div className="container flex justify-center">
+<div className="aspect-ratio container flex justify-center">
   <iframe
     width="560"
     height="315"
