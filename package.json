@@ -24,6 +24,7 @@
     "image-size": "1.0.1",
     "mdx-bundler": "^9.0.0",
     "next": "12.1.4",
+    "next-pwa": "^5.5.0",
     "next-themes": "^0.1.1",
     "postcss": "^8.4.12",
     "preact": "^10.7.1",

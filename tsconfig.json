@@ -23,6 +23,13 @@
       "@/css/*": ["css/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "data/siteMetadata.js",
+    "scripts/generate-sitemap.js",
+    "scripts/generate-sitemap.js"
+  ],
   "exclude": ["node_modules"]
 }
