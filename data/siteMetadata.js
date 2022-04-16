@@ -11,7 +11,7 @@ const siteMetadata = {
   siteRepo: "https://github.com/eunchurn/eunchurn.com",
   siteLogo: "/static/images/logo.png",
   image: "/static/images/avatar.png",
-  socialBanner: "/static/images/twitter-card.png",
+  socialBanner: "/static/images7800413.jpeg",
   email: "eunchurn.park@gmail.com",
   github: "https://github.com/eunchurn",
   twitter: "https://twitter.com/eunchurn",
