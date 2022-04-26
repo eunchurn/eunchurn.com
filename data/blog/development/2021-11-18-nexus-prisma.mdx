@@ -1,0 +1,322 @@
+---
+date: 2021-11-18
+title: "nexus-prisma Model 만들기"
+draft: true
+summary: "`nexus-prisma-plugin` 을 nexus 팀에서 유지관리를 하지 못하고 Prisma 팀에서 진행하게 되었습니다."
+featured: /static/images/2021/11/nexus-prisma.png
+categories:
+  - development
+tags:
+  - development
+  - prisma
+  - nexus
+  - nexus GraphQL
+  - GraphQL
+---
+
+![nexus-prisma](/static/images/2021/11/nexus-prisma.png)
+
+# nexus-prisma Model 만들기
+
+## 시작하기전에...
+
+`nexus-prisma-plugin` 을 nexus 팀에서 유지관리를 하지 못하고 Prisma 팀에서 진행하게 되었습니다. [https://github.com/graphql-nexus/nexus-plugin-prisma/issues/1039](https://github.com/graphql-nexus/nexus-plugin-prisma/issues/1039) 아직은 초창기이지만, `nexus`에서 타입 이름을 `string` 으로 사용하는 방식에서 많이 진화되고 있습니다. 즉 Prisma 모델을 그대로 프로젝션 하여 옮겨 올 수 있도록 한 점이 꽤 맘에 들며, Prisma에 AST Node로 작성할 수 있는 description도 그대로 GraphQL description으로 projection 됩니다.
+
+[nexus-prisma: Official Prisma plugin for Nexus](https://nexus.prisma.io/)
+
+아직은 Early-preview의 모습이고 Production에서는 사용을 자제하라고 합니다. 하지만 모델 필드의 타입만 지정하거나 하는 경우나 직접 만들어낸 resolver를 사용하거나, 특별한 복잡한 타입을 사용하지 않는 한 Prisma 스키마를 그대로 GraphQL로 옮기는데엔 큰 지장이 없어보입니다.
+
+사실상 Nexus GraphQL을 위한 Prisma의 공식 플러그인이며, 기존 프로젝트는 추후 이 플러그인으로 마이그레이션을 해야할 것으로 보입니다.
+
+Nexus 프레임워크를 사용하는 가장 큰 이유는 일반적으로 GraphQL API를 만들 때 스키마를 만든 이후 리졸버를 따로 만들어줘야 하는 "스키마 리졸버 분리"로 인해 생산성이 매우 저하되기 때문입니다. 규모가 커진 경우 스키마를 찾아서 매칭하는 것도 복잡해지고 개별 필드의 relation들을 직접 한눈에 파악하기 매우 힘든 상태가 됩니다. 또한 TypeScript 사용자에게는 GraphQL 스키마 만큼이나 타입도 만들어주어야 합니다. 타입스크립트의 경우 `graphql-codegen`이 많이 해결해주지만, "스키마", "리졸버", "타입"을 모두 한곳에서 동시에 만들 수 있게하는 Nexus 프레임워크의 "Code-First" 철학이 생산성에 엄청난 도움을 주기 때문입니다.
+
+![diagram](/static/images/2021/11/diagram.png)
+
+1. 직접 혹은 스크립트(CI, programmatic, etc.) 실행 `$ prisma generate`.
+2. Prisma 제너레이터 시스템은 Prisma 스키마 파일을 읽습니다.
+3. Prisma 제너레이터 시스템은 Prisma 스키마의 구조화된 표현인 "DMMF"를 전달하여 Nexus Prisma 제너레이터를 실행합니다.
+4. Nexus Prisma 제너레이터는 있는 경우 Nexus Prisma 제너레이터 구성을 읽습니다.
+5. Nexus Prisma 제너레이터는 생성된 소스 코드를 작성합니다. 기본적으로 `node_modules`의 `nexus-prisma` 패키지 내의 특정한 위치에 있습니다. 제너레이터 옵션으로 이 위치를 구성할 수 있습니다.
+6. 코드에서 `nexus-prisma`를 `import` 할 때 생성된 타입을을 가져 옵니다.
+
+## CRUD model 을 Plain Nexus 함수로 마이그레이션 하기
+
+[Removing nexus-plugin-prisma from your project](https://nexusjs.org/docs/plugins/prisma/removing-the-nexus-plugin-prisma#migrating-from-tcrud-to-plain-nexus)
+
+요약하면 현재 작동중인 API의 Experimental CRUD를 Plain Nexus로 마이그레이션 하기는 거의 불가능해보입니다. Nexus-Prisma 공식 플러그인의 Long-term 로드맵 개발사항으로 기다려야할 것 같습니다.
+
+## `TestUser` 모델을 CRUD로 만들기
+
+추가되는 모델들은 `nexus-prisma` 를 사용해서 만들어 봅시다.
+
+현재 진행중인 스프린트 개발은 DB 통합되면서 Introspection된 Prisma 모델을 사용하게 될 예정입니다. 이때 단순히 `TestUser` 의 모델이 필요하지만, 이와 연관된 `Points` 모델도 사용하게 될 예정입니다.
+
+Prisma 스키마에는 `nexus-prisma` 제너레이터를 추가해주어야 합니다.
+
+```prisma
+generator nexusPrisma {
+  provider = "nexus-prisma"
+}
+```
+
+```ts
+/// 사용자 테이블
+model TestUser {
+  /// id
+  id                                Int                    @id @default(autoincrement())
+  createdAt                         DateTime               @default(now())
+  updatedAt                         DateTime               @updatedAt
+  /// 사용자 닉네임
+  nickname                          String                 @unique @default(cuid())
+  /// 사용자 이메일 (Unique)
+  email                             String                 @unique @db.VarChar(255)
+  /// 계정정보 (password, salt), will be deprecated
+  accountInfo                       Json                   @default("{}")
+  /// 사용자 비밀번호 Hash (accountInfo -> password)
+  password                          String?
+  /// 사용자 비밀번호 Salt (accountInfo -> salt)
+  salt                              String                 @default("")
+  /// 사용자 지역
+  cityId                            Int?
+  /// 사용자 결혼/미혼
+  isMarried                         Boolean?
+  /// 사용자 추천인 코드
+  referralCode                      String                 @unique @default(cuid())
+  /// 사용자 기기 ID
+  deviceId                          String?                @db.VarChar(100)
+  /// 사용자 포인트
+  point                             Int                    @default(0)
+  /// 사용자 피추천인
+  referrerId                        Int?
+  /// 사용자 마케팅 수신 동의 여부
+  isMarketing                       Boolean                @default(false)
+  /// 사용자 회원가입 타입
+  type                              Users_type?            @default(email)
+  /// 소셜로그인의 경우 accountId
+  accountId                         String?                @db.VarChar(200)
+  /// 사용자 상태 (정상, 휴면, 탈퇴등)
+  status                            Users_status           @default(general)
+  /// 탈퇴 시각
+  deletedAt                         DateTime?              @db.Timestamp(0)
+  /// 탈퇴 유형
+  deleteType                        Users_deleteType?
+  /// 탈퇴 사유
+  deleteDescription                 String?                @db.VarChar(200)
+  /// 사용자 지역
+  Cities                            Cities?                @relation(fields: [cityId], references: [id])
+  /// 추천인
+  Referrer                          CashUser?              @relation("UsersToUsers_referrerId", fields: [referrerId], references: [id])
+  /// 본인 인증 데이터
+  Identities                        Identities?            @relation(fields: [uniqueKey], references: [uniqueKey])
+  /// 사용자 유니크 키 (Unique)
+  uniqueKey                         String?                @unique
+  /// 1:1문의
+  Inquiries                         Inquiries[]
+  /// 푸시 알림
+  Notifications                     CashNotification[]
+  /// 적립한 포인트
+  PointActive                       PointActive[]
+  /// 포인트 타겟 유저 -> 포인트(?)
+  Points_Points_targetUserIdToUsers Points[]               @relation("Points_targetUserIdToUsers")
+  /// 포인트 유저ID -> 유저(?)
+  Points_Points_userIdToUsers       Points[]               @relation("Points_userIdToUsers")
+  /// 매장 리뷰
+  StoresReviews                     StoresReviews[]
+  /// 매장 방문한 유저(?)
+  StoresUsers                       StoresUsers[]
+  /// 오늘의 포인트
+  TodayPoints                       TodayPoints[]
+  /// 사용자 메모
+  UserMemos                         UserMemos[]
+  /// 피추천인 유저
+  other_Users                       CashUser[]             @relation("UsersToUsers_referrerId")
+  /// 사용자 이벤트
+  Users_Events                      Users_Events[]
+  /// 사용자 기프티콘
+  Users_Gifticons                   Users_Gifticons[]
+  /// 사용자 공지사항
+  Users_Notices                     Users_Notices[]
+  /// 사용자 푸시 알림과 사용자 연결
+  Users_Pushes                      Users_Pushes[]
+  /// 사용자 푸시알림 동의와 사용자 연결
+  Users_PushesTypes                 Users_PushesTypes[]
+  /// 사용자와 매장 연결
+  Users_Stores                      Users_Stores[]
+  /// 사용자 매장 미션 연결
+  Users_StoresMissions              Users_StoresMissions[]
+  /// 사용자 매장 설문조서 연결
+  Users_StoresSurvey                Users_StoresSurvey[]
+  /// 사용자 뽑기 당첨 연결
+  UsersDraw                         UsersDraw[]
+  /// 사용자 위치 연결(매장)
+  UsersLocations                    UsersLocations[]
+  /// 사용자 접속 로그
+  UsersLogs                         UsersLogs?
+  /// 사용자 랜덤박스 연결
+  UsersRandomBoxes                  UsersRandomBoxes[]
+  /// 사용자 룰렛 당첨 연결
+  UsersRoulette                     UsersRoulette[]
+  /// AD.Fi MAC 사용자 연결
+  UniqueUser                        UniqueRawUser[]
+  /// 사용자 선호 카테고리
+  UserCategories                    CashUserCategory[]
+  /// 유저 유입 경로
+  referral                          ServiceType            @default(CASH_FI)
+
+  @@index([cityId], name: "Users_Cities_id_fk")
+  @@index([referrerId], name: "Users_Users_id_fk")
+}
+```
+
+추가된 이후엔 Prisma 모델 타입을 Nexus 타입으로 직접 임포트해서 사용할 수 있습니다.
+
+```tsx
+import { TestUser } from "nexus-prisma";
+```
+
+`TestUser` 를 만들면 아래와 같습니다.
+
+- `TestUser.$name` 은 타입이름이 되고, `TestUser.$description` 은 Prisma 스키마에 있던 description을 projection 합니다.
+- `TestUser` 라는 넥서스 타입의 필드들은 각각 `name`, `type`, `resolve` 를 각각 가지고 있습니다. 따라서 Nexus-GraphQL 루틴대로 별개로 추가할 필요 없이 아래와 같이 `t.field()` 혹은 `t.list.field()`에 추가해주기만 하면 됩니다.
+- Relation model를 필터링을 하거나 Ordering을 하거나 Pagination, 날짜조건 필터등을 추가해야할 땐 아래와 같이 커스텀 리졸버를 만들어줍니다.
+
+```tsx
+import { intArg, nullable, objectType } from "nexus";
+import { TestUser } from "nexus-prisma";
+
+export const TestUserType = objectType({
+  name: TestUser.$name,
+  description: TestUser.$description,
+  definition(t) {
+    t.field(TestUser.id);
+    t.field(TestUser.createdAt);
+    t.field(TestUser.updatedAt);
+    t.field(TestUser.nickname);
+    t.field(TestUser.email);
+    t.field(TestUser.cityId);
+    t.field(TestUser.isMarried);
+    t.field(TestUser.referralCode);
+    t.field(TestUser.deviceId);
+    t.field(TestUser.point);
+    t.field(TestUser.referrerId);
+    t.field(TestUser.isMarketing);
+    t.field(TestUser.type);
+    t.field(TestUser.accountId);
+    t.field(TestUser.status);
+    t.field(TestUser.deletedAt);
+    t.field(TestUser.deleteType);
+    t.field({
+      name: TestUser.PointActive.name,
+      type: TestUser.PointActive.type,
+      args: { take: nullable(intArg()), skip: nullable(intArg()) },
+      async resolve({ id }, args, { prismaRO, replaceNullsWithUndefineds }) {
+        const { take, skip } = replaceNullsWithUndefineds(args);
+        const pointActive = await prismaRO.pointActive.findMany({
+          where: { userId: { equals: id } },
+          take,
+          skip,
+        });
+        return pointActive;
+      },
+    });
+    t.field(TestUser.Points_Points_targetUserIdToUsers);
+    t.field({
+      name: TestUser.Points_Points_userIdToUsers.name,
+      type: TestUser.Points_Points_userIdToUsers.type,
+      args: { take: nullable(intArg()), skip: nullable(intArg()) },
+      async resolve({ id }, args, { prismaRO, replaceNullsWithUndefineds }) {
+        const { take, skip } = replaceNullsWithUndefineds(args);
+        const point = await prismaRO.points.findMany({
+          where: { userId: { equals: id } },
+          take,
+          skip,
+        });
+        return point;
+      },
+    });
+  },
+});
+```
+
+여기서 `TestUser.Points_Points_userIdToUsers` 는 타입이 `Points` 입니다. 따라서 `Points` 넥서스 타입도 만들어주어야 합니다.
+
+## Prisma vs Nexus `args` Type
+
+경험해 보신분들은 아시겠지만, GraphQL은 `undefined`를 허용하지 않습니다. 반면에 Prisma는 `null`과 `undefined`는 별개로 취급하며 `null`을 값으로 취급합니다. 즉, GraphQL argument로 받은 인자는 `nullable`인 경우 `null`값이 오게되는데 이를 Prisma argument로 넘겨 보낼 땐 `undefined`로 변환해주어야 합니다.
+
+그리하여 `Context`에 `replaceNullsWithUndefineds` 라는 함수를 포함시켜주었습니다. 그 반대인 `replaceUndefinedWithNulls` 도 포함되어있습니다. 이는 반대로 Prisma로 받은 DB데이터의 타입을 GraphQL API로 넘겨줄 때 사용할 수 있습니다.
+
+<aside>
+⚠️ Update: Prisma 업데이트 되면서 `null` 형태도 받습니다.
+
+</aside>
+
+### `replaceNullsWithUndefineds`
+
+이 함수는 객체가 가지고 있는 모든 `null` 성분을 `undefined` 로 교체해 줍니다.
+
+타입은 아래와 같이 recursive한 Conditional Type을 사용하고 있습니다.
+
+```tsx
+type RecursivelyReplaceNullWithUndefined<T> = T extends null
+  ? undefined
+  : T extends Record<string, unknown>
+  ? {
+      [K in keyof T]: T[K] extends (infer U)[]
+        ? RecursivelyReplaceNullWithUndefined<U>[]
+        : RecursivelyReplaceNullWithUndefined<T[K]>;
+    }
+  : T;
+```
+
+함수도 마찬가지로 recursive한 함수로 만들었습니다.
+
+```tsx
+function replaceNullsWithUndefineds<T>(obj: T): RecursivelyReplaceNullWithUndefined<T> {
+  const newObj: any = {};
+  Object.keys(obj).forEach((k) => {
+    const value: any = (obj as any)[k];
+    newObj[k as keyof T] =
+      value === null
+        ? undefined
+        : value && typeof value === "object" && value.__proto__.constructor === Object
+        ? replaceNullsWithUndefineds(value)
+        : value;
+  });
+  return newObj;
+}
+```
+
+### `replaceUndefinedsWithNulls`
+
+이 함수는 객체가 가지고 있는 모든 `undefined` 성분을 `null` 로 교체해 줍니다.
+
+```tsx
+type RecursivelyReplaceUndefinedWithNull<T> = T extends undefined
+  ? null
+  : T extends Record<string, unknown>
+  ? {
+      [K in keyof T]-?: T[K] extends (infer U)[]
+        ? RecursivelyReplaceUndefinedWithNull<U>[]
+        : RecursivelyReplaceUndefinedWithNull<T[K]>;
+    }
+  : T;
+```
+
+함수도 마찬가지로 recursive 함수로 제작되었습니다.
+
+```tsx
+function replaceUndefinedsWithNulls<T>(obj: T): RecursivelyReplaceUndefinedWithNull<T> {
+  const newObj: any = {};
+  Object.keys(obj).forEach((k) => {
+    const value: any = (obj as any)[k];
+    newObj[k as keyof T] =
+      typeof value === "undefined"
+        ? null
+        : value && typeof value === "object" && value.__proto__.constructor === Object
+        ? replaceUndefinedsWithNulls(value)
+        : value;
+  });
+  return newObj;
+}
+```

@@ -48,8 +48,9 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                           <Image
                             src={featured}
                             alt="slug"
-                            width="100%"
-                            height="100%"
+                            width={100}
+                            height={100}
+                            objectFit="cover"
                             className="rounded-full"
                           />
                         )}
@@ -88,12 +89,13 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                         </div>
                       </div>
                       {featured && (
-                        <div className="min-w-1/4 pt-8 pl-8 xl:invisible xl:w-0">
+                        <div className="aspect-w-1 min-w-1/4 pt-8 pl-8 xl:invisible xl:w-0">
                           <Image
                             src={featured}
                             alt="slug"
-                            width="100%"
-                            height="100%"
+                            width={100}
+                            height={100}
+                            objectFit="cover"
                             className="rounded-full"
                           />
                         </div>
