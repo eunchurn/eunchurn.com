@@ -3,6 +3,10 @@
 Heavily inspired by [Tailwind Nextjs Starter Blog](https://github.com/timlrx/tailwind-nextjs-starter-blog)
 
 ```
+const a: number = 1
+```
+
+```
  @fontsource/inter                     4.5.2  →     4.5.7
  @mailchimp/mailchimp_marketing      ^3.0.58  →   ^3.0.74
  @tailwindcss/forms                   ^0.4.0  →    ^0.5.0

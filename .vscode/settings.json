@@ -11,13 +11,21 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.bracketPairColorization.enabled": true
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[graphql]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.wordBasedSuggestions": true
+  },
+  "workbench.editor.languageDetectionHints": {
+    "untitledEditors": true,
+    "notebookEditors": true
   },
   "files.exclude": {
     "**/tmp/**": true,
@@ -53,5 +61,6 @@
     "typescript",
     "typescriptreact",
     "yml"
-  ]
+  ],
+  "explorer.fileNesting.enabled": true
 }

@@ -1,7 +1,7 @@
 ---
 date: 2021-11-18
 title: "nexus-prisma Model 만들기"
-draft: true
+draft: false
 summary: "`nexus-prisma-plugin` 을 nexus 팀에서 유지관리를 하지 못하고 Prisma 팀에서 진행하게 되었습니다."
 featured: /static/images/2021/11/nexus-prisma.png
 categories:
@@ -71,100 +71,15 @@ model TestUser {
   /// 사용자 이메일 (Unique)
   email                             String                 @unique @db.VarChar(255)
   /// 계정정보 (password, salt), will be deprecated
-  accountInfo                       Json                   @default("{}")
-  /// 사용자 비밀번호 Hash (accountInfo -> password)
   password                          String?
   /// 사용자 비밀번호 Salt (accountInfo -> salt)
   salt                              String                 @default("")
-  /// 사용자 지역
-  cityId                            Int?
-  /// 사용자 결혼/미혼
-  isMarried                         Boolean?
-  /// 사용자 추천인 코드
-  referralCode                      String                 @unique @default(cuid())
-  /// 사용자 기기 ID
-  deviceId                          String?                @db.VarChar(100)
-  /// 사용자 포인트
-  point                             Int                    @default(0)
-  /// 사용자 피추천인
-  referrerId                        Int?
-  /// 사용자 마케팅 수신 동의 여부
-  isMarketing                       Boolean                @default(false)
-  /// 사용자 회원가입 타입
-  type                              Users_type?            @default(email)
-  /// 소셜로그인의 경우 accountId
-  accountId                         String?                @db.VarChar(200)
-  /// 사용자 상태 (정상, 휴면, 탈퇴등)
-  status                            Users_status           @default(general)
-  /// 탈퇴 시각
-  deletedAt                         DateTime?              @db.Timestamp(0)
-  /// 탈퇴 유형
-  deleteType                        Users_deleteType?
-  /// 탈퇴 사유
-  deleteDescription                 String?                @db.VarChar(200)
-  /// 사용자 지역
-  Cities                            Cities?                @relation(fields: [cityId], references: [id])
-  /// 추천인
-  Referrer                          CashUser?              @relation("UsersToUsers_referrerId", fields: [referrerId], references: [id])
-  /// 본인 인증 데이터
-  Identities                        Identities?            @relation(fields: [uniqueKey], references: [uniqueKey])
-  /// 사용자 유니크 키 (Unique)
-  uniqueKey                         String?                @unique
-  /// 1:1문의
-  Inquiries                         Inquiries[]
-  /// 푸시 알림
-  Notifications                     CashNotification[]
   /// 적립한 포인트
   PointActive                       PointActive[]
-  /// 포인트 타겟 유저 -> 포인트(?)
+  /// 포인트 타겟 유저 -> 포인트
   Points_Points_targetUserIdToUsers Points[]               @relation("Points_targetUserIdToUsers")
-  /// 포인트 유저ID -> 유저(?)
+  /// 포인트 유저ID -> 유저
   Points_Points_userIdToUsers       Points[]               @relation("Points_userIdToUsers")
-  /// 매장 리뷰
-  StoresReviews                     StoresReviews[]
-  /// 매장 방문한 유저(?)
-  StoresUsers                       StoresUsers[]
-  /// 오늘의 포인트
-  TodayPoints                       TodayPoints[]
-  /// 사용자 메모
-  UserMemos                         UserMemos[]
-  /// 피추천인 유저
-  other_Users                       CashUser[]             @relation("UsersToUsers_referrerId")
-  /// 사용자 이벤트
-  Users_Events                      Users_Events[]
-  /// 사용자 기프티콘
-  Users_Gifticons                   Users_Gifticons[]
-  /// 사용자 공지사항
-  Users_Notices                     Users_Notices[]
-  /// 사용자 푸시 알림과 사용자 연결
-  Users_Pushes                      Users_Pushes[]
-  /// 사용자 푸시알림 동의와 사용자 연결
-  Users_PushesTypes                 Users_PushesTypes[]
-  /// 사용자와 매장 연결
-  Users_Stores                      Users_Stores[]
-  /// 사용자 매장 미션 연결
-  Users_StoresMissions              Users_StoresMissions[]
-  /// 사용자 매장 설문조서 연결
-  Users_StoresSurvey                Users_StoresSurvey[]
-  /// 사용자 뽑기 당첨 연결
-  UsersDraw                         UsersDraw[]
-  /// 사용자 위치 연결(매장)
-  UsersLocations                    UsersLocations[]
-  /// 사용자 접속 로그
-  UsersLogs                         UsersLogs?
-  /// 사용자 랜덤박스 연결
-  UsersRandomBoxes                  UsersRandomBoxes[]
-  /// 사용자 룰렛 당첨 연결
-  UsersRoulette                     UsersRoulette[]
-  /// AD.Fi MAC 사용자 연결
-  UniqueUser                        UniqueRawUser[]
-  /// 사용자 선호 카테고리
-  UserCategories                    CashUserCategory[]
-  /// 유저 유입 경로
-  referral                          ServiceType            @default(CASH_FI)
-
-  @@index([cityId], name: "Users_Cities_id_fk")
-  @@index([referrerId], name: "Users_Users_id_fk")
 }
 ```
 
@@ -193,18 +108,6 @@ export const TestUserType = objectType({
     t.field(TestUser.updatedAt);
     t.field(TestUser.nickname);
     t.field(TestUser.email);
-    t.field(TestUser.cityId);
-    t.field(TestUser.isMarried);
-    t.field(TestUser.referralCode);
-    t.field(TestUser.deviceId);
-    t.field(TestUser.point);
-    t.field(TestUser.referrerId);
-    t.field(TestUser.isMarketing);
-    t.field(TestUser.type);
-    t.field(TestUser.accountId);
-    t.field(TestUser.status);
-    t.field(TestUser.deletedAt);
-    t.field(TestUser.deleteType);
     t.field({
       name: TestUser.PointActive.name,
       type: TestUser.PointActive.type,
