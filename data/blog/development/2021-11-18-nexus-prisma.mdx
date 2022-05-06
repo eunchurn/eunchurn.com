@@ -70,7 +70,7 @@ model TestUser {
   nickname                          String                 @unique @default(cuid())
   /// 사용자 이메일 (Unique)
   email                             String                 @unique @db.VarChar(255)
-  /// 계정정보 (password, salt), will be deprecated
+  /// 사용자 Password
   password                          String?
   /// 사용자 비밀번호 Salt (accountInfo -> salt)
   salt                              String                 @default("")
