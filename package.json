@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@fontsource/inter": "4.5.7",
+    "@fontsource/inter": "4.5.11",
     "@mailchimp/mailchimp_marketing": "3.0.74",
     "@tailwindcss/forms": "0.5.2",
     "@tailwindcss/typography": "0.5.2",
