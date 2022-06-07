@@ -28,6 +28,11 @@ class MyDocument extends Document {
             type="text/css"
             href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css"
           ></link>
+          <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.rawgit.com/innks/NanumSquareRound/master/nanumsquareround.min.css"
+          ></link>
           <link rel="preconnect" href="https://fonts.googleapis.com"></link>
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true"></link>
           <link

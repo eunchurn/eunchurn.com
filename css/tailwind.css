@@ -2,21 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-/* @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap");
 @font-face {
   font-family: "NanumSquare";
   src: url("https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css");
+  unicode-range: U+AC00-D7A3;
   font-style: normal;
 }
 @font-face {
-  font-family: "NanumSquare";
+  font-family: "Open Sans";
   src: url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
   unicode-range: U+0020-007E;
   font-style: normal;
-} */
+}
+@font-face {
+  font-family: "NotoSans";
+  src: url("https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,700");
+  unicode-range: U+4E00-9FEA, U+3400-4DB5, U+F900-FA6D;
+  font-style: normal;
+}
 
 body {
-  font-family: "NanumSquare", sans-serif;
+  font-family: "Open Sans", "NotoSans", "NanumSquare", sans-serif;
 }
 
 .task-list-item::before {
