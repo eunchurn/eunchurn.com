@@ -102,8 +102,9 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
                         <Image
                           src={featured}
                           alt="slug"
-                          width="100%"
-                          height="100%"
+                          width={100}
+                          height={100}
+                          objectFit="cover"
                           className="rounded-full"
                         />
                       </div>
