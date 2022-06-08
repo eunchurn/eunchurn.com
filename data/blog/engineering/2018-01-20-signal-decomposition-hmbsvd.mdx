@@ -17,7 +17,7 @@ bibliography: svd.bib
 
 ![result](/static/images/2018/01/hmbsvd.png)
 
-[MOT x EUNCHURN - 매일 그대와 작업일기](https://eunchurn.com/blog/2011-04-02-production-note-of-music-for-mvio-aw-collection-20112012/#beats)에서 언급했던 비트 빌드업(그다지 좋은 결과는 아니었지만)에 대해 여기서 이론적으로 설명하고 다음 포스트에 프로그램에 대하여 설명하고 공유하려고 한다. 보통 이러한 신호처리기법은 기계 진동 가속도나 전기신호의 신호처리에 쓰이겠지만, 여기 블로그에서는 음원에서 신호를 분리해보고 스테레오라이징 그리고 그 의미를 고찰해보려고 한다.
+[MOT x EUNCHURN - 매일 그대와 작업일기](../note/2011-04-02-production-note-of-music-for-mvio-aw-collection-20112012#beats)에서 언급했던 비트 빌드업(그다지 좋은 결과는 아니었지만)에 대해 여기서 이론적으로 설명하고 다음 포스트에 프로그램에 대하여 설명하고 공유하려고 한다. 보통 이러한 신호처리기법은 기계 진동 가속도나 전기신호의 신호처리에 쓰이겠지만, 여기 블로그에서는 음원에서 신호를 분리해보고 스테레오라이징 그리고 그 의미를 고찰해보려고 한다.
 
 특이치분해(singular value decomposition, SVD)의 정의는 다음과 같은 $\mathrm{A} \in \mathrm{R}^{m\times x}$인 행렬을 2개의 직교행렬 $\mathrm{U} = \left[ \mathrm{u}_ {1}, \mathrm{u}_ {2}, ..., \mathrm{u}_ {m}\right] \in \mathrm{R}^{m \times m}$과 $\mathrm{V} = \left[ \mathrm{v}_ {1}, \mathrm{v}_ {2}, ..., \mathrm{v}_ {n}\right] \in \mathrm{R}^{n \times n}$로 아래의 조건식을 만족하면서 분리한다.[@golub2012matrix]
 
