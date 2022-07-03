@@ -230,15 +230,15 @@ function getBaseModelResponse(data: listBaseModelsQuery) {
 
 #### Cons
 
-- Slow SSR Rendering: https://github.com/aws-amplify/amplify-hosting/issues/2530
+- [Slow SSR Rendering](https://github.com/aws-amplify/amplify-hosting/issues/2530)
 - Pagination: [cursor 방식(previous, next)](https://docs.amplify.aws/lib/graphqlapi/query-data/q/platform/js/#paginating-queries)
   - offset 방식: total count, take, skip 방식이 필요한 경우 방법이 없다.
 - Custom Resolvers
   - `schema.graphql` 의 복잡성
   - `CustomResources.json`을 직접 수정해야 함 without TypeScript => 휴먼 에러 가능성이 있다.
-  - 복잡한 Custom resolver가 필요한 겨우 Apache VTL 학습 필요. (https://velocity.apache.org/engine/1.7/user-guide.html)
-  - Resolver mapping 방식: (https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html)
-  - `@function` directive 와 Lambda로 해결 but Lambda TypeScript (https://docs.amplify.aws/cli/function/build-options/) 하지만 타입은 API와 function 사이 공유가 어려워 보인다.
+  - 복잡한 Custom resolver가 필요한 겨우 [Apache VTL](https://velocity.apache.org/engine/1.7/user-guide.html) 학습 필요.
+  - [Resolver mapping 방식](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html)
+  - `@function` directive 와 Lambda로 해결 but [Lambda TypeScript](https://docs.amplify.aws/cli/function/build-options/) 하지만 타입은 API와 function 사이 공유가 어려워 보인다.
   - TypeScript: `ctx` type이 없기 때문에 한계점이 있다.
   - Lambda resolver 설정에서 TypeScript 사용을 위해 변경해야할 포인트는 root의 `package.json`에 `amplify:{function}` 스크립트 추가, 함수의 `tsconfig.json` 설정, 그리고 mock을 위한 `event.json`값을 만들어야 함. but it's not type-safe.
 
