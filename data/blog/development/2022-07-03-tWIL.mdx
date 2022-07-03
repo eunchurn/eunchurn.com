@@ -1,0 +1,274 @@
+---
+date: "2022-07-03"
+title: "tWIL 2022.06 4주차"
+draft: false
+summary: "This week I learned"
+featured: /static/images/2022/06/tWIL.jpg
+categories:
+  - development
+tags:
+  - development
+---
+
+매주 지킬 수 있을지 모르겠다. 그래도 TIL 보다는 일주일을 정리하는 마음에 시작해보기로 마음을 먹었다.
+
+## Infrastructure
+
+일단 나는 벤더락인(Vendor-lock-in)을 좋아하지 않는다(이미 현실세계에선 Apple 락인이 되어있긴 하지만...). 인프라 구성을 고려했을 때 벤더락인이 되지 않는 최고 한계점은 Kubernetes라고 생각한다. 어떤 베어메탈 서버에서도 운용이 가능한 오픈소스까지가 벤더락인의 한계인 것 같다. 하지만 개발자들은 어쩔 수 없이 벤더락인이 될 수 밖에 없는 것 같다. 어떻게 보면 벤더지식은 OS를 배우는 것과 같은 개발자에겐 부차적인 지식일 수 밖에 없는데, 이 또한 모르면 안되는 것들이기도 한 것 같다. 예를들어 S3를 생각하지 않고 파일전송, 프리사인드URL, ACL이 적용되는 서버 운영 상상하기 어렵다. Cognito 없이 개발자에게 인증서버를 직접 구성하라고 하는 것도 불안할 것 같다. 아니 직접 구성할 줄 안다고해도 이런 기능을 자기 손으로 직접하는 시대는 지나갔다고 생각한다. 그렇다고해서 어디까지 개발자에게 벤더지식을 익혀야한다고 정의할지 고민이다. 상황에 따라 다르다보니 어떤 회사가 어떤 인프라 구성을 채택하고 있느냐에 따라 많이 달라질 것 같다.
+
+### IaC (Infrastructure as Code)
+
+Learn why "infrastructure as code" is the answer to managing **large-scale**, **distributed systems**, **cloud-native applications**, and **service-based architectures**. [링크](https://www.hashicorp.com/resources/what-is-infrastructure-as-code)
+
+- Chef
+- Puppet
+- Red Hat Ansible Automation Platform
+- Saltstack
+- Terraform
+- AWS CloudFormation
+
+오래전 부터 베어메탈 서버든 EC2 인스턴스이든 Docker 이미지를 만들고 컨테이너 기반 서버를 운영했었다. k8s가 나오기전까지는 난(아니 관심을 주지 않았을 수도...) docker compose를 사용하거나 swarm으로 컨테이너를 운용했지만 k8s가 [클라우드계의 리눅스(?)](https://subicura.com/2019/05/19/kubernetes-basic-1.html)처럼 어떤 벤더에서든 관리형서비스 까지 평정함으로 원픽으로 군림하게 되어버렸다. 따라서 k8s로 DevOps 배울 필요는 있지만, 한번 따라하기를 해보고나서 왜 지금까지 swarm모드로 service를 docker-compose로 만들려고 했는지 나를 되돌아 봤다.
+
+IaC 진영도 많이 발전중인 것 같다. 특히 하시코프 Nomad가 k8s에 밀린 이후(인지는 모르겠지만) Terraform CLI를 AWS는 CloudFormation과 Copilot CLI를 만들어내고 여기에서도 선택을 강요하고 있다. 맞다 AWS 클라우드를 마우스로 여기저기 텍스트 에디터로 Role과 정책을 만들어내기엔 여간 불편한게 아니고, 이걸 관리하기도 힘든데 AWS CLI로 태그 형태로 관리하자니 숨막힐 것 같은데 Copilot은 매우 좋아보이지만, 아직 지원되지 않는 서비스(Lambda, Cognito...)가 많은 것 같다. Copilot이 직접 VPC만들고 ECS, RDS까지 관리해주는 것은 좋은데 다른 서비스도 많이 지원했으면 하는 바람이 있다. Terraform CLI는 잠시 써보고 왜 docker-compose는 로컬 프로젝트에 적합했었구나 싶을 정도로 매우 편해보였다. 심지어 Terraform 으로 k8s까지 IaC가 가능할 것 같고 Custom registry도 많이 존재하는 것 같다.
+
+## Severless
+
+서버리스도 벤더락인을 피하려면, [serverless](https://www.serverless.com/)프레임워크가 적절해 보이지만, AWS Lambda를 쓰면서 벤더락을 피하려고 하는것이 좀 딜레마인것 같기도 하다. 하지만 이 `serverless`는 어떤 클라우드 벤더에서든 사용할 수 있으니... 안심해봐야, 각 클라우드 벤더마다 yml 파일 구성이 다르다 보니 큰 의미는 없는 것 같다. 사실상 서버를 벤더에 관리를 맡겼으니, 엔드포인트가 장애를 대처를 잘하거나 스케일링 잘되고 메트릭을 잘 볼 수 있으면 되는 것 같다.
+
+### AWS Amplify
+
+서버리스 진영에서는 Amplify가 매우 좋아보인다. Lambda 함수, Lambda layer, Cognito, DynamoDB, API Gateway, AppSync 등 Amplify 스튜디오를 운영하고, 여러 환경 구성을 지원하는 덕에 Dev -> Stage -> Prod 배포(Blue green, Canary)도 가능한 것 같다. 특히 Amplify UI는 [React](https://ui.docs.amplify.aws/?platform=react), Next, React Native, Angular, Vue, [Flutter](https://pub.dev/packages/amplify_authenticator)(는 Cognito 인증 컴포넌트), Ionic 에서 바로 쓸 수 있는 컴포넌트와 데이터까지 연결한 Connected Component를 만들어준다. ~~점점 더 발전하는 DevX. 벤더락인을 향해...~~.
+
+## DevX
+
+내가 DevX(Developmer experience)을 보는 시각은 생산성에 중심을 둔다. 심지어 복잡도 높은 모놀리식 아키텍쳐라고 해도 비즈니스 로직이 분리가 잘 되어있고 생산성과 안정성을 높힐 수 있는 프레임워크라면 DevX가 높다고 판단한다. 대표적으로 Type-safe ORM인 Prisma나 GraphQL에서는 Code-first GraphQL schema인 Nexus, TypeGraphQL, REST에서는 OAS3(Open API Specification v3), 그리고 클라이언트에서는 GraphQL Code Generator, opeanapi-generator. 내가 생각하는 모든 서비스의 올바른 방법이란, 데이터베이스 스키마의 타입을 가진 데이터가 클라이언트까지 무사히 Type-safe 하게 전달되는 경로(pipeline)일 것이며, 클라이언트는 API 혹은 DB 스키마의 변경되는 상황을 백엔드 개발자에게 물어보지 않더라도 코드에서 알 수 있어야 한다. 여기서 성능 최적화와 스케일링 자유도가 높은 서비스가 아닐까 생각한다. 서비스에서 (성능을 제외한)타입과 관련된 오류가 없어야 하며, 클라이언트 개발에서 백엔드의 스키마를 모두 알고 있어야 한다. 그래야 복잡도가 높더라도 클라이언트 개발자는 시행착오를 많이 줄일 수 있다고 생각한다. 결국 JavaScript 진영에서 내가 생각하는 최고의 DevX툴은 TypeScript인 것이다.
+
+MSA(Microservice Architecture)를 고려한다면 마이크로 서비스들은 각자의 API 스키마를 보유하며, 각자의 독립적인 DB를 구축하는 방식으로 느슨한 연결을 하는 추세인데 이 부분은 더 공부해보고 DevX 관점에서 고민해볼 필요가 있을 것 같다. [참고](https://stackoverflow.com/questions/25600580/sharing-code-and-schema-between-microservices)
+
+### DevX 관점에서 Amplify
+
+MSA에서 마이크로 서비스들을 배포하고 관리하기 좋은 AWS 에서 집중 투자하고 있는 Amplify를 사용해보았다.
+Amplify 프로젝트 셋팅하는 방법은 [Amplify Getting started](https://docs.amplify.aws/start/)문서를 참고. GraphQL API로 DynamoDB를 사용해보았다.
+
+- `{project-root}/amplify/backend/api/{project-name}`에 `schema.graphql`에서 스키마를 정의한다. `@model` directive를 사용하여 DB 스키마를 정의한다. 관계형 필드의 경우 `@belongsTo`를 사용하고, 1:N 관계에서는 `@hasMany`, Lambda 함수를 사용하는 경우 `@function` directive를 스미카에 정의한다.
+
+```graphql
+input AMPLIFY {
+  globalAuthRule: AuthRule = { allow: public }
+} # FOR TESTING ONLY!
+type UpperModel @model {
+  id: ID!
+  modelName: String!
+  description: String
+  baseModel: BaseModel @belongsTo
+}
+
+type BaseModel @model {
+  id: ID!
+  modelName: String!
+  description: String
+  upperModel: [UpperModel] @hasMany
+}
+
+type UpperModelConnection {
+  item: [UpperModel]
+  nextToken: String
+}
+
+type Post {
+  id: Int
+  title: String
+  comments: [Comment]
+}
+
+type Comment {
+  postId: Int!
+  content: String
+}
+
+type Query {
+  getUpperModelFromBaseModel(baseId: ID!, limit: Int, nextToken: String): UpperModelConnection
+  posts: [Post] @function(name: "posts-${env}")
+  post(id: Int!): Post @function(name: "posts-${env}")
+}
+```
+
+- 여기의 `schema.graphql`은 full schema를 가지고 있지 않고, 개발자가 선언한 스키마(DB Model, function)만 있다. 각종 Input object type은 full schema를 amplify 환경에서 다운로드 받아야 한다.
+- AWS Profile `default`, AppSync API 이름 `appsync-api-name`을 통해 `src/graphql` 폴더로 스키마를 다운로드 받으려면 아래와 같은 방법이 있다.
+
+```sh
+aws appsync get-introspection-schema --api-id={appsync-api-name} --format=JSON src/graphql/schema.json --profile=default
+```
+
+- SDL로 받으면, 우리가 정의한 스키마만 있기 때문에, `JSON`포멧으로 받아야 한다.
+- amplify codegen은 document(`*.graphql`)까지 모두 조사해서 TypeScript Type을 만들어주지 않는다. `depth`도 적용되지 않는다. 결국 `@model`로 선언한 DB 모델의 타입밖에 없다는 것이 좀 아쉽다. 따라서 클라이언트는 `graphql-codegen`이라는 라이브러리를 이용하기로 한다.
+- 하지만 앞서 받은 full schema는 JSON 포멧이다. `graphql-codegen`은 `JSON` 스키마를 못읽는다(내가 못찾았을 가능성도 있지만...) 여기서 `graphql-json-to-sdl`를 설치하고 아래와 같이 한번 더 변환 시켜주어야 한다. (이부분은 자동화하면 좋다.)
+
+```sh
+graphql-json-to-sdl ./src/graphql/schema.json ./src/graphql/schema.graphql
+```
+
+- 이제 `graphql-codegen`을 이용하여 우리가 사용하고자 하는 GraphQL 오퍼레이션에 대한 타입을 만들어본다.
+- `codegen.yml`은 다음과 같다.
+
+```yml
+overwrite: true
+schema: src/graphql/schema.json
+documents:
+  - pages/**/*.graphql
+generates:
+  ./src/Types/index.ts:
+    hooks:
+      afterOneFileWrite:
+        - prettier --write
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-resolvers
+      - typescript-document-nodes
+    config:
+      declarationKind:
+        type: "interface"
+        input: "interface"
+        maybeValue: T
+      namingConvention: keep
+      skipTypename: true
+      documentMode: string
+      allowParentTypeOverride: true
+      useIndexSignature: true
+      contextType: ./context#ModifiedContext
+      fieldContextTypes:
+        - Post.comments#./context#PostFieldContext
+```
+
+- 필요한 패키지는 아래와 같이 설치
+
+```sh
+yarn add -D @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-document-nodes @graphql-codegen/typescript-operations @graphql-codegen/typescript-resolvers @graphql-codegen/typed-document-node
+```
+
+- 설명하면, Nextjs의 경우 `pages/**/*.graphql`를 사용하는데 필요한 모든 타입을 `src/Types/index.ts`에 자동 생성한다.
+- `afterOneFileWrite`는 자동 생성한 타입의 코드 스타일링을 고쳐준다.
+- `contextType`은 `./context`위치에 있는 `ModifiedContext`라는 이름으로 Named export 된 타입을 사용하여 자동 생성타입에 포함시켜 준다.
+- `fieldContextTypes`은 Lambda 함수의 `context`에 Named export된 `PostFieldContext`라는 개발자가 정의한 타입을 자동 생성타입에 포함시켜 준다.
+- `package.json`에 `generate`라는 스크립트를 추가해준다. `"generate": "graphql-codegen"`
+- `yarn generate`를 수행하면, 타입들이 만들어진다.
+- Nextjs에 컴포넌트를 생성하려고 한다. 서버에서 받은 `BaseModel`이란 DB Model 데이터를 연결하기 위해 우선 타입을 불러와 보자
+
+```typescript
+import type { GetServerSidePropsContext } from "next";
+import { Amplify, withSSRContext } from "aws-amplify";
+import { listBaseModelsQuery, listBaseModels } from "../../src/Types";
+
+Amplify.configure({ ...awsExports, ssr: true });
+
+// getServerSideProps 에서 쓸 타입
+type GetBaseModelQueryResponse = {
+  data: listBaseModelsQuery;
+};
+```
+
+- 이제 Nextjs에서 쓸 `getServerSideProps`를 만들어준다면, 아래와 같다.
+
+```typescript
+type GetBaseModelResponse = ReturnType<typeof getBaseModelResponse>;
+
+// Server PropType
+export type PropType = { data: GetBaseModelResponse };
+
+export async function getServerSideProps({ req }: GetServerSidePropsContext) {
+  const SSR = withSSRContext({ req });
+  const response = (await SSR.API.graphql({
+    query: listBaseModels,
+  })) as GetBaseModelQueryResponse;
+  const data = getBaseModelResponse(response.data);
+  return { props: { data } };
+}
+```
+
+- `getBaseModelResponse`라는 함수를 만드는 방식에 예외처리를 추가해 주면,
+
+```typescript
+function getBaseModelResponse(data: listBaseModelsQuery) {
+  const { listBaseModels } = data;
+  if (isNull(listBaseModels) || isUndefined(listBaseModels)) return defaultData;
+  const { items } = listBaseModels;
+  if (isEmpty(items)) return defaultData;
+  const result = compact(
+    items.map((item) => {
+      if (isNull(item)) return null;
+      const { id, modelName, createdAt, updatedAt, upperModel } = item;
+      if (!upperModel) {
+        return { id, modelName, createdAt, updatedAt, upperModel: null };
+      }
+      const { items } = upperModel;
+      if (isEmpty(items)) return null;
+      const upperResult = compact(
+        items.map((item) => {
+          if (!item) return null;
+          const { id, modelName, createdAt, updatedAt } = item;
+          return { id, modelName, createdAt, updatedAt };
+        })
+      );
+      return { id, modelName, createdAt, updatedAt, upperModel: upperResult };
+    })
+  );
+  return result;
+}
+```
+
+- 우리가 쓸 컴포넌트에 예외처리들이 적용된 컨테이너 컴포넌트를 위한 `getServerSideProps`를 얻을 수 있다. 이 후 프리젠터 컴포넌트 개발에서는 데이터 신경쓸 필요가 없다. 그렇다. 좀 복잡해진다.
+- 그리고 known issue가 있다. `getServerSideProps`는 지연이 꽤 큰 편이다. [Slow SSR Rendering](https://github.com/aws-amplify/amplify-hosting/issues/2530) 따라서 Amplify 에서 Nextjs는 추천하지 않겠다.
+- React 프로젝트를 한다면 Apollo Client를 사용하여, `hooks`(`useQuery`, `useMutation`)까지 제너레이션 하는 편이 좋겠다.
+
+#### Pros
+
+- 초기 ProtoType 개발에서는 AWS 인프라를 사용하여 금방 프로젝트를 진행할 수 있을 것 같다.
+- DB 스키마 개발 및 설정 같은거 안해도 된다.
+- CloudFormation 설정이 자동화 되어 DB, Cognito, S3, Lambda 설정이 편하다.
+- 더 있나...
+
+#### Cons
+
+- Slow SSR Rendering: https://github.com/aws-amplify/amplify-hosting/issues/2530
+- Pagination: [cursor 방식(previous, next)](https://docs.amplify.aws/lib/graphqlapi/query-data/q/platform/js/#paginating-queries)
+  - offset 방식: total count, take, skip 방식이 필요한 경우 방법이 없다.
+- Custom Resolvers
+  - `schema.graphql` 의 복잡성
+  - `CustomResources.json`을 직접 수정해야 함 without TypeScript => 휴먼 에러 가능성이 있다.
+  - 복잡한 Custom resolver가 필요한 겨우 Apache VTL 학습 필요. (https://velocity.apache.org/engine/1.7/user-guide.html)
+  - Resolver mapping 방식: (https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html)
+  - `@function` directive 와 Lambda로 해결 but Lambda TypeScript (https://docs.amplify.aws/cli/function/build-options/) 하지만 타입은 API와 function 사이 공유가 어려워 보인다.
+  - TypeScript: `ctx` type이 없기 때문에 한계점이 있다.
+  - Lambda resolver 설정에서 TypeScript 사용을 위해 변경해야할 포인트는 root의 `package.json`에 `amplify:{function}` 스크립트 추가, 함수의 `tsconfig.json` 설정, 그리고 mock을 위한 `event.json`값을 만들어야 함. but it's not type-safe.
+
+#### 결론
+
+- DevX 측면에서는 초기에는 좋은 것 같아서 빠져들었다가 나중에 헤어나오지 힘들지 않을까... (프로토타입은 프로토타입에서 끝나야 한다.)
+- 앞서 말한 DevX 관점에서 가장 중요한 툴인 TypeScript 사용이 제한적이라 규모가 커지만 API 에서는 쓰기 어려울 것 같다.
+- 그렇다고 쓰면 안된다는 뜻은 아니고, Lambda 함수 TypeScript 설정만 잘하면, Lambda 함수들을 모노리포로 관리하기 쉬울 것 같다(`serverless`가 있긴 하지만, 인프라를 자동으로 구성하여 CloudFormation을 직접 설정하지 않아도 되는 것은 Amplify의 막강한 점인것 같다.)
+- Amplify만을 사용해서 인프라를 구성하기에는 넘어야 할 산이 아직 많아 보인다.
+
+#### Appendix: Amplify에서 Lambda함수의 TypeScript 설정하는 방법
+
+- `{project-root}/amplify/backend/function/{function-name}/src`가 `outDir`이 되도록 `tsconfig.json`을 설정하고, 프로젝트는 `{project-root}/amplify/backend/function/{function-name}/lib`가 Lambda 함수 TypeScript 프로젝트가 되도록 한다.
+
+```json
+{
+  "compilerOption": {
+    "outDir": "../src"
+  }
+}
+```
+
+- `lib`의 이름을 변경해도 상관없다. amplify로 `push`할 때 build 되도록 설정해야 한다. 이를 위해서 `{project-root}`의 `package.json`에 스크립트를 추가해야한다.
+
+```json
+{
+  "scripts": {
+    "amplify:{function-name}": "cd amplify/backend/function/{function-name}/lib && yarn && yarn build && cd -"
+  }
+}
+```
+
+- CI 구축했다면 CI에서도 저 스크립트가 실행되도록 해야 한다.
