@@ -1,0 +1,351 @@
+---
+date: "2022-07-10"
+title: "tWIL 2022.07 1주차"
+draft: false
+summary: "This week I learned"
+featured: /static/images/2022/06/tWIL.jpg
+categories:
+  - development
+tags:
+  - development
+  - Amplify
+  - Redux
+  - ReduxToolkit
+  - RTK
+  - RTKQ
+  - CloudFormation
+  - TypeScript
+  - GraphQL-codegen
+  - Serverless
+  - Lambda
+  - CI
+  - CD
+  - E2ETest
+  - UnitTest
+  - React
+  - Cognito
+---
+
+이번 주는 미로에서 경로의 봉착점에 여러번 도달했던 것 같다. 주로 AWS Amplify CLI에 대한 한계점을 이야기할 것 같고, Redux Toolkit의 막강함을 보았다.
+
+## AWS Amplify
+
+### CI/CD
+
+git을 통한 소스관리와 Amplify CLI는 충돌되는 점이 많다. 일단 Amplify 에서 CD가 구축된 경우 `amplifyPush`라는 커맨드로 CI환경에서 push를 한다. 이때 CloudFormation 파일들의 변경점이 발생하는데 `pull`을 통해 받은 후 `git push`를 하는 경우 다시 배포가 시작되고, 다시 `pull`을 해보면 계속 파일 변경점이 생긴다.
+
+Amplify에서는 공식적으로 워크플로를 소개하지만, 손이 많이 간다. 그렇다면 `git`을 통한 CI/CD를 포기하던지, Amplify CLI로만 배포를 하던지 선택해야할 것 같다. 왜 이렇게 체계적이지 못한지 아쉽다.
+
+해결방안은 CI환경에서 리포로 commit, push 하도록 하는 방법을 구현해야하는데, Provisioning 단계에서 git의 credentials을 체크아웃 하고 모두 삭제한다(어이없다). 빌드 환경은 github action과 다르게 이미지 마켓플레이스도 없다. (~~버리자~~)
+
+### TypeScript
+
+Amplify로 Lambda 함수들의 TypeScript를 쓰는데 많은 한계점이 있다. 특히 Amplify에서 Lambda layer는 Lambda 함수들의 Dependency packages들을 커버 해주지 않는다. NodeJS의 한계이기도 하지만, Amplify는 이걸 해결해주었어야 했다. 이건 TypeScript 환경에서는 말도안되는 상황이기 때문에 문제라고 본다. 뭐 Amplify에서 Lambda 자체에서도 TypeScript 쓰는게 제한적이라 뭐 여기까지 바란건 무리지만, 적어도 AWS는 AWS 서비스들의 트리거 `event`들의 타입부터 모두 정의해주었으면 좋겠다는 생각이다.
+
+처음부터 TypeScript 개발자는 아니었지만, TypeScript로 개발하다 JavaScript로 개발해야하는 상황은 매우 유쾌하지 않다.
+
+### API Gateway
+
+Amplify에서 API를 추가하고 API Gateway에 엔드포인트 설정하는데 까진 불편하지 않지만, CORS처리를 Lambda 함수가 해줘야 한다는 것을 5시간정도 삽질 후에 알게되었다. API Gateway에 Enable CORS는 도대체...
+
+Public API로 구성할 때, CORS 설정은 꼭 해주어야 클라이언트에서 CORS 에러를 뱉지않는다. (가령 이메일 중복체크 같은)
+
+```ts
+return {
+  statusCode: 200,
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "*",
+  body: JSON.stringify({ existEmail: true }),
+};
+```
+
+### Test
+
+Amplify에서 Test는 E2E 테스트만 있다. 뭐 분명 E2E 테스트가 필요하지만, Build 단계에서 별도로 Unit 테스트를 해주어야 한다. 이것도 좀 불편한 점이. `phase`에 `test`는 없다는 것이다. 이것 좀 커스텀하게 해줄 수 있으면 좋겠지만, Amplify는 마치 "우리가 정해놓은대로 바꾸지말고 개발하세요." 라고 말하는 것 같다.
+
+CodeBuild에서도 서비스하고 있는 Coverage Reports도 없다. 음 Amplify는 유닛테스트 결과는 Build 콘솔 열어서 봐야 한다. 뭐 그렇다고 CodeBuild의 Coverage reports가 보기 편한건 아니다. codecov를 쓰고싶다.
+
+### `useAuthentication`
+
+아 이건 좀 심각한 문제가 있다. 내가 방법을 찾지 못한거라도 해도, 문서가 없는 것도 문제다(아무리 찾아도 해결방법이 없다. Stack Overflow에도 없는 걸 보니 Amplify 대부분 안쓰는 것 같다. 오래된 버전의 이슈밖에...). Amplify의 Headless 가이드를 보고 이 hooks를 클라이언트에 사용하려고 하다가, 맨붕이 와버렸다. 그렇다 로그인을 해도, 상태가 업데이트가 안된다. 이건 async 응답을 상태 업데이트 하지 않는다는 의미다. Amplify 에서 발생하는 문제인 것 같다. 문제는 이걸 hook으로 만들었으니 별도로 async 함수를 만들어 SWR같은걸 사용하기도 애매하다. 결국 이것 때문에 Redux를 도입할 수 밖에 없었다.
+
+## Redux
+
+Redux는 오래전에 써보고 묵혀두고 있다가 최근에 프로젝트에 적용해보려고 하다가 RTK를 알게되었다. 예전엔 Boilerplating에서 여러 패키지를 설치하고 설정해야했는데 이제는 정말 많이 편해졌다. 특히 RTKQ(Redux toolkit query)를 보고 환호했다. 아 진작 이렇게 나왔어야 했어.
+
+Reducer를 만드는데 이렇게 쉬울 수가 있나 `switch` `case`문으로 리듀서를 만들다가, `createSlice`는 너무 편하지만, `immer`방식으로 상태를 변경하는 작업은 호불호가 갈릴 듯 하나, RTK의 철학이 그렇다면 받아들여야겠다는 생각이 든다. 하지만 나는 아직 `return {...state, ...mutatedState }` 방식이 편하다.
+
+Redux-thunk는 `@reduxjs/toolkit`에 내장이 되어있다. 음 `redux-sagas`도 포함되었다면 좋았을 텐데, 그렇다고 못쓰는건 아니라 큰 의미는 없고, 패키지 버전관리에서 버전이 맞지 않는 기능 드리프트가 생길 이유도 없을 것 같긴 하다.
+
+### `createSlice`
+
+리듀서를 `createSlice`로 만든다. TypeScript 환경에서 State 타입과 Action 타입을 만들지 않아도 타입추론을 잘하는 편이다. 하지만 완벽하지 않아서 `PayloadAction`의 제네릭으로 설정해주어야 한다.
+
+리듀서는 아래와 같이 export 하고, hooks는 TypeScript 지원하도록 만든다.
+
+`src/store/features/auth/index.ts`
+
+```typescript
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+export const authSlice = createSlice({
+  name: "authentication",
+  initialState,
+  reducers: {
+    setEmail: (state, action: PayloadAction<string>) => {
+      state.email = action.payload;
+    },
+    setPassword: (state, action: PayloadAction<string>) => {
+      state.password = action.payload;
+    },
+  },
+});
+
+export const { reducer: authReducer } = authSlice;
+
+export const { setEmail, setPassword } = authSlice.actions;
+```
+
+`src/store/index.ts`
+
+```typescript
+import { configureStore, Middleware } from "@reduxjs/toolkit";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import logger from "redux-logger";
+import { authReducer } from "./features/auth";
+
+const middlewares = (): Middleware[] => {
+  if (process.env.NODE_ENV !== "production") {
+    return [logger, customMiddleware];
+  } else {
+    return [customMiddleware];
+  }
+};
+
+export const store = configureStore({
+  reducer: { auth: authReducer },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({ serializableCheck: false }).concat(middlewares()),
+  devTools: process.env.NODE_ENV !== "production",
+});
+
+export type RootState = ReturnType<typeof store.getState>;
+
+export type AppDispatch = typeof store.dispatch;
+
+/* React에서 사용할 dispatch hook with Type*/
+export const useAppDispatch: () => AppDispatch = useDispatch;
+/* React에서 사용할 state selector hook with Type */
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+```
+
+이렇게 하면 정말 간단하게 리듀서를 만든다.
+
+### `createAsyncThunk`
+
+이제 `thunk`를 해보자. (Amplify에서 Cognito Auth로 SignIn을 사용한다고 가정하면...)
+
+`src/store/features/auth/thunks.ts`
+
+```typescript
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { Auth } from "aws-amplify";
+import type { ClientMetaData, UsernamePasswordOpts } from "@aws-amplify/auth/lib-esm/types/Auth";
+
+interface SignInOpts {
+  usernameOrSignInOpts: string | UsernamePasswordOpts;
+  pw?: string | undefined;
+  clientMetadata?: ClientMetaData;
+}
+
+/* Creating a thunk that will be used to login the user. */
+export const signIn = createAsyncThunk("auth/signin", async (args: SignInOpts) => {
+  const { usernameOrSignInOpts, pw, clientMetadata } = args;
+  const cognitoUser = await Auth.signIn(usernameOrSignInOpts, pw, clientMetadata);
+  return cognitoUser;
+});
+```
+
+앞서 만든 `createSlice`에서 `extraReducers`로 추가한다. async 요청에서 `pending`은 Promise pending, `fullfilled`는 Promise fullfilled, `rejected`는 Promise rejected를 나타낸다. 직관적이면서도 다루기 편하다.
+
+`src/store/features/auth/index.ts`
+
+```typescript
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+export const authSlice = createSlice({
+  name: "authentication",
+  initialState,
+  reducers: {
+    /* sync reducers */
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(signIn.pending, (state) => {
+        state.loading = true;
+        state.error = false;
+        state.message = "";
+      })
+      .addCase(signIn.fulfilled, (state, action) => {
+        const { username } = action.payload;
+        state.loading = false;
+        state.error = false;
+        state.message = "";
+        if (username) {
+          state.username = username;
+          state.authenticated = true;
+        } else {
+          state.username = undefined;
+          state.authenticated = false;
+        }
+      })
+      .addCase(signIn.rejected, (state, response) => {
+        console.log({ response });
+        const {
+          error: { message, code },
+        } = response;
+
+        state.loading = false;
+        state.error = true;
+        state.message = messageInKO(code, message);
+      });
+  },
+});
+
+export const { reducer: authReducer } = authSlice;
+
+export const { setEmail, setPassword } = authSlice.actions;
+```
+
+다른건 바뀌는 것이 없다. `extraReducers`에서 `builder`의 `addCase`에 Thunk의 `pending`, `fulfilled`, `rejected` 추가하면 된다. 모두 Optional이기 때문에 `fulfilled`만 추가해도 된다. `fulfilled`까지 빼면, 안쓰는거나 다름없으니...
+
+컴포넌트에서는 다음과 같이 사용한다.
+
+`src/Views/SignIn/index.tsx`
+
+```typescript
+import React from "react";
+import { signIn, useAppDispatch, useAppSelector, rememberUserFetch } from "Store";
+
+export function SignIn() {
+  const dispatch = useAppDispatch();
+  // email, password state 추가...
+  const { authenticated, loading, error, message } = useAppSelector((state) => state.auth);
+  const goSignIn = () => {
+    dispatch(signIn({ usernameOrSignInOpts: state.email, pw: state.password }));
+  };
+  // omit..
+}
+```
+
+잘된다. (Amplify 나쁜 ㅠㅠ)
+
+### `createApi`
+
+`@reduxjs/toolkit/query/react`를 React에서 사용하면 된다. `useSWR`과 매우 유사하며, 오히려 좀 편하다.
+
+`src/store/features/api/index.ts`
+
+```typescript
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
+export const apiSlice = createApi({
+  reducerPath: "api",
+  baseQuery: fetchBaseQuery({
+    baseUrl: endpoint,
+    prepareHeaders(headers) {
+      headers.set("Content-Type", "application/json");
+      return headers;
+    },
+  }),
+  endpoints: (builder) => ({
+    postApiTest: builder.query({
+      query: () => ({
+        url: "/query",
+        params: { helloParams: "world" },
+        body: { helloBody: "world" },
+        method: "POST",
+      }),
+    }),
+    postMutationApiTest: builder.mutation({
+      query: ({ hello }) => ({
+        url: "/mutation",
+        params: { helloParams: "world" },
+        body: { helloBody: "world" },
+        method: "POST",
+      }),
+    }),
+  }),
+});
+
+export const { usePostApiTestQuery, usePostMutationApiTestMutation } = apiSlice;
+```
+
+예제치고 좀 복잡하게 구성해봤는데 `builder`는 `query`와 `mutation`이 있다. 뭔가 GraphQL 스러우면서도 `reactQuery` 같은 느낌이기도 하다. 차이점은 `mutation`의 경우 hook에서 함수를 반환한다. 특정 상태에서 이 함수를 사용하여 API 호출을 할 수 있다는 점이다.
+
+그리고 `apiSlice`는 prefix `use`, 그리고 camel case로 엔드포인트 이름을 바꾸고 postfix로 `Query` 혹은 `Mutation`을 붙여준다. 그리고 이걸 export 하면, 우리는 컴포넌트에서 이 hook을 불러서 쓰면 된다. 마치 `graphql-codegen`에서 Apollo 클라이언트 hook을 만든 느낌이다.
+
+클라이언트에서 hook을 쓰기 전에 `configureStore`에 이 `apiSlice`를 추가해주어야 한다.
+
+`src/store/index.ts`
+
+```typescript
+import { configureStore, Middleware } from "@reduxjs/toolkit";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import logger from "redux-logger";
+import { authReducer, apiSlice } from "./features";
+
+// omitted
+
+export const store = configureStore({
+  reducer: { auth: authReducer, [apiSlice.reducerPath]: apiSlice.reducer },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({ serializableCheck: false }).concat(middlewares()),
+  devTools: process.env.NODE_ENV !== "production",
+});
+
+// omitted
+```
+
+추가할 때 `reducerPath`에 이름이 담겼기 때문에, 커스텀하게 만들 수 도 있지만, slice가 가지고 있는 이름을 사용하면 `[apiSlice.reducerPath]: apiSlice.reducer` 이렇게 추가한다.
+
+그리고 `apiSlice`에 `middleware`가 있다. 이것도 `middlewares`에 추가해주자.
+
+```typescript
+const middlewares = (): Middleware[] => {
+  if (process.env.NODE_ENV !== "production") {
+    return [logger, customMiddleware, apiSlice.middleware];
+  } else {
+    return [customMiddleware, apiSlice.middleware];
+  }
+};
+```
+
+컴포넌트에서 사용해보자.
+
+`src/Views/APITest.tsx`
+
+```typescript
+import React from "react";
+import { useAppDispatch, usePostApiTestQuery, usePostMutationApiTestMutation } from "Store";
+
+export function APITest() {
+  const dispatch = useAppDispatch();
+  const [apiMutation, { data: mutationData, isLoading: isMutationLoading }] =
+    usePostMutationApiTestMutation();
+  const { data: queryData, isLoading: isQueryLoading } = usePostApiTestQuery();
+  const handleMuatationAPI = () => {
+    apiMutation({ hello: "world" });
+  };
+  // omitted
+}
+```
+
+실제 작동하는 API 엔드포인트를 적용해서 해보면 간편하다. [`react-query`](https://react-query-v2.tanstack.com/)와, [`useSWR`](https://swr.vercel.app/)과 유사하다. 추후 `cache`관련 문서들을 보고 조금 더 파악해 봐야겠다.
+
+이렇게 클라이언트앱은 전역적으로 `store`안에서 API와 State, Action들을 관리할 수 있다.
+
+## Summary
+
+- Amplify 한계점이 많다.
+- RTK, RTKQ 많이 좋아졌다.
