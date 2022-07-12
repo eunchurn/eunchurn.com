@@ -22,7 +22,7 @@
     "esbuild": "0.14.49",
     "github-slugger": "1.4.0",
     "gray-matter": "4.0.3",
-    "image-size": "1.0.1",
+    "image-size": "1.0.2",
     "mdx-bundler": "9.0.1",
     "next": "12.2.0",
     "next-pwa": "5.5.4",
