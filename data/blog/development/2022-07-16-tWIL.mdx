@@ -121,7 +121,7 @@ const asyncAuthLink = setContext(
 );
 ```
 
-![apollo-auth-link](/static/images/2022/07/apollo-auth-link.svg)
+![apollo-auth-link](/static/images/2022/07/apollo-amplify-auth-link.svg)
 
 여기서 Amplify의 UI 이벤트 핸들러인 [Hub](https://docs.amplify.aws/console/uibuilder/eventhandling/)를 사용한다. Amplify에서 사용하는 이벤트를 받을 수 있고, `auth` 이벤트가 발생할 경우 이벤트 조건에 따라 Apollo Client의 client의 link를 변경하도록 한다. 여기서는 로그인 했을 때와, 로그아웃한 경우의 조건으로 나누어 `addListeners`함수를 만든다.
 
