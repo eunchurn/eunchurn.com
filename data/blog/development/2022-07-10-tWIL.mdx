@@ -59,6 +59,8 @@ return {
 };
 ```
 
+> Update (2022.07.16): API Gateway에서 Response headers에 설정해주면 된다.
+
 ### Test
 
 Amplify에서 Test는 E2E 테스트만 있다. 뭐 분명 E2E 테스트가 필요하지만, Build 단계에서 별도로 Unit 테스트를 해주어야 한다. 이것도 좀 불편한 점이. `phase`에 `test`는 없다는 것이다. 이것 좀 커스텀하게 해줄 수 있으면 좋겠지만, Amplify는 마치 "우리가 정해놓은대로 바꾸지말고 개발하세요." 라고 말하는 것 같다.
