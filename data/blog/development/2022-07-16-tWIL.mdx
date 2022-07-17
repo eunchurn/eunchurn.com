@@ -82,9 +82,9 @@ const httpLink = createUploadLink({
 
 ## Apollo Client with Hook
 
-[Apollo client(React)](https://www.apollographql.com/docs/react)와 [Apollo server](https://www.apollographql.com/docs/apollo-server) 그리고 [Apollo studio](https://www.apollographql.com/docs/studio)는 아래 그림과 같이 연결하여 사용해왔다.
-
 ![apollo-server](https://www.apollographql.com/docs/c5e2d4db4b0b5568a87ebf082ffe79e6/frontend_backend_diagram.svg)
+
+[Apollo client(React)](https://www.apollographql.com/docs/react)와 [Apollo server](https://www.apollographql.com/docs/apollo-server) 그리고 [Apollo studio](https://www.apollographql.com/docs/studio)는 아래 그림과 같이 연결하여 사용해왔다.
 
 GraphQL schema의 Introspection을 허용하지 않는 경우, 그리고 Apollo studio를 사용하지 않는 경우 클라이언트가 사용할 스키마 SDL파일을 개발자끼리 주고 받거나 했어야 했나. 이전에는 Introspection query를 허용했었다. 모든 소스에서 이 스키마를 공개한다는 것이 꺼림칙했는데, Apollo server v3에서 Apollo studio를 sandbox형태로 제공하면서 sandbox 형태가 아닌 studio도 어느정도 이해하게 되었다. 특히 [@apollo/rover](https://www.apollographql.com/docs/rover)를 통해 스키마를 옮기고, Apollo server는 studio로 Operation들의 [metric](https://www.apollographql.com/docs/studio/metrics/usage-reporting/)을 보내주는 형태로 Apollo studio를 사용하며 편리함을 느끼고 있었다. 여기에 [Apollo Federation](https://www.apollographql.com/docs/federation/)이 나오게 되면서 [supergraph](https://www.apollographql.com/docs/rover/commands/supergraphs)와 [subgraph](https://www.apollographql.com/docs/rover/commands/subgraphs)를 적용하여 Open source 형태로 구축한 서버 혹은 컨테이너와 AppSync등 여러 클라우드에서 만든 GraphQL 서버도 Studio에서 통합하여 사용할 수 있도록 subgraph를 [composition](https://www.apollographql.com/docs/rover/commands/supergraphs#setting-a-composition-version) 할 수 있게 되었다.
 
