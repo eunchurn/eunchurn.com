@@ -48,7 +48,7 @@ Learn why "infrastructure as code" is the answer to managing **large-scale**, **
 
 오래전 부터 베어메탈 서버든 EC2 인스턴스이든 Docker 이미지를 만들고 컨테이너 기반 서버를 운영했었다. k8s가 나오기전까지는 난(아니 관심을 주지 않았을 수도...) docker compose를 사용하거나 swarm으로 컨테이너를 운용했지만 k8s가 [클라우드계의 리눅스(?)](https://subicura.com/2019/05/19/kubernetes-basic-1.html)처럼 어떤 벤더에서든 관리형서비스 까지 평정함으로 원픽으로 군림하게 되어버렸다. 따라서 k8s로 DevOps 배울 필요는 있지만, 한번 따라하기를 해보고나서 왜 지금까지 swarm모드로 service를 docker-compose로 만들려고 했는지 나를 되돌아 봤다.
 
-IaC 진영도 많이 발전중인 것 같다. 특히 하시코프 Nomad가 k8s에 밀린 이후(인지는 모르겠지만) Terraform CLI를 AWS는 CloudFormation과 Copilot CLI를 만들어내고 여기에서도 선택을 강요하고 있다. 맞다 AWS 클라우드를 마우스로 여기저기 텍스트 에디터로 Role과 정책을 만들어내기엔 여간 불편한게 아니고, 이걸 관리하기도 힘든데 AWS CLI로 태그 형태로 관리하자니 숨막힐 것 같은데 Copilot은 매우 좋아보이지만, 아직 지원되지 않는 서비스(Lambda, Cognito...)가 많은 것 같다. Copilot이 직접 VPC만들고 ECS, RDS까지 관리해주는 것은 좋은데 다른 서비스도 많이 지원했으면 하는 바람이 있다. Terraform CLI는 잠시 써보고 왜 docker-compose는 로컬 프로젝트에 적합했었구나 싶을 정도로 매우 편해보였다. 심지어 Terraform 으로 k8s까지 IaC가 가능할 것 같고 Custom registry도 많이 존재하는 것 같다.
+IaC 진영도 많이 발전 중인 것 같다. 특히 하시코프 Nomad가 k8s에 밀린 이후(인지는 모르겠지만) Terraform CLI를 AWS는 CloudFormation과 Copilot CLI를 만들어내고 여기에서도 선택을 강요하고 있다. 맞다 AWS 클라우드를 마우스로 여기저기 텍스트 에디터로 Role과 정책을 만들거나 CloudFormatino 설정 하기엔 여간 불편한게 아니고, 이걸 관리하기도 힘든데 AWS CLI로 태그 형태로 관리하자니 숨막힐 것 같은데 Copilot은 매우 좋아보이지만, 아직 지원되지 않는 서비스(Lambda, Cognito...)가 많은 것 같다. Copilot이 직접 VPC만들고 ECS, RDS까지 관리해주는 것은 좋은데 다른 서비스도 많이 지원했으면 하는 바람이 있다. Terraform CLI는 잠시 써보고 왜 docker-compose는 로컬 프로젝트에 적합했었구나 싶을 정도로 매우 편해보였다. 심지어 Terraform 으로 k8s까지 IaC가 가능할 것 같고 Custom registry도 많이 존재하는 것 같다.
 
 ## Severless
 
@@ -236,8 +236,8 @@ function getBaseModelResponse(data: listBaseModelsQuery) {
 }
 ```
 
-- 우리가 쓸 컴포넌트에 예외처리들이 적용된 컨테이너 컴포넌트를 위한 `getServerSideProps`를 얻을 수 있다. 이 후 프리젠터 컴포넌트 개발에서는 데이터 신경쓸 필요가 없다. 그렇다. 좀 복잡해진다.
-- 그리고 known issue가 있다. `getServerSideProps`는 지연이 꽤 큰 편이다. [Slow SSR Rendering](https://github.com/aws-amplify/amplify-hosting/issues/2530) 따라서 Amplify 에서 Nextjs는 추천하지 않겠다.
+- 우리가 쓸 컴포넌트에 예외처리들이 적용된 컨테이너 컴포넌트를 위한 `getServerSideProps`를 얻을 수 있다. 이 후 프리젠터 컴포넌트 개발에서는 데이터 신경쓸 필요가 없다.
+- 그리고 known issue가 있다. `getServerSideProps`는 지연이 꽤 큰 편이다. [Slow SSR Rendering](https://github.com/aws-amplify/amplify-hosting/issues/2530) 따라서 Amplify 에서 Nextjs를 SSR로 사용하는 것은 추천하지 않겠다.
 - React 프로젝트를 한다면 Apollo Client를 사용하여, `hooks`(`useQuery`, `useMutation`)까지 제너레이션 하는 편이 좋겠다.
 
 #### Pros
@@ -259,7 +259,7 @@ function getBaseModelResponse(data: listBaseModelsQuery) {
   - [Resolver mapping 방식](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html)
   - `@function` directive 와 Lambda로 해결 but [Lambda TypeScript](https://docs.amplify.aws/cli/function/build-options/) 하지만 타입은 API와 function 사이 공유가 어려워 보인다.
   - TypeScript: `ctx` type이 없기 때문에 한계점이 있다.
-  - Lambda resolver 설정에서 TypeScript 사용을 위해 변경해야할 포인트는 root의 `package.json`에 `amplify:{function}` 스크립트 추가, 함수의 `tsconfig.json` 설정, 그리고 mock을 위한 `event.json`값을 만들어야 함. but it's not type-safe.
+  - Lambda resolver 설정에서 TypeScript 사용을 위해 변경해야할 포인트는 root의 `package.json`에 `amplify:{function}` 스크립트 추가, 함수의 `tsconfig.json` 설정, 그리고 mock을 위한 `event.json`값을 만들어야 함. **but it's not type-safe**.
 
 #### 결론
 

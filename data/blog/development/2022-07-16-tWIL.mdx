@@ -28,7 +28,7 @@ tags:
 
 ## Apollo server [CSRF](https://www.apollographql.com/docs/router/configuration/csrf/)
 
-작업중인 Client앱은 Amplify를 적용하고 있다. Cognito Auth와 Storage 그리고 MSA를 Lambda와 API Gateway로 구축하기 위함이다. 그리고 메인 RDS를 사용하는 GraphQL API는 Amplify의 생산성 한계로 인해 [AWS Copilot](https://docs.aws.amazon.com/ko_kr/AmazonECS/latest/developerguide/getting-started-aws-copilot-cli.html)로 ECS에 배포하였다. Copilot은 Amplify까지 IaS로 관리하지 못하기 때문에 DevOps 관리점은 크게 2군데(Copilot, Amplify)로 볼 수 있다. Amplify의 장점은 활용하기 나름 괜찮은면이 있어서, Cognito, S3, API Gateway, Lambda를 한곳에서 관리할 수 있으며, Copilot은 RDS, ECS, VPC, Target Group, ALB, System Manager, Secret Manager등을 관리한다.
+작업중인 Client앱은 Amplify를 적용하고 있다. Cognito Auth와 Storage 그리고 MSA를 Lambda와 API Gateway로 구축하기 위함이다. 그리고 메인 RDS를 사용하는 GraphQL API는 Amplify의 생산성 한계로 인해 [AWS Copilot](https://docs.aws.amazon.com/ko_kr/AmazonECS/latest/developerguide/getting-started-aws-copilot-cli.html)로 ECS에 배포하였다. Copilot은 Amplify까지 IaC로 관리하지 못하기 때문에 DevOps 관리점은 크게 2군데(Copilot, Amplify)로 볼 수 있다. Amplify의 장점은 활용하기 나름 괜찮은면이 있어서, Cognito, S3, API Gateway, Lambda를 한곳에서 관리할 수 있으며, Copilot은 RDS, ECS, VPC, Target Group, ALB, System Manager, Secret Manager등을 관리한다.
 
 Amplify Storage에서 파일 전송을 한 후 Protect, Private으로 설정된 파일들은 Cognito identity pool의 ID로 생성된다. 가끔 Third party API를 사용하여 다른 OSS를 사용할 경우 ECS로 배포된 API에서 이 파일들을 처리해야할 경우가 있다. 비즈니스 영역이 다른 곳이라 GraphQL API에 Upload 설정이 불가피했다.
 

@@ -40,7 +40,7 @@ Amplify에서는 공식적으로 워크플로를 소개하지만, 손이 많이 
 
 ### TypeScript
 
-Amplify로 Lambda 함수들의 TypeScript를 쓰는데 많은 한계점이 있다. 특히 Amplify에서 Lambda layer는 Lambda 함수들의 Dependency packages들을 커버 해주지 않는다. NodeJS의 한계이기도 하지만, Amplify는 이걸 해결해주었어야 했다. 이건 TypeScript 환경에서는 말도안되는 상황이기 때문에 문제라고 본다. 뭐 Amplify에서 Lambda 자체에서도 TypeScript 쓰는게 제한적이라 뭐 여기까지 바란건 무리지만, 적어도 AWS는 AWS 서비스들의 트리거 `event`들의 타입부터 모두 정의해주었으면 좋겠다는 생각이다.
+Amplify로 Lambda 함수들의 TypeScript를 쓰는데 많은 한계점이 있다. 특히 Amplify에서 Lambda layer는 Lambda 함수들의 Dependency packages들을 커버 해주지 않는다. NodeJS의 한계이기도 하지만, Amplify는 이걸 해결해주었어야 했다. 이건 TypeScript 환경에서는 말도안되는 상황이기 때문에 문제라고 본다. 뭐 Amplify에서 Lambda 자체에서도 TypeScript 쓰는게 제한적이라 뭐 여기까지 바란건 무리지만, 적어도 AWS는 AWS 서비스들의 트리거 `event`들의 타입부터 모두 정의해주었으면 좋겠다는 생각이다. (OpenAPI 스키마는 만들어주면서 이벤트 타입하나 정도는 만들어줄 수 있지 않나...)
 
 처음부터 TypeScript 개발자는 아니었지만, TypeScript로 개발하다 JavaScript로 개발해야하는 상황은 매우 유쾌하지 않다.
 
@@ -69,7 +69,7 @@ CodeBuild에서도 서비스하고 있는 Coverage Reports도 없다. 음 Amplif
 
 ### `useAuthentication`
 
-아 이건 좀 심각한 문제가 있다. 내가 방법을 찾지 못한거라도 해도, 문서가 없는 것도 문제다(아무리 찾아도 해결방법이 없다. Stack Overflow에도 없는 걸 보니 Amplify 대부분 안쓰는 것 같다. 오래된 버전의 이슈밖에...). Amplify의 Headless 가이드를 보고 이 hooks를 클라이언트에 사용하려고 하다가, 맨붕이 와버렸다. 그렇다 로그인을 해도, 상태가 업데이트가 안된다. 이건 async 응답을 상태 업데이트 하지 않는다는 의미다. Amplify 에서 발생하는 문제인 것 같다. 문제는 이걸 hook으로 만들었으니 별도로 async 함수를 만들어 SWR같은걸 사용하기도 애매하다. 결국 이것 때문에 Redux를 도입할 수 밖에 없었다.
+아 이건 좀 심각한 문제가 있다. 내가 방법을 찾지 못한거라도 해도, 문서가 없는 것도 문제다(아무리 찾아도 해결방법이 없다. Stack Overflow에도 없는 걸 보니 Amplify 대부분 안쓰는 것 같다. 오래된 버전의 이슈밖에...). Amplify의 Headless 가이드를 보고 이 hooks를 클라이언트에 사용하려고 하다가, 맨붕이 와버렸다. 그렇다 로그인을 해도, 상태가 업데이트가 안된다. 이건 async 응답을 상태 업데이트 하지 않는다는 의미다. Amplify 에서 발생하는 문제인 것 같다. 문제는 이걸 hook으로 만들었으니 별도로 async 함수를 만들어 SWR같은걸 사용하기도 애매하다. Amplify Headless authentication은 문제다. 결국 이것 때문에 Redux를 도입할 수 밖에 없었다.
 
 ## Redux
 
@@ -283,7 +283,7 @@ export const apiSlice = createApi({
 export const { usePostApiTestQuery, usePostMutationApiTestMutation } = apiSlice;
 ```
 
-예제치고 좀 복잡하게 구성해봤는데 `builder`는 `query`와 `mutation`이 있다. 뭔가 GraphQL 스러우면서도 `reactQuery` 같은 느낌이기도 하다. 차이점은 `mutation`의 경우 hook에서 함수를 반환한다. 특정 상태에서 이 함수를 사용하여 API 호출을 할 수 있다는 점이다.
+예제치고 좀 복잡하게 구성해봤는데 `builder`는 `query`와 `mutation`이 있다. 뭔가 GraphQL 스러우면서도 `reactQuery` 같은 느낌이기도 하다. 차이점은 `mutation`의 경우 hook에서 함수를 반환한다. 특정 이벤트 상태에서 이 함수를 사용하여 API 호출을 할 수 있다는 점이다.
 
 그리고 `apiSlice`는 prefix `use`, 그리고 camel case로 엔드포인트 이름을 바꾸고 postfix로 `Query` 혹은 `Mutation`을 붙여준다. 그리고 이걸 export 하면, 우리는 컴포넌트에서 이 hook을 불러서 쓰면 된다. 마치 `graphql-codegen`에서 Apollo 클라이언트 hook을 만든 느낌이다.
 
