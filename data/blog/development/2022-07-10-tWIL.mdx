@@ -28,6 +28,10 @@ tags:
 
 이번 주는 미로에서 경로의 봉착점에 여러번 도달했던 것 같다. 주로 AWS Amplify CLI에 대한 한계점을 이야기할 것 같고, Redux Toolkit의 막강함을 보았다.
 
+## Table of contents
+
+<TOCInline toc={props.toc} exclude="Table of contents" toHeading={4} />
+
 ## AWS Amplify
 
 ### CI/CD
@@ -50,7 +54,7 @@ Amplify에서 API를 추가하고 API Gateway에 엔드포인트 설정하는데
 
 Public API로 구성할 때, CORS 설정은 꼭 해주어야 클라이언트에서 CORS 에러를 뱉지않는다. (가령 이메일 중복체크 같은)
 
-```ts
+```ts:handler.ts
 return {
   statusCode: 200,
   "Access-Control-Allow-Origin": "*",
@@ -85,9 +89,7 @@ Redux-thunk는 `@reduxjs/toolkit`에 내장이 되어있다. 음 `redux-sagas`�
 
 리듀서는 아래와 같이 export 하고, hooks는 TypeScript 지원하도록 만든다.
 
-`src/store/features/auth/index.ts`
-
-```typescript
+```typescript:src/store/features/auth/index.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const authSlice = createSlice({
@@ -108,9 +110,7 @@ export const { reducer: authReducer } = authSlice;
 export const { setEmail, setPassword } = authSlice.actions;
 ```
 
-`src/store/index.ts`
-
-```typescript
+```typescript:src/store/index.ts
 import { configureStore, Middleware } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import logger from "redux-logger";
@@ -147,9 +147,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 이제 `thunk`를 해보자. (Amplify에서 Cognito Auth로 SignIn을 사용한다고 가정하면...)
 
-`src/store/features/auth/thunks.ts`
-
-```typescript
+```typescript:src/store/features/auth/thunks.ts
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Auth } from "aws-amplify";
 import type { ClientMetaData, UsernamePasswordOpts } from "@aws-amplify/auth/lib-esm/types/Auth";
@@ -170,9 +168,7 @@ export const signIn = createAsyncThunk("auth/signin", async (args: SignInOpts) =
 
 앞서 만든 `createSlice`에서 `extraReducers`로 추가한다. async 요청에서 `pending`은 Promise pending, `fullfilled`는 Promise fullfilled, `rejected`는 Promise rejected를 나타낸다. 직관적이면서도 다루기 편하다.
 
-`src/store/features/auth/index.ts`
-
-```typescript
+```typescript:src/store/features/auth/index.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const authSlice = createSlice({
@@ -223,9 +219,7 @@ export const { setEmail, setPassword } = authSlice.actions;
 
 컴포넌트에서는 다음과 같이 사용한다.
 
-`src/Views/SignIn/index.tsx`
-
-```typescript
+```typescript:src/Views/SignIn/index.tsx
 import React from "react";
 import { signIn, useAppDispatch, useAppSelector, rememberUserFetch } from "Store";
 
@@ -246,9 +240,7 @@ export function SignIn() {
 
 `@reduxjs/toolkit/query/react`를 React에서 사용하면 된다. `useSWR`과 매우 유사하며, 오히려 좀 편하다.
 
-`src/store/features/api/index.ts`
-
-```typescript
+```typescript:src/store/features/api/index.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const apiSlice = createApi({
@@ -289,9 +281,7 @@ export const { usePostApiTestQuery, usePostMutationApiTestMutation } = apiSlice;
 
 클라이언트에서 hook을 쓰기 전에 `configureStore`에 이 `apiSlice`를 추가해주어야 한다.
 
-`src/store/index.ts`
-
-```typescript
+```typescript:src/store/index.ts
 import { configureStore, Middleware } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import logger from "redux-logger";
@@ -325,9 +315,7 @@ const middlewares = (): Middleware[] => {
 
 컴포넌트에서 사용해보자.
 
-`src/Views/APITest.tsx`
-
-```typescript
+```typescript:src/Views/APITest.tsx
 import React from "react";
 import { useAppDispatch, usePostApiTestQuery, usePostMutationApiTestMutation } from "Store";
 

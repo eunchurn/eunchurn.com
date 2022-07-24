@@ -24,6 +24,10 @@ tags:
 
 그리고 이번주는 CRUD와 어드민 작업을 위해 그간 오래도록 써왔던 [nexus-plugin-prisma](https://github.com/graphql-nexus/nexus-plugin-prisma)의 `experimentalCRUD`를 버리고(진작에 deprecated됨), 그리고 Prisma팀에서 더디게 개발중인 [nexus-prisma](https://nexus.prisma.io/)도 버리기로 결심하였다. 그 이유는 [pal.js](https://paljs.com/)가 어느정도 CRUD 리졸버들을 깔끔하게 만들어주고 게다가 `PrismaTable`이라는 어드민 컴포넌트를 제공해주기 때문에...
 
+## Table of contents
+
+<TOCInline toc={props.toc} exclude="Table of contents" toHeading={3} />
+
 ## GraphQL structure
 
 [Nexus GraphQL](https://nexusjs.org/) 프레임워크를 사용하며, 거의 모든 커스텀 쿼리를 Root에 노출했었다. 사용하는데엔 큰 문제는 없지만 엔드포인트가 많아지니 여러 개발자가 만들어낸 엔드포인트의 네이밍 컨벤션부터 각각 다르기도 하고 비슷한 이름들로 인해 헷갈리는 경우가 많이 있었다. 따라서 이러한 커스텀 Root Queries나 Mutations을 엔드포인트 특성에 맞게 그룹화하여 정리하는 것을 초반단계에서 준비를 잘해야겠다는 생각에 구조화를 진행하였다.
@@ -34,8 +38,8 @@ tags:
 
 커스텀 리졸버를 위한 쿼리필드를 추가한다. 외부 SDK사용을 위한 엔드포인트는 이제 `external`안으로 모은다.
 
-```typescript
-export const forgeQuery = queryField("external", {
+```typescript:src/schema/types/customQueries/external/index.ts
+export const externalQuery = queryField("external", {
   type: ExternalQueryType,
   description: "외부 SDK 사용을 위한 쿼리",
   resolve: () => ({}),
@@ -48,7 +52,7 @@ export const forgeQuery = queryField("external", {
 
 하위 리졸버를 그룹화 해보자. 이 외부 SDK가 `authentication`과 `dataManagement`와 `modelManagement`라는 3개의 그룹으로 나뉘어 있다고 생각하고 각각의 타입과 리졸버를 만들어준다.
 
-```typescript
+```typescript:src/schema/types/customQueries/external/types.ts
 export const ExternalQueryType = objectType({
   name: "ExternalQueryType",
   description: "External Query API",
@@ -78,7 +82,7 @@ export const ExternalQueryType = objectType({
 
 이제 `children`으로 내려준 타입에서 커스텀 리졸버 엔드포인트들을 추가하기 위한 타입 정의를 해준다. 여기는 `extendType`메서드로 여기서 만든 타입들을 extend하여 타입을 만들 예정이기 때문에, 여기서는 `definition(t)`함수는 `undefined`를 반환하도록 한다.
 
-```typescript
+```typescript:src/schema/types/customQueries/external/types.ts
 export const ExternalAuthenticationQueries = objectType({
   name: "ExternalAuthenticationQueries",
   description: "Authentication (OAuth) API v1: https://.../",
@@ -109,7 +113,7 @@ export const ExternalModelManagementQueries = objectType({
 
 적절한 폴더 구조를 만들어 `extendType`을 만들어 보면(여기서는 `authentication`만 고려) `external` > `authentication` > `getExternalAuthToken` 이러한 구조로 Query가 만들어진다.
 
-```typescript
+```typescript:src/schema/types/customQueries/external/authentication/index.ts
 import { extendType, objectType, arg } from "nexus";
 import { externalAuthScope } from "../enum";
 
@@ -144,7 +148,7 @@ export const getExternalToken = extendType({
 
 여기서 리턴 타입은 다음과 같다.
 
-```typescript
+```typescript:src/schema/types/customQueries/external/authentication/types.ts
 export const ExternalAuthToken = objectType({
   name: "ExternalAuthToken",
   description: "External Auth 토큰 타입",
@@ -159,7 +163,7 @@ export const ExternalAuthToken = objectType({
 
 GraphQL 쿼리는 다음과 같이 사용한다. 이렇게 하면 루트쿼리에 모든 쿼리를 노출하지않고 API를 잘 정리할 수 있다.
 
-```graphql
+```graphql:src/Views/External/externalToken.graphql
 query externalToken($scope: ExternalAuthScope) {
   external {
     authentication {
@@ -218,7 +222,7 @@ export const post = objectType({
 
 과거에 [`nexus-plugin-prisma`](https://github.com/graphql-nexus/nexus-plugin-prisma)를 사용하여 `experimentalCRUD`를 아래와 같이 만들어 왔었다. `fieldAuthorizePlugin`과 `nexusShield` 그리고 mocking을 위한 스키마 까지...
 
-```typescript
+```typescript:src/schema/index.ts {13-20}
 import { nexusPrisma } from "nexus-plugin-prisma";
 import { makeSchema, fieldAuthorizePlugin, declarativeWrappingPlugin } from "nexus";
 import { SchemaConfig } from "nexus/dist/builder";
@@ -292,7 +296,7 @@ Generator Class에 Nexus가 있어서 바로 적용해 보았다. [paljs/generat
 
 Prisma schema를 다음과 같이 정의하고
 
-```prisma
+```go:prisma/schema.prisma
 datasource postgresql {
   url      = env("DATABASE_URL")
   provider = "postgresql"
@@ -325,7 +329,7 @@ enum Role {
 
 프로젝트 루트에 `pal.js`를 생성
 
-```javascript
+```javascript:./pal.js
 /* eslint-disable no-undef */
 // @ts-check
 
@@ -351,7 +355,7 @@ Generation 스크립트는 `pal g`. 원하던 Plain nexus `objectType`들이 모
 
 바로 현 프로젝트에 적용해보았다. 지금까지 만들었던 모든 `models`와 `crud`를 삭제하고...
 
-```typescript
+```typescript:src/schema/index.ts {13-16}
 import { makeSchema, fieldAuthorizePlugin, declarativeWrappingPlugin } from "nexus";
 import { SchemaConfig } from "nexus/dist/builder";
 import { nexusShield, allow } from "nexus-shield";

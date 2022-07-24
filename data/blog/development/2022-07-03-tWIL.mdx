@@ -31,6 +31,10 @@ tags:
 
 매주 지킬 수 있을지 모르겠다. 그래도 TIL 보다는 일주일을 정리하는 마음에 시작해보기로 마음을 먹었다.
 
+## Table of contents
+
+<TOCInline toc={props.toc} exclude="Table of contents" toHeading={4} />
+
 ## Infrastructure
 
 일단 나는 벤더락인(Vendor-lock-in)을 좋아하지 않는다(이미 현실세계에선 Apple 락인이 되어있긴 하지만...). 인프라 구성을 고려했을 때 벤더락인이 되지 않는 최고 한계점은 Kubernetes라고 생각한다. 어떤 베어메탈 서버에서도 운용이 가능한 오픈소스까지가 벤더락인의 한계인 것 같다. 하지만 개발자들은 어쩔 수 없이 벤더락인이 될 수 밖에 없는 것 같다. 어떻게 보면 벤더지식은 OS를 배우는 것과 같은 개발자에겐 부차적인 지식일 수 밖에 없는데, 이 또한 모르면 안되는 것들이기도 한 것 같다. 예를들어 S3를 생각하지 않고 파일전송, 프리사인드URL, ACL이 적용되는 서버 운영 상상하기 어렵다. Cognito 없이 개발자에게 인증서버를 직접 구성하라고 하는 것도 불안할 것 같다. 아니 직접 구성할 줄 안다고해도 이런 기능을 자기 손으로 직접하는 시대는 지나갔다고 생각한다. 그렇다고해서 어디까지 개발자에게 벤더지식을 익혀야한다고 정의할지 고민이다. 상황에 따라 다르다보니 어떤 회사가 어떤 인프라 구성을 채택하고 있느냐에 따라 많이 달라질 것 같다.
@@ -71,7 +75,7 @@ Amplify 프로젝트 셋팅하는 방법은 [Amplify Getting started](https://do
 
 - `{project-root}/amplify/backend/api/{project-name}`에 `schema.graphql`에서 스키마를 정의한다. `@model` directive를 사용하여 DB 스키마를 정의한다. 관계형 필드의 경우 `@belongsTo`를 사용하고, 1:N 관계에서는 `@hasMany`, Lambda 함수를 사용하는 경우 `@function` directive를 스미카에 정의한다.
 
-```graphql
+```graphql:schema.graphql
 input AMPLIFY {
   globalAuthRule: AuthRule = { allow: public }
 } # FOR TESTING ONLY!
@@ -130,7 +134,7 @@ graphql-json-to-sdl ./src/graphql/schema.json ./src/graphql/schema.graphql
 - 이제 `graphql-codegen`을 이용하여 우리가 사용하고자 하는 GraphQL 오퍼레이션에 대한 타입을 만들어본다.
 - `codegen.yml`은 다음과 같다.
 
-```yml
+```yml:codegen.yml
 overwrite: true
 schema: src/graphql/schema.json
 documents:
@@ -174,7 +178,7 @@ yarn add -D @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/ty
 - `yarn generate`를 수행하면, 타입들이 만들어진다.
 - Nextjs에 컴포넌트를 생성하려고 한다. 서버에서 받은 `BaseModel`이란 DB Model 데이터를 연결하기 위해 우선 타입을 불러와 보자
 
-```typescript
+```typescript:pages/index.ts
 import type { GetServerSidePropsContext } from "next";
 import { Amplify, withSSRContext } from "aws-amplify";
 import { listBaseModelsQuery, listBaseModels } from "../../src/Types";
@@ -207,7 +211,7 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
 
 - `getBaseModelResponse`라는 함수를 만드는 방식에 예외처리를 추가해 주면,
 
-```typescript
+```typescript:pages/getBaseModelResponse.ts
 function getBaseModelResponse(data: listBaseModelsQuery) {
   const { listBaseModels } = data;
   if (isNull(listBaseModels) || isUndefined(listBaseModels)) return defaultData;
@@ -272,7 +276,7 @@ function getBaseModelResponse(data: listBaseModelsQuery) {
 
 - `{project-root}/amplify/backend/function/{function-name}/src`가 `outDir`이 되도록 `tsconfig.json`을 설정하고, 프로젝트는 `{project-root}/amplify/backend/function/{function-name}/lib`가 Lambda 함수 TypeScript 프로젝트가 되도록 한다.
 
-```json
+```json:tsconfig.json
 {
   "compilerOption": {
     "outDir": "../src"
@@ -282,7 +286,7 @@ function getBaseModelResponse(data: listBaseModelsQuery) {
 
 - `lib`의 이름을 변경해도 상관없다. amplify로 `push`할 때 build 되도록 설정해야 한다. 이를 위해서 `{project-root}`의 `package.json`에 스크립트를 추가해야한다.
 
-```json
+```json:package.json
 {
   "scripts": {
     "amplify:{function-name}": "cd amplify/backend/function/{function-name}/lib && yarn && yarn build && cd -"
