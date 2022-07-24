@@ -62,5 +62,8 @@
     "typescriptreact",
     "yml"
   ],
-  "explorer.fileNesting.enabled": true
+  "explorer.fileNesting.enabled": true,
+  "[svg]": {
+    "editor.defaultFormatter": "jock.svg"
+  }
 }
