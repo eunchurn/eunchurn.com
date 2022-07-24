@@ -22,11 +22,11 @@ tags:
 
 여기서는 주로 GraphQL의 Context를 사용하여 공용 함수와 인증 처리를 진행하였다.
 
-그리고 이번주는 CRUD와 어드민 작업을 위해 그간 오래도록 써왔던 `nexus-plugin-prisma`의 `experimentalCRUD`를 버리고(진작에 deprecated됨), 그리고 Prisma팀에서 더디게 개발중인 `nexus-plugin`도 버리기로 결심하였다. 그 이유는 `pal.js`가 어느정도 CRUD 리졸버들을 깔끔하게 만들어주고 게다가 `PrismaTable`이라는 어드민 컴포넌트를 제공해주기 때문에...
+그리고 이번주는 CRUD와 어드민 작업을 위해 그간 오래도록 써왔던 [nexus-plugin-prisma](https://github.com/graphql-nexus/nexus-plugin-prisma)의 `experimentalCRUD`를 버리고(진작에 deprecated됨), 그리고 Prisma팀에서 더디게 개발중인 [nexus-prisma](https://nexus.prisma.io/)도 버리기로 결심하였다. 그 이유는 [pal.js](https://paljs.com/)가 어느정도 CRUD 리졸버들을 깔끔하게 만들어주고 게다가 `PrismaTable`이라는 어드민 컴포넌트를 제공해주기 때문에...
 
 ## GraphQL structure
 
-Nexus GraphQL 프레임워크를 사용하며, 거의 모든 커스텀 쿼리를 Root에 노출했었다. 사용하는데엔 큰 문제는 없지만 엔드포인트가 많아지니 여러 개발자가 만들어낸 엔드포인트의 네이밍 컨벤션부터 각각 다르기도 하고 비슷한 이름들로 인해 헷갈리는 경우가 많이 있었다. 따라서 이러한 커스텀 Root Queries나 Mutations을 엔드포인트 특성에 맞게 그룹화하여 정리하는 것을 초반단계에서 준비를 잘해야겠다는 생각에 구조화를 진행하였다.
+[Nexus GraphQL](https://nexusjs.org/) 프레임워크를 사용하며, 거의 모든 커스텀 쿼리를 Root에 노출했었다. 사용하는데엔 큰 문제는 없지만 엔드포인트가 많아지니 여러 개발자가 만들어낸 엔드포인트의 네이밍 컨벤션부터 각각 다르기도 하고 비슷한 이름들로 인해 헷갈리는 경우가 많이 있었다. 따라서 이러한 커스텀 Root Queries나 Mutations을 엔드포인트 특성에 맞게 그룹화하여 정리하는 것을 초반단계에서 준비를 잘해야겠다는 생각에 구조화를 진행하였다.
 
 ![graphql-structure](/static/images/2022/07/graphql-structure.svg)
 
@@ -176,23 +176,32 @@ query externalToken($scope: ExternalAuthScope) {
 
 ## GraphQL CRUD API
 
-단순 CRUD관점에서 API개발과 프론트엔드 개발에 Type-safe pipeline은 아래 그림과 같이 구성된다. 백엔드 개발자는 Prisma Schema 만 설계하면 된다. 이 스키마는 DB Migration을 통해 데이터베이스의 변경점을 관리하고, Generation을 통해 Type과 (툴을 이용해)GraphQL 스키마를 만들어낸다. 그리고 이 GraphQL 스키마는 `rover`를 통해 Apollo studio로 스키마를 보낸다. 프론트엔드 개발자는 `rover`로 스키마의 변경점을 확인하고 프론트엔드 프로젝트로 스키마를 업데이트 한다. `graphql-codegen`은 이 스키마를 통해 스키마에 사용되는 모든 Type을 만들어내고, (Apollo studio에서 Query, Mutation문을 작성하고) 프론트엔드 개발자가 사용하고자 하는 Operations(`.graphql`파일)을 모두 스캔해서 읽어 `@apollo/client`든 `urql`이든 클라이언트 Operation에 해당하는 타입과 Document를 생성시킨다. 여기서는 `@apollo/client` hooks를 만든다고 가정하면 프론트 개발자는 apollo hooks를 이용해 컨테이너 컴포넌트를 만들면 된다.
+단순 CRUD관점에서 API개발과 프론트엔드 개발에 Type-safe pipeline은 아래 그림과 같이 구성된다. 백엔드 개발자는 [Prisma Schema](https://www.prisma.io/docs/concepts/components/prisma-schema) 만 설계하면 된다. 이 스키마는 DB Migration을 통해 데이터베이스의 변경점을 관리하고, Generation을 통해 Type과 (툴을 이용해)GraphQL 스키마를 만들어낸다. 그리고 이 GraphQL 스키마는 `rover`를 통해 Apollo studio로 스키마를 보낸다. 프론트엔드 개발자는 `rover`로 스키마의 변경점을 확인하고 프론트엔드 프로젝트로 스키마를 업데이트 한다. `graphql-codegen`은 이 스키마를 통해 스키마에 사용되는 모든 Type을 만들어내고, (Apollo studio에서 Query, Mutation문을 작성하고) 프론트엔드 개발자가 사용하고자 하는 Operations(`.graphql`파일)을 모두 스캔해서 읽어 `@apollo/client`든 `urql`이든 클라이언트 Operation에 해당하는 타입과 Document를 생성시킨다. 여기서는 `@apollo/client` [hooks](https://www.apollographql.com/docs/react/api/react/hooks)를 만든다고 가정하면 프론트 개발자는 [apollo hooks](https://www.apollographql.com/docs/react/api/react/hooks)를 이용해 컨테이너 컴포넌트를 만들면 된다.
 
-만약 DB 스키마의 변경점이 생기면(Prisma migration을 통한) GraphQL 스키마가 변경되고, 자동 생성된 프론트 클라이언트 코드 또한 타입이 변경되게 된다. 예를 들면 Prisma schema 중 nonNull 필드가 nullable로 변경되면, 이 필드를 사용하는 프론트 프로젝트는 (받은 데이터의 값이 null인경우 대비하지 않았다면) TypeScript 에러를 발생시키게 될 것이다.
+```typescript
+import { usePostQuery } from "generated/types";
+
+export function Post() {
+  const { data, loading, error } = usePostQuery();
+  return <PostPresenter data={data} />;
+}
+```
+
+만약 DB 스키마의 변경점이 생기면([Prisma migration](https://www.prisma.io/docs/concepts/components/prisma-migrate)을 통한) GraphQL 스키마가 변경되고, 자동 생성된 프론트 클라이언트 코드 또한 타입이 변경되게 된다. 예를 들면 Prisma schema 중 nonNull 필드가 nullable로 변경되면, 이 필드를 사용하는 프론트 프로젝트는 (받은 데이터의 값이 null인경우 대비하지 않았다면) TypeScript 에러를 발생시키게 될 것이다.
 
 ![schema-to-types](/static/images/2022/07/schema-to-types.svg)
 
-매우 타입 안정적인 시스템은 그렇다. GraphQL 자체가 Type-safe하게 만들긴 하지만, API 코드들 또한 Type-safe하게 만들어주기 때문에, Prisma ORM을 사용하는 것을 포기할 수 없다.
+매우 타입 안정적인 시스템은 그렇다. GraphQL 자체가 Type-safe하게 만들긴 하지만, API 코드들 또한 Type-safe하게 만들어주기 때문에, [Prisma ORM](https://www.prisma.io/)을 사용하는 것을 포기할 수 없다.
 
-지금까지 이런 방식으로 안정적인 모놀리식 API를 만들어왔지만, CRUD를 만들어주는 `nexus-plugin-prisma`은 deprecated 되어 Prisma 버전 2를 사용하기엔 메이저 버전 2단계나 올라간 Prisma 4를 사용할 수 없다는 점이 아쉽고, 그렇다고 Prisma 팀이 개발중인 Prisma 플러그인인 `nexus-prisma`는 early-preview이기 때문에 Production에서 사용하기 매우 불안하다. 그리고 아직 CRUD는 지원하지 않는다. 하지만 어쩔 수 없이 CRUD를 사용해야하기 때문에 warning에도 불구하고 `nexus-plugin-prisma`을 사용해 왔었다.
+지금까지 이런 방식으로 안정적인 모놀리식 API를 만들어왔지만, CRUD를 만들어주는 [`nexus-plugin-prisma`](https://github.com/graphql-nexus/nexus-plugin-prisma)은 deprecated 되어 Prisma 버전 2를 사용하기엔 메이저 버전 2단계나 올라간 Prisma 4를 사용할 수 없다는 점이 아쉽고, 그렇다고 Prisma 팀이 개발중인 Prisma 플러그인인 [`nexus-prisma`](https://nexus.prisma.io/)는 early-preview이기 때문에 Production에서 사용하기 매우 불안하다. 그리고 아직 CRUD는 지원하지 않는다. 하지만 어쩔 수 없이 CRUD를 사용해야하기 때문에 warning에도 불구하고 [`nexus-plugin-prisma`](https://github.com/graphql-nexus/nexus-plugin-prisma)을 사용해 왔었다.
 
 ### Nexus-Prisma
 
-`nexus-plugin-prisma`와 `nexus-prisma`를 조합하여 사용하는 워크플로는 아래 그림과 같다.
+[`nexus-plugin-prisma`](https://github.com/graphql-nexus/nexus-plugin-prisma)와 [`nexus-prisma`](https://nexus.prisma.io/)를 조합하여 사용하는 워크플로는 아래 그림과 같다.
 
 ![nexus-prisma-workflow](/static/images/2022/07/nexus-plugin.svg)
 
-official plugin인 `nexus-prisma`는 Prisma generate 될 때 Nexus GraphQL에서 사용할 수 있는 `objectType`들을 자동으로 만들어준다. 우리는 그 타입을 불러와서 사용하기만 하면 된다.
+official plugin인 [`nexus-prisma`](https://nexus.prisma.io/)는 Prisma generate 될 때 Nexus GraphQL에서 사용할 수 있는 `objectType`들을 자동으로 만들어준다. 우리는 그 타입을 불러와서 사용하기만 하면 된다.
 
 ```typescript
 import { objectType } from "nexus";
@@ -205,9 +214,9 @@ export const post = objectType({
 });
 ```
 
-또한, `nexus-plugin-prisma`은 `experimentalCRUD` 옵션을 사용해 `t.crud()`와 `t.model()`을 사용할 수 있도록 해준다. 말그래도 사용할 수 있도록이라서, 결국 `t.crud()`와 `t.model()`은 개발자가 직접 만들어주어야 한다. 2년전에 이 플러그인을 접했을 땐 참 합리적이라고 생각했다. TypeGraphQL과 다르게 쓰고자하는 모델만 개발자가 입맛에 맞게 노출해주면 되니깐, 하지만 모델이 복잡해 질 수록 백엔드 개발자가 할일이 많아진다. Prisma 스키마가 변경되면 `t.model()`도 같이 변경시켜주어야 한다.
+또한, [`nexus-plugin-prisma`](https://github.com/graphql-nexus/nexus-plugin-prisma)은 `experimentalCRUD` 옵션을 사용해 `t.crud()`와 `t.model()`을 사용할 수 있도록 해준다. 말그래도 사용할 수 있도록이라서, 결국 `t.crud()`와 `t.model()`은 개발자가 직접 만들어주어야 한다. 2년전에 이 플러그인을 접했을 땐 참 합리적이라고 생각했다. TypeGraphQL과 다르게 쓰고자하는 모델만 개발자가 입맛에 맞게 노출해주면 되니깐, 하지만 모델이 복잡해 질 수록 백엔드 개발자가 할일이 많아진다. Prisma 스키마가 변경되면 `t.model()`도 같이 변경시켜주어야 한다.
 
-과거에 `nexus-plugin-prisma`를 사용하여 `experimentalCRUD`를 아래와 같이 만들어 왔었다. `fieldAuthorizePlugin`과 `nexusShield` 그리고 mocking을 위한 스키마 까지...
+과거에 [`nexus-plugin-prisma`](https://github.com/graphql-nexus/nexus-plugin-prisma)를 사용하여 `experimentalCRUD`를 아래와 같이 만들어 왔었다. `fieldAuthorizePlugin`과 `nexusShield` 그리고 mocking을 위한 스키마 까지...
 
 ```typescript
 import { nexusPrisma } from "nexus-plugin-prisma";
