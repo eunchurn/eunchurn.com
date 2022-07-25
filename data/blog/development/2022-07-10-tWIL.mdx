@@ -89,9 +89,7 @@ Redux-thunk는 `@reduxjs/toolkit`에 내장이 되어있다. 음 `redux-sagas`�
 
 리듀서는 아래와 같이 export 하고, hooks는 TypeScript 지원하도록 만든다.
 
-`src/store/features/auth/index.ts`
-
-```typescript:index.ts
+```typescript:store/features/auth/index.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const authSlice = createSlice({
@@ -172,9 +170,7 @@ export const signIn = createAsyncThunk("auth/signin", async (args: SignInOpts) =
 
 앞서 만든 `createSlice`에서 `extraReducers`로 추가한다. async 요청에서 `pending`은 Promise pending, `fullfilled`는 Promise fullfilled, `rejected`는 Promise rejected를 나타낸다. 직관적이면서도 다루기 편하다.
 
-`src/store/features/auth/index.ts`
-
-```typescript:index.ts
+```typescript:store/features/auth/index.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const authSlice = createSlice({
@@ -225,9 +221,7 @@ export const { setEmail, setPassword } = authSlice.actions;
 
 컴포넌트에서는 다음과 같이 사용한다.
 
-`src/Views/SignIn/index.tsx`
-
-```typescript:index.tsx
+```typescript:Views/SignIn/index.tsx
 import React from "react";
 import { signIn, useAppDispatch, useAppSelector, rememberUserFetch } from "Store";
 
@@ -248,9 +242,7 @@ export function SignIn() {
 
 `@reduxjs/toolkit/query/react`를 React에서 사용하면 된다. `useSWR`과 매우 유사하며, 오히려 좀 편하다.
 
-`src/store/features/api/index.ts`
-
-```typescript:index.ts
+```typescript:store/features/api/index.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const apiSlice = createApi({
@@ -291,7 +283,7 @@ export const { usePostApiTestQuery, usePostMutationApiTestMutation } = apiSlice;
 
 클라이언트에서 hook을 쓰기 전에 `configureStore`에 이 `apiSlice`를 추가해주어야 한다.
 
-```typescript:src/store/index.ts
+```typescript:store/index.ts
 import { configureStore, Middleware } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import logger from "redux-logger";
@@ -325,7 +317,7 @@ const middlewares = (): Middleware[] => {
 
 컴포넌트에서 사용해보자.
 
-```typescript:src/Views/APITest.tsx
+```typescript:Views/APITest.tsx
 import React from "react";
 import { useAppDispatch, usePostApiTestQuery, usePostMutationApiTestMutation } from "Store";
 

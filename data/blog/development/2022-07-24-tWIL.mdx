@@ -38,9 +38,9 @@ tags:
 
 커스텀 리졸버를 위한 쿼리필드를 추가한다. 외부 SDK사용을 위한 엔드포인트는 이제 `external`안으로 모은다.
 
-`src/schema/types/customQueries/external/index.ts`
+<!-- `src/schema/types/customQueries/external/index.ts` -->
 
-```typescript:index.ts
+```typescript:customQueries/index.ts
 export const externalQuery = queryField("external", {
   type: ExternalQueryType,
   description: "외부 SDK 사용을 위한 쿼리",
@@ -54,9 +54,9 @@ export const externalQuery = queryField("external", {
 
 하위 리졸버를 그룹화 해보자. 이 외부 SDK가 `authentication`과 `dataManagement`와 `modelManagement`라는 3개의 그룹으로 나뉘어 있다고 생각하고 각각의 타입과 리졸버를 만들어준다.
 
-`src/schema/types/customQueries/external/types.ts`
+<!-- `src/schema/types/customQueries/external/types.ts` -->
 
-```typescript:types.ts
+```typescript:customQueries/types.ts
 export const ExternalQueryType = objectType({
   name: "ExternalQueryType",
   description: "External Query API",
@@ -86,9 +86,9 @@ export const ExternalQueryType = objectType({
 
 이제 `children`으로 내려준 타입에서 커스텀 리졸버 엔드포인트들을 추가하기 위한 타입 정의를 해준다. 여기는 `extendType`메서드로 여기서 만든 타입들을 extend하여 타입을 만들 예정이기 때문에, 여기서는 `definition(t)`함수는 `undefined`를 반환하도록 한다.
 
-`src/schema/types/customQueries/external/types.ts`
+<!-- `src/schema/types/customQueries/external/types.ts` -->
 
-```typescript:types.ts
+```typescript:customQueries/types.ts
 export const ExternalAuthenticationQueries = objectType({
   name: "ExternalAuthenticationQueries",
   description: "Authentication (OAuth) API v1: https://.../",
@@ -119,9 +119,9 @@ export const ExternalModelManagementQueries = objectType({
 
 적절한 폴더 구조를 만들어 `extendType`을 만들어 보면(여기서는 `authentication`만 고려) `external` > `authentication` > `getExternalAuthToken` 이러한 구조로 Query가 만들어진다.
 
-`src/schema/types/customQueries/external/authentication/index.ts`
+<!-- `src/schema/types/customQueries/external/authentication/index.ts` -->
 
-```typescript:index.ts
+```typescript:customQueries/authentication.ts
 import { extendType, objectType, arg } from "nexus";
 import { externalAuthScope } from "../enum";
 
@@ -156,7 +156,7 @@ export const getExternalToken = extendType({
 
 여기서 리턴 타입은 다음과 같다.
 
-`src/schema/types/customQueries/external/authentication/types.ts`
+<!-- `src/schema/types/customQueries/external/authentication/types.ts` -->
 
 ```typescript:types.ts
 export const ExternalAuthToken = objectType({
@@ -173,7 +173,7 @@ export const ExternalAuthToken = objectType({
 
 GraphQL 쿼리는 다음과 같이 사용한다. 이렇게 하면 루트쿼리에 모든 쿼리를 노출하지않고 API를 잘 정리할 수 있다.
 
-```graphql:src/Views/External/externalToken.graphql
+```graphql:externalToken.graphql
 query externalToken($scope: ExternalAuthScope) {
   external {
     authentication {
@@ -232,7 +232,7 @@ export const post = objectType({
 
 과거에 [`nexus-plugin-prisma`](https://github.com/graphql-nexus/nexus-plugin-prisma)를 사용하여 `experimentalCRUD`를 아래와 같이 만들어 왔었다. `fieldAuthorizePlugin`과 `nexusShield` 그리고 mocking을 위한 스키마 까지...
 
-```typescript:src/schema/index.ts {13-20}
+```typescript:schema/index.ts {13-20}
 import { nexusPrisma } from "nexus-plugin-prisma";
 import { makeSchema, fieldAuthorizePlugin, declarativeWrappingPlugin } from "nexus";
 import { SchemaConfig } from "nexus/dist/builder";
@@ -365,7 +365,7 @@ Generation 스크립트는 `pal g`. 원하던 Plain nexus `objectType`들이 모
 
 바로 현 프로젝트에 적용해보았다. 지금까지 만들었던 모든 `models`와 `crud`를 삭제하고...
 
-```typescript:src/schema/index.ts {13-16}
+```typescript:schema/index.ts {13-16}
 import { makeSchema, fieldAuthorizePlugin, declarativeWrappingPlugin } from "nexus";
 import { SchemaConfig } from "nexus/dist/builder";
 import { nexusShield, allow } from "nexus-shield";
