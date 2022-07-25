@@ -89,7 +89,9 @@ Redux-thunk는 `@reduxjs/toolkit`에 내장이 되어있다. 음 `redux-sagas`�
 
 리듀서는 아래와 같이 export 하고, hooks는 TypeScript 지원하도록 만든다.
 
-```typescript:src/store/features/auth/index.ts
+`src/store/features/auth/index.ts`
+
+```typescript:index.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const authSlice = createSlice({
@@ -147,7 +149,9 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 이제 `thunk`를 해보자. (Amplify에서 Cognito Auth로 SignIn을 사용한다고 가정하면...)
 
-```typescript:src/store/features/auth/thunks.ts
+`src/store/features/auth/thunks.ts`
+
+```typescript:thunks.ts
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Auth } from "aws-amplify";
 import type { ClientMetaData, UsernamePasswordOpts } from "@aws-amplify/auth/lib-esm/types/Auth";
@@ -168,7 +172,9 @@ export const signIn = createAsyncThunk("auth/signin", async (args: SignInOpts) =
 
 앞서 만든 `createSlice`에서 `extraReducers`로 추가한다. async 요청에서 `pending`은 Promise pending, `fullfilled`는 Promise fullfilled, `rejected`는 Promise rejected를 나타낸다. 직관적이면서도 다루기 편하다.
 
-```typescript:src/store/features/auth/index.ts
+`src/store/features/auth/index.ts`
+
+```typescript:index.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export const authSlice = createSlice({
@@ -219,7 +225,9 @@ export const { setEmail, setPassword } = authSlice.actions;
 
 컴포넌트에서는 다음과 같이 사용한다.
 
-```typescript:src/Views/SignIn/index.tsx
+`src/Views/SignIn/index.tsx`
+
+```typescript:index.tsx
 import React from "react";
 import { signIn, useAppDispatch, useAppSelector, rememberUserFetch } from "Store";
 
@@ -240,7 +248,9 @@ export function SignIn() {
 
 `@reduxjs/toolkit/query/react`를 React에서 사용하면 된다. `useSWR`과 매우 유사하며, 오히려 좀 편하다.
 
-```typescript:src/store/features/api/index.ts
+`src/store/features/api/index.ts`
+
+```typescript:index.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const apiSlice = createApi({

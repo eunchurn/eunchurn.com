@@ -53,7 +53,7 @@ Nexus 프레임워크를 사용하는 가장 큰 이유는 일반적으로 Graph
 
 Prisma 스키마에는 `nexus-prisma` 제너레이터를 추가해주어야 합니다.
 
-```prisma
+```prisma:prisma/schema.prisma
 generator nexusPrisma {
   provider = "nexus-prisma"
 }
@@ -95,7 +95,7 @@ import { TestUser } from "nexus-prisma";
 - `TestUser` 라는 넥서스 타입의 필드들은 각각 `name`, `type`, `resolve` 를 각각 가지고 있습니다. 따라서 Nexus-GraphQL 루틴대로 별개로 추가할 필요 없이 아래와 같이 `t.field()` 혹은 `t.list.field()`에 추가해주기만 하면 됩니다.
 - Relation model를 필터링을 하거나 Ordering을 하거나 Pagination, 날짜조건 필터등을 추가해야할 땐 아래와 같이 커스텀 리졸버를 만들어줍니다.
 
-```tsx
+```typescript:src/types/models/TestUser.ts
 import { intArg, nullable, objectType } from "nexus";
 import { TestUser } from "nexus-prisma";
 
@@ -160,7 +160,7 @@ export const TestUserType = objectType({
 
 타입은 아래와 같이 recursive한 Conditional Type을 사용하고 있습니다.
 
-```tsx
+```typescript
 type RecursivelyReplaceNullWithUndefined<T> = T extends null
   ? undefined
   : T extends Record<string, unknown>
@@ -174,7 +174,7 @@ type RecursivelyReplaceNullWithUndefined<T> = T extends null
 
 함수도 마찬가지로 recursive한 함수로 만들었습니다.
 
-```tsx
+```typescript
 function replaceNullsWithUndefineds<T>(obj: T): RecursivelyReplaceNullWithUndefined<T> {
   const newObj: any = {};
   Object.keys(obj).forEach((k) => {
@@ -194,7 +194,7 @@ function replaceNullsWithUndefineds<T>(obj: T): RecursivelyReplaceNullWithUndefi
 
 이 함수는 객체가 가지고 있는 모든 `undefined` 성분을 `null` 로 교체해 줍니다.
 
-```tsx
+```typescript
 type RecursivelyReplaceUndefinedWithNull<T> = T extends undefined
   ? null
   : T extends Record<string, unknown>
@@ -208,7 +208,7 @@ type RecursivelyReplaceUndefinedWithNull<T> = T extends undefined
 
 함수도 마찬가지로 recursive 함수로 제작되었습니다.
 
-```tsx
+```typescript
 function replaceUndefinedsWithNulls<T>(obj: T): RecursivelyReplaceUndefinedWithNull<T> {
   const newObj: any = {};
   Object.keys(obj).forEach((k) => {

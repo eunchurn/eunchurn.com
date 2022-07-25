@@ -193,7 +193,9 @@ type GetBaseModelQueryResponse = {
 
 - 이제 Nextjs에서 쓸 `getServerSideProps`를 만들어준다면, 아래와 같다.
 
-```typescript
+`pages/model/getServerSideProps.ts`
+
+```typescript:getServerSideProps.ts
 type GetBaseModelResponse = ReturnType<typeof getBaseModelResponse>;
 
 // Server PropType
@@ -211,7 +213,9 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
 
 - `getBaseModelResponse`라는 함수를 만드는 방식에 예외처리를 추가해 주면,
 
-```typescript:pages/getBaseModelResponse.ts
+`pages/model/getServerSideProps.ts`
+
+```typescript:getServerSideProps.ts
 function getBaseModelResponse(data: listBaseModelsQuery) {
   const { listBaseModels } = data;
   if (isNull(listBaseModels) || isUndefined(listBaseModels)) return defaultData;
