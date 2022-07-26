@@ -77,8 +77,6 @@ export async function runServer() {
 
 클라이언트에서 `ApolloLink`는 `apollo-require-preflight`설정을 해주어야 `File` 객체가 `readableStream`과 함께 API로 넘어온다.
 
-<!-- `src/contexts/ApolloProvider/useApolloClient.ts` -->
-
 ```typescript:useApolloClient.ts
 const httpLink = createUploadLink({
   uri,
@@ -108,8 +106,6 @@ Apollo client를 사용하는 묘미는 [GraphQL-codegen](https://www.graphql-co
 
 Apollo client에 async 형태의 `setContext`링크를 만들 경우가 있었다. 외부 경로 fetch후 header값을 설정하는 경우가 있는데 다행이 `setContext`의 `setter`에 Promise를 허용하여 사용하면 되지만, Amplify를 이용한 클라이언트에서 API 로드밸런서 인증을 통과하기 위한 클라이언트 링크 작업이 필요했다.
 
-<!-- `src/contexts/ApolloProvider/useApolloClient.ts` -->
-
 ```typescript:useApolloClient.ts
 import { setContext } from "@apollo/client/link/context";
 import { Auth } from "aws-amplify";
@@ -132,8 +128,6 @@ const asyncAuthLink = setContext(
 ![apollo-auth-link](/static/images/2022/07/apollo-amplify-auth-link.svg)
 
 여기서 Amplify의 UI 이벤트 핸들러인 [Hub](https://docs.amplify.aws/console/uibuilder/eventhandling/)를 사용한다. Amplify에서 사용하는 이벤트를 받을 수 있고, `auth` 이벤트가 발생할 경우 이벤트 조건에 따라 Apollo Client의 client의 link를 변경하도록 한다. 여기서는 로그인 했을 때와, 로그아웃한 경우의 조건으로 나누어 `addListeners`함수를 만든다.
-
-<!-- `src/contexts/ApolloProvider/amplifyAuthLink.ts` -->
 
 ```typescript:amplifyAuthLink.ts
 let amplifyAuthLink: AuthLink | null = null;
@@ -168,8 +162,6 @@ export const addListeners = (region: string, url: string) => {
 
 링크가 끊어질 때 제거할 리스너 함수 `removeListeners`는
 
-<!-- `src/contexts/ApolloProvider/amplifyAuthLink.ts` -->
-
 ```typescript:amplifyAuthLink.ts
 /**
  * It removes a listener from the Hub
@@ -181,8 +173,6 @@ export const removeListeners = (handler: HubCallback) => Hub.remove("auth", hand
 #### Apollo client 생성
 
 Apollo client는 여러 링크 마지막에 `httpLink`를 사용하지만, 여기서는 파일 업로드도 미들웨어로 사용하기 위해 `uploadLink`를 httpLink로 사용하고(httpLink가 포함되어 있음, 백엔드에 파일 업로드 `csrf` 설정이 되어있기 때문에 preflight 요청이 헤더에 포함되어야 한다.) 여기서는 주목해야할 부분은 `asyncAuthLink`과 `createIamAuthLink`이다. 원래는 그림에서 보였듯이 조건부 링크를 위한 `amplifyAuthLink`가 붙어야 한다. `jwt`토근 기반 인증으로 일단 public API로 전환한 상태이다(잘 안됐기 때문에...). 이건 후에 설명하기로 하고, Apollo client는 아래 함수로 생성하며, 이 함수는 `useApolloClient` hook으로 실행된다.
-
-<!-- `src/contexts/ApolloProvider/useApolloClient.ts` -->
 
 ```typescript:useApolloClient.ts
 /**
@@ -208,8 +198,6 @@ const createApolloClient = (region: string, uri: string) => {
 };
 ```
 
-<!-- `src/contexts/ApolloProvider/useApolloClient.ts` -->
-
 ```typescript:useApolloClient.ts
 /**
  * It creates an Apollo Client, and then adds and removes listeners to update the client when the
@@ -231,8 +219,6 @@ export const useApolloClient = (region: string, uri: string) => {
 ### Apollo links
 
 여기에 쓰인 Apollo Link들은 4개이다. `createAuthLink`, `createCognitoAuthLink`, `createIamAuthLink`, `cachedAmplifyAuthLink` 모두 다 쓰는 것은 아니고, 필요에 따라 스위치하도록 만들려고 했다. 초기에 밝혔듯이 API는 API Gateway에 물릴 생각이다. 즉, `execute-api`로 Signed 헤더를 셋팅해야 한다. 그러나 `aws-appsync-auth-link`는 `appsync`라는 요청으로 보내게 된다. 결국 API Gateway는 `InvalidSignedException`을 뱉어낸다. console에서는 `CORS`를 뱉기 때문에 Network탭에서 Response 오류를 보면 에러를 볼 수 있다. 즉, API Gateway나 ALB에 Cognito인증 헤더를 보내기 위해서는 `aws-appsync-auth-link`를 고쳐서 만들어야 하는 결론이 나왔다. 그래서 일단 API를 인증없이 오픈해놓고 `jwt` 토큰만 내려보내게 해놓았다. 즉 Apollo server 에서는 토큰으로 사용자 context를 읽고 처리는 가능하다. 추후 이 Link는 만들어야 한다.
-
-<!-- `src/contexts/ApolloProvider/amplifyAuthLink.ts` -->
 
 ```typescript:amplifyAuthLink.ts
 import { ApolloLink } from "@apollo/client";
