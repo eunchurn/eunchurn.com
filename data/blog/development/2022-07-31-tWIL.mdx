@@ -1,0 +1,879 @@
+---
+date: "2022-07-31"
+title: "tWIL 2022.07 4주차"
+draft: false
+summary: "This week I learned"
+featured: /static/images/2022/06/tWIL.jpg
+categories:
+  - development
+tags:
+  - development
+  - TypeScript
+  - GraphQL
+  - GraphQL-codegen
+  - Prisma
+  - Nexus GraphQL
+  - Paljs
+  - Reactjs
+  - Nextjs
+---
+
+### TL;DR
+
+이번주는 지난주에 이어 `@paljs/admin`을 작업하였다. 장점이 너무 많아 단점을 상쇄한 것 같다.
+
+첫번째로는 `PrismaTable`이라는 컴포넌트가 가진 막강함 그리고 커스터마이징의 어려움이 있었고, 이 `PrismaTable`은 [Strapi.io](https://strapi.io/) 수준은 아니지만 퀄리티 높은 테이블 리스팅, 페이지네이션, 필터 등의 기능을 제공하였다. Relation 테이블도 리스팅이 되며, 연결된 테이블과의 연동성도 매우 좋았다.
+
+![prisma-table](https://paljs.com/table.png)
+
+몇가지 단점으로는 `@paljs/ui`에서 제공하는 테마 적용이 안되는 점과 Reactjs에서는 좀 손이 많이가는 반면 Nextjs에서는 손쉽게 컴포넌트가 `pages`폴더에 정리가 된다. 이 컴포넌트도 마찬가지로 Generation된 컴포넌트이기 때문에 관리점에서 제외시킬 수 있어서 좋긴 하지만, 몇 개의 테이블 컴포넌트의 커스터마이징 이후에는 수작업이 따라야 한다는 점이다. 그리고 테이블 설정은 백엔드의 `adminSettings.json`이라는 파일로 관리한다. 몇개 안되는 테이블에서도 꽤 많은 설정파일의 길이를 가진다. 당연 `Setting` 컴포넌트로 이 설정파일을 관리할 수 있지만, 배포전에 로컬에서 설정하고 벡엔드를 배포해야하는 단점이 있다. 이것은 나중에 Document방식의 DB로 관리가 되면 좋을 것 같다.
+
+## Paljs Prisma admin
+
+Nextjs와 Gatsbyjs의 예제는 여기에 잘 나와있다. [paljs.com/prisma-admin](https://paljs.com/prisma-admin/) 별도의 백엔드를 가지고 있는 경우 여기 문서의 어드민 만들기에서 조금 변형을 해야한다.
+
+### Backend
+
+![paljs-workflow](/static/images/2022/07/paljs-workflow.svg)
+
+폴더를 만들고, 프로젝트 셋업을 한다. 여기서는 내가 만들고 주로 사용하는 [TypeScript 프로젝트 생성 보일러플레이팅 CLI](https://github.com/eunchurn/packages/packages/1490281)로 프로젝트를 생성한다. (`typescript`, `ts-node`, `ts-node-dev`, `jest`, `ts-jest`, `module-aliases`등이 설치된다.)
+
+```sh
+npm init -y
+npx @eunchurn/init
+```
+
+```
+⠋ 🎁 installing TypeScript project...yarn add v1.22.19
+info No lockfile found.
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+[4/4] Building fresh packages...
+success Saved lockfile.
+success Saved 275 new dependencies.
+info Direct dependencies
+├─ @eunchurn/eslint-config@0.1.11
+├─ @eunchurn/prettier-config@0.0.4
+├─ ...omitted
+└─ yocto-queue@0.1.0
+Done in 17.50s.
+yarn add v1.22.19
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+[4/4] Building fresh packages...
+success Saved lockfile.
+success Saved 1 new dependency.
+info Direct dependencies
+└─ module-alias@2.2.2
+info All dependencies
+└─ module-alias@2.2.2
+Done in 0.73s.
+Created .gitignore file for flag type node.
+Created a new tsconfig.json with:
+
+  target: es2016
+  module: commonjs
+  outDir: dist
+  strict: true
+  baseUrl: .
+  paths: undefined
+  esModuleInterop: true
+  skipLibCheck: true
+  forceConsistentCasingInFileNames: true
+
+
+You can learn more at https://aka.ms/tsconfig
+Done in 0.72s.
+.eslintrc.js 22ms
+.prettierrc.js 2ms
+jest.config.ts 180ms
+package.json 4ms
+src/__tests__/index.spec.ts 2ms
+src/index.ts 1ms
+src/moduleAliases.ts 2ms
+tsconfig.json 9ms
+✔ 🎉 TypeScript project setting done
+```
+
+다음과 같이 파일들이 생성된다.
+
+```
+.
+├── jest.config.ts
+├── package.json
+├── src
+│   ├── __tests__
+│   │   └── index.spec.ts
+│   ├── index.ts
+│   └── moduleAliases.ts
+├── tsconfig.json
+└── yarn.lock
+```
+
+이제 `express`, `graphql`, `apollo-server`, `nexus`, `prisma` 그리고 `paljs`를 설치한다.
+
+```bash
+yarn add express apollo-server-express graphql nexus @paljs/nexus @prisma/client nexus-shield
+```
+
+그리고 devDependencies도 설치한다.
+
+```bash
+yarn add -D @paljs/cli prisma
+```
+
+#### Prisma DB 설정
+
+`prisma` 폴더를 만들고 `schema.prisma`파일을 만든다. 그리고 로컬 테스트를 위한 `docker-compose.yml` 파일을 프로젝트 루트에 만든다
+
+```go:prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native"]
+  previewFeatures = ["metrics"]
+}
+
+/// 사용자
+model User {
+  id    String @id @default(cuid())
+  name  String
+  posts Post[]
+}
+
+/// 포스트
+model Post {
+  id       String  @id @default(cuid())
+  title    String
+  content  String
+  author   User?   @relation(fields: [authorId], references: [id])
+  authorId String?
+}
+```
+
+```yml:docker-compose.yml
+version: "3.1"
+services:
+  postgresqldb:
+    image: postgres:13.7
+    container_name: pajs-backend
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    volumes:
+      - dbdata:/var/lib/postgresql/data/pgdata
+volumes:
+  dbdata:
+```
+
+프로젝트 루트에 DB 환경변수 `.env`파일을 설정한다.
+
+```env:.env
+DATABASE_URL=postgresql://postgres:password@localhost:5432/apidb?schema=public&connection_limit=5
+```
+
+이제 DB 컨테이너를 띄우고(`docker-compose up -d`), `prisma db push`를 통해 프로토타입 마이그레이션을 한다.
+
+```bash
+yarn prisma db push
+```
+
+#### 서버 설정
+
+`src/server.ts`와 `src/context/index.ts`,`src/schema/index.ts` 파일을 생성한다.
+
+```typescript:src/index.ts
+import "./moduleAliases";
+import "dotenv/config";
+import { runServer } from "./server";
+
+runServer();
+```
+
+```typescript:src/server.ts
+import { ApolloServer } from "apollo-server-express";
+import express from "express"
+import { schema } from "./schema";
+import { context } from "./context";
+
+const port = process.env.PORT || "8000";
+
+const app = express();
+app.use(express.json());
+app.disable("x-powered-by");
+
+const server = new ApolloServer({
+  schema,
+  context,
+  introspection: process.env.NODE_ENV !== "production",
+  csrfPrevention: true,
+  cache: "bounded",
+});
+
+export async function runServer() {
+  await server.start();
+  server.applyMiddleware({ app, path: "/" });
+  await new Promise<void>((resolve) => app.listen(Number(port), resolve));
+  logger.info(
+    `🚀 GraphQL service ready at http://localhost:${port}${server.graphqlPath}`,
+  );
+}
+```
+
+```typescript:src/schema/index.ts
+import "../moduleAliases";
+import {
+  makeSchema,
+  fieldAuthorizePlugin,
+  declarativeWrappingPlugin,
+} from "nexus";
+import { SchemaConfig } from "nexus/dist/builder";
+import { nexusShield, allow } from "nexus-shield";
+import { ForbiddenError } from "apollo-server-core";
+import * as types from "./types";
+import { paljs } from "@paljs/nexus";
+import path from "path";
+
+const option: SchemaConfig = {
+  types,
+  shouldGenerateArtifacts: true,
+  plugins: [
+    nexusShield({
+      defaultError: new ForbiddenError("Not allowed"),
+      defaultRule: allow,
+    }),
+    paljs({
+      includeAdmin: true,
+    }),
+    declarativeWrappingPlugin(),
+    fieldAuthorizePlugin({
+      formatError: ({ error }) => {
+        console.log(error);
+        return error;
+      },
+    }),
+  ],
+  sourceTypes: {
+    modules: [
+      {
+        module: "@prisma/client",
+        alias: "prisma",
+      },
+    ],
+  },
+  contextType: {
+    module: require.resolve("../context"),
+    export: "Context",
+  },
+  outputs: {
+    typegen: path.resolve(__dirname, "../generated/resolverTypes.ts"),
+    schema: path.resolve(__dirname, "../generated/schema.graphql"),
+  },
+};
+
+export const schema = makeSchema(option);
+```
+
+```typescript:src/context/index.ts
+import { ExpressContext } from "apollo-server-express";
+
+export interface Context {
+  select: any;
+}
+
+export async function context({ req, res }: ExpressContext): Promise<Context> {
+  return { select: null };
+}
+```
+
+그리고 `src/schema/types`라는 폴더를 만들고 비어있는 `index.ts` 파일을 만든다.
+
+```typescript:src/schema/types/index.ts
+export {}
+```
+
+#### Pal.js 설정
+
+자동생성될 plain `nexus` CRUD를 위치할 곳을 정의 한다. (나중에 `schema`에 담아주어야 한다.)
+
+```javascript:pal.js
+/* eslint-disable no-undef */
+/**
+ * @type {import('@paljs/types').Config}
+ **/
+module.exports = {
+  backend: {
+    generator: "nexus",
+    output: "src/schema/types/generated",
+  },
+};
+```
+
+#### Generator
+
+Generation하는 스크립트를 `package.json`에 추가한다.
+
+```json:package.json
+{
+  "scripts": {
+    ...omitted
+    "generate": "yarn generate:pal && yarn generate:prisma && yarn generate:schema",
+    "generate:prisma": "prisma generate",
+    "generate:schema": "dotenv -e .env -- ts-node --transpile-only src/schema/index.ts",
+    "pregenerate:pal": "rimraf src/schema/types/generated",
+    "generate:pal": "pal g",
+    "postgenerate:pal": "prettier --write src/schema/types/generated --loglevel silent",
+  }
+}
+```
+
+- `generate:prisma`: Prisma 타입과 클라이언트를 생성한다.
+- `generate:pal`: Paljs nexus CRUD 코드를 생성한다.
+- `generate:schema`: Nexus 스키마와 리졸버 그리고 타입을 생성한다.
+- `generate`: 이 3종의 제너레이터를 모두 실행시킨다.
+- `pregenerate:pal`: Paljs nexus CRUD를 삭제한다.
+- `postgenerate:pal`: 생성된 Paljs nexus CRUD 코드를 prettier로 스타일 fix 한다.
+
+Generate 스크립트를 실행해 보자...
+
+```
+yarn generate
+```
+
+아래와 같이 파일들이 생성된다.
+
+```sh {21-58}
+.
+├── docker-compose.yml
+├── jest.config.ts
+├── package.json
+├── pal.js
+├── prisma
+│   └── schema.prisma
+├── src
+│   ├── __tests__
+│   │   └── index.spec.ts
+│   ├── context
+│   │   └── index.ts
+│   ├── generated
+│   │   ├── resolverTypes.ts
+│   │   └── schema.graphql
+│   ├── index.ts
+│   ├── moduleAliases.ts
+│   ├── schema
+│   │   ├── index.ts
+│   │   └── types
+│   │       ├── generated
+│   │       │   ├── Post
+│   │       │   │   ├── index.ts
+│   │       │   │   ├── mutations
+│   │       │   │   │   ├── createOne.ts
+│   │       │   │   │   ├── deleteMany.ts
+│   │       │   │   │   ├── deleteOne.ts
+│   │       │   │   │   ├── index.ts
+│   │       │   │   │   ├── updateMany.ts
+│   │       │   │   │   ├── updateOne.ts
+│   │       │   │   │   └── upsertOne.ts
+│   │       │   │   ├── queries
+│   │       │   │   │   ├── aggregate.ts
+│   │       │   │   │   ├── findCount.ts
+│   │       │   │   │   ├── findFirst.ts
+│   │       │   │   │   ├── findMany.ts
+│   │       │   │   │   ├── findUnique.ts
+│   │       │   │   │   └── index.ts
+│   │       │   │   └── type.ts
+│   │       │   ├── User
+│   │       │   │   ├── index.ts
+│   │       │   │   ├── mutations
+│   │       │   │   │   ├── createOne.ts
+│   │       │   │   │   ├── deleteMany.ts
+│   │       │   │   │   ├── deleteOne.ts
+│   │       │   │   │   ├── index.ts
+│   │       │   │   │   ├── updateMany.ts
+│   │       │   │   │   ├── updateOne.ts
+│   │       │   │   │   └── upsertOne.ts
+│   │       │   │   ├── queries
+│   │       │   │   │   ├── aggregate.ts
+│   │       │   │   │   ├── findCount.ts
+│   │       │   │   │   ├── findFirst.ts
+│   │       │   │   │   ├── findMany.ts
+│   │       │   │   │   ├── findUnique.ts
+│   │       │   │   │   └── index.ts
+│   │       │   │   └── type.ts
+│   │       │   └── index.ts
+│   │       └── index.ts
+│   └── server.ts
+├── tsconfig.json
+└── yarn.lock
+```
+
+이제 마지막으로 `src/schema/types/generated`에 생성된 코드의 `index.ts`를 `src/schema/types/index.ts`에서 `export` 해준다.
+
+```typescript
+export * from "./generated";
+```
+
+#### 서버 실행
+
+서버를 아래와 같은 스크립트로 실행하면
+
+```json:package.json
+{
+  "scripts": {
+    "dev": "ts-node-dev --respawn --exit-child --transpile-only src/index.ts"
+  }
+}
+```
+
+```
+yarn dev
+```
+
+오류가 발생한다.
+
+> Error: `NEXUS__UNKNOWN__TYPE` was already defined and imported as a type, check the docs for extending types
+
+그렇다. 여기도 빠른 `prisma` 개발에 따라가긴 어려운 모양이다. 약 한달전 Prisma 는 버전 4로 업그레이드가 되었고, 여기는 아직 작업중이라고 한다. [@paljs/nexus : NEXUS**UNKNOWN**TYPE was already defined when updating to prisma 4.0.0](https://github.com/paljs/prisma-tools/issues/273)
+
+그래서 Prisma 버전은 3.15.2로 내려주자.
+
+```
+yarn add @prisma/client@3.15.2
+```
+
+```
+yarn add -D prisma@3.15.2
+```
+
+```
+yarn dev
+```
+
+```
+🚀 GraphQL service ready at http://localhost:8000/
+```
+
+성공.
+
+#### Apollo studio
+
+10개의 `Query`타입과 12개의 `Mutation`타입이 만들어진다. `InputType`은 69개, `Object`타입은 12개 만들어진다. 1:N relation을 가진 2개의 테이블에 이정도의 CRUD가 생성된다.
+
+여기서 주목해야할 부분은 `Context`에 담긴 `select`이다. 앞선 tWIL에서 설명했듯이 GraphQL 리졸버의 4번째 인자는 `info`를 가지고 Prisma select가 자동으로 만들어진다. 따라서 우리는 클라이언트 쪽에서 모든 `select`와 `aggregate`가 가능하다는 것을 알 수 있다.
+
+이제 Backend가 할 일이 없어지는 것인가...
+
+Prisma로 생성한 테이블에서 조금 더 필요한 필드가 있을 수 있다.
+
+첫번째 사용자의 값을 가져와보자.
+
+```graphql
+query FindFirstUser {
+  findFirstUser {
+    posts {
+      id
+      title
+      content
+    }
+    _count {
+      posts
+    }
+  }
+}
+```
+
+여기서 posts를 가져오면서 aggregate 결과도 가져온다. 당연히 필터를 추가할 수 있다.
+
+이 사용자의 post중 제목에 "hello"가 있는 포스트만 가져오기로 하면, `_count`도 필터가 동작하여 동일하게 카운트한다.
+
+```graphql
+query FindFirstUser {
+  findFirstUser {
+    posts(where: { title: { contains: "hello " } }) {
+      id
+      title
+      content
+    }
+    _count {
+      posts
+    }
+  }
+}
+```
+
+가장 대중적으로 쓰이는 `_count`의 경우는 더이상 작업할 필요가 없다. Pagination 까지 무리없이 CRUD 어드민을 만드는데 지장이 없다.
+
+#### Extended Object type
+
+자동으로 생성되는 CRUD는 그대로 두고, `Post`에 외부로 역링크된 다른 블로그 리스트를 받아오기(가정) SDK가 있다고 해보자. 이럴때 `Post`에 자동생성된 CRUD를 건들필요 없이 `extendType`으로 타입을 확장한다.
+
+`findReferredBlogs()` 함수는 현재 없다. (어딘가에서 서비스하고 있다면...) 당연히 `id`로 블로그의 리퍼럴을 찾을 수 있진 않겠지만 그런게 가능하도록 누군가가 SDK로 서비스한다면 아래와 같이 타입을 extend할 수 있다.
+
+```typescript
+import { extendType } from "nexus";
+
+export const referredBlog = extendType({
+  type: "Post",
+  definition(t) {
+    t.list.string("referredBlogs", {
+      async resolve({ id }) {
+        const referredBlogsUrls = await findReferredBlogs(id);
+        return referredBlogsUrls;
+      },
+    });
+  },
+});
+```
+
+이렇게 타입에 필드가 추가된다.
+
+```graphql {7}
+query FindFirstUser {
+  findFirstUser {
+    posts(where: { title: { contains: "hello" } }) {
+      id
+      title
+      content
+      referredBlogs
+    }
+    _count {
+      posts
+    }
+  }
+}
+```
+
+즉, 현 백엔드 API에서 의존하는 DB가 아니더라도 여러 API와 연동하여 타입을 얼마든지 extend 할 수 있다. 이렇게 확장가능한 API는 우리에게 많은 자유를 준다.
+
+### Admin schema setting
+
+[Add graphql queries and mutation](https://paljs.com/prisma-admin/#add-graphql-queries-and-mutation)와 같은 설정이 필요하다 이전 tWIL에서도 설명했듯이 백엔드가 별도로 동작할 경우 벡엔드에서 `getSchema`의 엔드포인트가 있어야 한다. 이 부분은 고도화 작업에서 중요한 설정이 될 것 같다.
+
+```javascript:pal.js
+/* eslint-disable no-undef */
+/**
+ * @type {import('@paljs/types').Config}
+ **/
+module.exports = {
+  backend: {
+    generator: "nexus",
+    output: "src/schema/types/generated",
+  },
+  frontend: {
+    admin: true,
+  },
+};
+```
+
+와 같이 설정하고 `yarn pal g`를 수행. 그리고 생성된 `pages` 폴더는 삭제한다. 이후 `getSchema`가 노출되는 것을 볼 수 있다. 당연히 `schema/index.ts`에서 `includeAdmin: true`가 설정되어 있어야 한다.
+
+프로젝트 루트에 생성된 `adminSettings.json`을 가지고 프론트 어드민의 설정을 해줄 수 있다.
+
+## Frontend
+
+이제 어드민 앱을 만들어보자. 일단 Nextjs를 사용한다고 가정하고, 두가지 방법으로 진행할 수 있다. `schema.prisma`는 백엔드에서 관리하고 있다. 이 스키마를 프론트에서 가져오는 경우 스키마 드리프트가 발생할 여지가 있다. 그렇다고 백엔드와 프론트엔드 사이 스키마 공유가 가능해야하는데 이부분은 차차 고민해야할 것 같다.
+
+첫번째 방식은 백엔드에서 컴포넌트를 생성한 후 이를 프론트앱으로 복사해서 사용하는 경우, 두번째 방식은 `schema.prisma`를 프론트 프로젝트에 위치하고 어드민 컴포넌트를 생성하는 경우로 나눌 수 있다. 여기서는 `schema.prisma`를 어딘가에서 가지고 올 수 있다고 가정, 혹은 `introspection`이 가능하다고 가정하고 예제 프로젝트를 만들어볼 예정이다.
+
+디자인 시스템은 `@paljs/ui`를 사용하였다. 이 어드민은 오픈소스로 템플릿이 공개되어 있다. [paljs/nextjs-admin-template](https://github.com/paljs/nextjs-admin-template) [Demo](https://nextjs-admin.paljs.com/) 이 디자인 시스템이 맘에 들지 않는다면 얼마든지 다른 디자인 시스템을 이용해도 괜찮다.
+
+### Nextjs
+
+이 템플릿을 클론한다.
+
+```
+git clone git@github.com:paljs/nextjs-admin-template.git paljs-frontend
+```
+
+커스터마이징은 알아서 진행하도록 한다.
+
+- `@paljs/admin`은 아폴로 클라이언트를 사용한다. 따라서 `@apollo/client`, `graphql`을 설치해준다.
+
+```bash
+yarn add @paljs/admin @apollo/client graphql
+```
+
+- `pal.js` 셋업
+
+```javascript:pal.js
+/* eslint-disable no-undef */
+// @ts-check
+
+/**
+ * @type {import('@paljs/types').Config}
+ **/
+
+module.exports = {
+  frontend: {
+    admin: true,
+  },
+};
+```
+
+- `pal.js` 클라이언트를 설치한다.
+
+```
+yarn add -D @paljs/cli
+```
+
+- 백엔드의 `schema.prisma`를 `prisma/schema.prisma`로 복사한다.
+- 이제 `pages`에 있는 `auth`를 제외한 모든 서브 폴더들을 지워준다. `pages/index.tsx`에서 router를 `/dashboard`로 설정한다.
+- LNB를 수정한다. `Layouts/menuItem.ts`를 수정하여 Home Page를 제외한 네비게이션들을 모두 지워준다.
+
+### Admin generate
+
+```
+yarn pal g
+```
+
+실행하면 `pages/admin/models`에 어드민 페이지가 만들어진다. 들어가 보면 좀 단순한다.
+
+```typescript
+import React from "react";
+import PrismaTable from "components/PrismaTable";
+
+const Post: React.FC = () => {
+  return <PrismaTable model="Post" />;
+};
+
+export default Post;
+```
+
+`src/components`에 `PrismaTable`이 있다는 가정하에 컴포넌트가 생겨난다. 그리고 이 `PrismaTable`은 `model`에 해당 테이블 이름을 달아주면 끝이다.
+
+`components/PrismaTable`을 만들어보자.
+
+```typescript:src/components/PrismaTable.tsx
+import React from "react";
+import { useRouter } from "next/router";
+import { PrismaTable } from "@paljs/admin/PrismaTable";
+import Layout from "Layouts";
+
+const Table: React.FC<{ model: string }> = ({ model }) => {
+  const router = useRouter();
+  return (
+    <Layout title={model}>
+      <PrismaTable
+        model={model}
+        push={router.push}
+        query={router.query}
+      />
+    </Layout>
+  );
+};
+
+export default Table;
+```
+
+이제 `pages/admin/model`에 있는 라우트를 네비게이션(`Layouts/menuItem.ts`)에 설정해주면
+
+```typescript:Layouts/menuItem.ts
+import { MenuItemType } from "@paljs/ui/types";
+
+const items: MenuItemType[] = [
+  {
+    title: "Home Page",
+    icon: { name: "home" },
+    link: { href: "/dashboard" },
+  },
+  {
+    title: "Post",
+    icon: { name: "archive" },
+    link: { href: "/admin/model/Post" }
+  },
+  {
+    title: "User",
+    icon: { name: "person" },
+    link: { href: "/admin/model/User" }
+  }
+
+];
+
+export default items;
+```
+
+완료. 실행하면 아폴로 클라이언트가 설정되지 않았기 때문에 오류가 날 것이다. 일단 뷰는 완료가 되었고 아폴로 클라이언트 설정을 해보자.
+
+### Apollo client in Nextjs
+
+기존 React 에서 Apollo client 설정은 간단하다. 브라우저만 신경쓰면 되기 때문인데, Nextjs의 SSR에서는 브라우저가 아닌 서버에도 로드를 하기 때문에 hook을 사용하여 클라이언트를 만들도록 한다.
+
+`src/contexts/ApolloProvider`폴더를 만든다. 그리고 `useApolloClient.ts`에 다음과 같이 아폴로 클라이언트를 initialize 한다.
+
+```typescript:useApolloClient.ts
+import React from "react";
+import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client"
+
+const uri = "http://localhost:8000";
+
+const createApolloClient = () => {
+  const httpLink = createHttpLink({
+    uri,
+  });
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: httpLink,
+    ssrMode: typeof window === "undefined",
+  });
+};
+
+let apolloClient: any;
+
+export function initializeApollo(
+  initialState = null,
+) {
+  const _apolloClient = apolloClient ?? createApolloClient();
+
+  // If your page has Next.js data fetching methods that use Apollo Client, the initial state
+  // gets hydrated here
+  if (initialState) {
+    _apolloClient.cache.restore(initialState);
+  }
+  // For SSG and SSR always create a new Apollo Client
+  if (typeof window === "undefined") return _apolloClient;
+  // Create the Apollo Client once in the client
+  if (!apolloClient) apolloClient = _apolloClient;
+
+  return _apolloClient;
+}
+
+export const useApolloClient = (
+  initialState: any,
+) => {
+  return React.useMemo(
+    () => initializeApollo(initialState),
+    [initialState],
+  );
+};
+```
+
+그리고 `pages/_app.tsx`에 Provider를 설정한다.
+
+```typescript:pages/_app.tsx
+import { ApolloProvider } from "@apollo/client";
+import { useApolloClient } from "contexts";
+import { AppProps } from "next/app";
+
+function App({
+  Component,
+  pageProps,
+}: AppProps) {
+  const client = useApolloClient(pageProps.initialApolloState);
+  return (
+    <ApolloProvider client={client}>
+      <Component {...pageProps} />
+    </ApolloProvider>
+  )
+}
+```
+
+설정 완료.
+
+실행해보자.
+
+```bash
+yarn dev
+```
+
+![prisma-admin](/static/images/2022/07/prisma-admin.png)
+
+아직 데이터가 없어서 보여지는 것이 많이 없다. 데이터를 추가해보고 어드민을 사용해보면 어떤 느낌인지 파악이 될거라 생각한다. 단순한 어드민이기도 하지만 있을 것은 다 있어서 데이터 관리 특히 CMS관점에서는 꽤 좋다.
+
+마지막으로 설정페이지를 추가해본다.
+
+`pages/admin/index.tsx`에 추가하자. 여기는 generator가 지우지 않기 때문에 `index.tsx`정도는 만들어두어도 나쁘지 않은 것 같다.
+
+```typescript:pages/admin/index.tsx
+import React from 'react';
+import { Settings } from '@paljs/admin/Settings';
+import Layout from 'Layouts';
+
+const languateKr = {
+  dir: '경로',
+  header: '모델 Tables 수정',
+  dbName: 'DB이름',
+  displayName: '표시이름',
+  modelName: '모델 이름',
+  idField: 'ID 필드',
+  displayFields: '표시 필드',
+  // fieldName: string;
+  // actions: string;
+  // create: string;
+  // update: string;
+  // delete: string;
+  // read: string;
+  // filter: string;
+  // sort: string;
+  // editor: string;
+  // upload: string;
+  // tableView: string;
+  // inputType: string;
+};
+export default function SettingsPage() {
+  return (
+    <Layout title="설정">
+      <Settings language={languateKr} />
+    </Layout>
+  );
+}
+```
+
+보는바와 같이 메뉴 한글설정도 자유롭게 할 수 있다.
+
+그리고 `menuItem`에도 이 설정 페이지를 LNB에 넣어주자.
+
+```typescript:Layouts/menuItem.ts
+import { MenuItemType } from "@paljs/ui/types";
+
+const items: MenuItemType[] = [
+  {
+    title: "Home Page",
+    icon: { name: "home" },
+    link: { href: "/dashboard" },
+  },
+  {
+    title: "Post",
+    icon: { name: "archive" },
+    link: { href: "/admin/model/Post" }
+  },
+  {
+    title: "User",
+    icon: { name: "person" },
+    link: { href: "/admin/model/User" }
+  },
+    {
+    title: "Settings",
+    icon: { name: "settings" },
+    link: { href: "/admin" }
+  }
+];
+
+export default items;
+```
+
+![prisma-admin-settings](/static/images/2022/07/prisma-admin-settings.png)
+
+이제 테이블이나 필드 순서 그리고 표시이름 Relation 필드 표시이름까지 설정이 가능하다. 수정하면 백엔드의 `adminSettings.json`파일이 수정된다.
+
+## Wrapping up
+
+이 예제는 github에 올려둔다.
+
+- backend: [https://github.com/eunchurn/paljs-backend](https://github.com/eunchurn/paljs-backend)
+- frontend: [https://github.com/eunchurn/paljs-frontend](https://github.com/eunchurn/paljs-frontend)
+
+추후 고도화 작업에서는 이걸 모두 쓸 수 있을까 걱정이긴 하다. 하지만 백엔드의 CRUD는 계속 쓸 것 같고(Prisma 4만 지원해준다면), 프론트 어드민은 `PrismaTable`의 자유도가 좀 부족하단 느낌이다. 어느 디자인 시스템에서나 잘 붙도록 Headless 컴포넌트로 제공되었다면 훨씬 좋았을 거란 생각이 든다. 만약 필요하다면 이 오픈소스를 수정한 후 내부적으로 사용할 필요는 있을 것 같다.
+
+어찌 되었든, 어드민에 힘을 쏟지 않아도 된다는 점에서 그리고 내부에서만 사용하기로는 나쁘지 않다. 기획 운영에서 요청이 오면 `PrismaTable` 밑에 필요한 요청사항의 컴포넌트를 추가해주면 되기 때문이다.(`graphql-codegen`은 이때 사용하면 좋다) 운영용도로 사용하는 어드민에 UX를 고려하는 것과 같은 소모적인 일이 있을까.
+
+어찌되었든 약간의 어드민 고도화 작업을 하면서 겪은 SSR에서의 렌더링 문제가 좀 있었는데 이는 다음 주에 정리할 필요가 있다.
