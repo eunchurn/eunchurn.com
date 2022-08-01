@@ -872,6 +872,8 @@ export default items;
 - backend: [https://github.com/eunchurn/paljs-backend](https://github.com/eunchurn/paljs-backend)
 - frontend: [https://github.com/eunchurn/paljs-frontend](https://github.com/eunchurn/paljs-frontend)
 
+만약 풀스택으로 개발을 한다거나 백엔드만 만들기를 원하면, 이런 스크래치업 과정없이 `npx @paljs/cli create` from [CLI](https://paljs.com/cli/create)를 사용하면 된다. `full-stack-nextjs`, `full-stack-gatbyjs`의 옵션이 있고, 백엔드 작업만할 경우 `apollo-nexus-schema`, `apollo-sdl-first`, `graphql-modules`의 옵션이 있다. 프론트는 `Material UI`, `Material UI + PrismaAdmin UI`, `Tailwind CSS`, `Tailwind CSS + PrismaAdmin UI`, `Chakra UI`, `Chakra UI + PrismaAdmin UI` 옵션으로 프로젝트 생성할 수 있다.
+
 추후 고도화 작업에서는 이걸 모두 쓸 수 있을까 걱정이긴 하다. 하지만 백엔드의 CRUD는 계속 쓸 것 같고(Prisma 4만 지원해준다면), 프론트 어드민은 `PrismaTable`의 자유도가 좀 부족하단 느낌이다. 어느 디자인 시스템에서나 잘 붙도록 Headless 컴포넌트로 제공되었다면 훨씬 좋았을 거란 생각이 든다. 만약 필요하다면 이 오픈소스를 수정한 후 내부적으로 사용할 필요는 있을 것 같다.
 
 어찌 되었든, 어드민에 힘을 쏟지 않아도 된다는 점에서 그리고 내부에서만 사용하기로는 나쁘지 않다. 기획 운영에서 요청이 오면 `PrismaTable` 밑에 필요한 요청사항의 컴포넌트를 추가해주면 되기 때문이다.(`graphql-codegen`은 이때 사용하면 좋다) 운영용도로 사용하는 어드민에 UX를 고려하는 것과 같은 소모적인 일이 있을까.
