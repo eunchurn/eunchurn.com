@@ -443,9 +443,9 @@ yarn dev
 
 > Error: `NEXUS__UNKNOWN__TYPE` was already defined and imported as a type, check the docs for extending types
 
-그렇다. 여기도 빠른 `prisma` 개발에 따라가긴 어려운 모양이다. 약 한달전 Prisma 는 버전 4로 업그레이드가 되었고, 여기는 아직 작업중이라고 한다. [@paljs/nexus : NEXUS**UNKNOWN**TYPE was already defined when updating to prisma 4.0.0](https://github.com/paljs/prisma-tools/issues/273)
+그렇다. 여기도 빠른 `prisma` 개발에 따라가긴 어려운 모양이다. 약 한달전 Prisma 는 버전 4로 업그레이드가 되었고, 여기는 아직 작업중이라고 한다. [@paljs/nexus : NEXUS**UNKNOWN**TYPE was already defined when updating to prisma 4.0.0](https://github.com/paljs/prisma-tools/issues/273). Paljs를 만든 [Ahmed Elywa](https://ahmedelywa.com)는 올해 4월부터 Prisma에서 일한다고 한다. 아마도 이 오픈소스는 Prisma 공식 플러그인이나 사이드 프로젝트로 진행되지 않을까 생각해본다.
 
-그래서 Prisma 버전은 3.15.2로 내려주자.
+그래서 일단 Prisma 버전은 3.15.2로 내려주자.
 
 ```
 yarn add @prisma/client@3.15.2
