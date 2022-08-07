@@ -15,6 +15,8 @@ import remarkExtractFrontmatter from "./remark-extract-frontmatter";
 import remarkCodeTitles from "./remark-code-title";
 import remarkTocHeadings from "./remark-toc-headings";
 import remarkImgToJsx from "./remark-img-to-jsx";
+import fauxRemarkEmbedder from "@remark-embedder/core";
+import fauxOembedTransformer from "@remark-embedder/transformer-oembed";
 // Rehype packages
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
@@ -24,6 +26,9 @@ import rehypePrismPlus from "rehype-prism-plus";
 import rehypePresetMinify from "rehype-preset-minify";
 
 const root = process.cwd();
+
+const remarkEmbedder = fauxRemarkEmbedder;
+const oembedTransformer = fauxOembedTransformer;
 
 export function getFiles(type: "blog" | "authors") {
   const prefixPaths = path.join(root, "data", type);
@@ -75,6 +80,7 @@ export async function getFileBySlug<T>(type: "authors" | "blog", slug: string | 
         [remarkFootnotes, { inlineNotes: true }],
         remarkMath,
         remarkImgToJsx,
+        [remarkEmbedder, { transformers: [oembedTransformer] }],
       ];
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),

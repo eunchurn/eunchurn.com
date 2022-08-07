@@ -1,0 +1,430 @@
+---
+date: "2022-08-07"
+title: "tWIL 2022.08 1주차"
+draft: false
+summary: "This week I learned"
+featured: /static/images/2022/08/tWIL.jpg
+categories:
+  - development
+tags:
+  - development
+  - TypeScript
+  - GraphQL
+  - GraphQL-codegen
+  - Prisma
+  - Nexus GraphQL
+  - Paljs
+  - Reactjs
+  - Nextjs
+---
+
+#### TL;DR
+
+이번 주는 SSR 관련 이슈가 큰 건은 아니어서 대충 해결을 하였다. `styled-component`, `emotion`, `material-ui` v5, `joy-ui` v5-alpha, `paljs/ui`를 모두 혼합하여 사용하느라 머리가 아팠는데 어느정도 Provider를 정리하고 했지만 문제는 나중엔 하나로 정리를 해야겠다는 생각을 했다. `joy-ui`는 디자인 시스템 철학이 괜찮은 것 같다.
+
+https://mui.com/joy-ui/getting-started/overview/
+
+> It features foundational components such as the ones you'd find in Material UI and it comes with a beautifully designed default theme so you can rapidly start your own design system. You should see Joy UI as a starting point. It comes with a lot of customization features so you match it to your desired look and feel.
+
+이번 주는 TL;DR 을 만들 것도 없을 정도로 짧을 예정이다. 왜냐하면, 주말에 이 무더위에 라이딩을 했기 때문이다. 금요일 저녁 그리고 일요일 저녁 14km씩 달렸는데 작년 라이딩때보다 다른점은 L-글루타민의 효과를 보았다는 것이다. 음, 하루만 운동을 해도 다음날 근육통으로 고생하던 사태에 비하면 하루만에 회복하는 것을 보고 놀랐다. 저 보충제 뿐만이 아니겠지만 NMN과 레스베라트롤을 꾸준히 섭취하고 나서 체력이 계속 올라가는 것 같다. 내가 섭취하는 보충제는 아래 참고
+
+https://github.com/eunchurn/supplements
+
+L-글루타민은 장기능개선을 위해 효과를 많이 보았다. 특히 장누수가 심해서 자가면역질환이 창궐했을 당시 알았으면 좋았을 것을... 결국 지금은 피부와 모발이 건강한 상태고 14키로 정도는 장거리도 아니고 라이더들에겐 웜업도 아닌 정도인데 체력이 저질인지라 이정도만 타도 나에겐 글루타민 고갈이 왔을 예정이었다. 일단 면역체계가 무너지는 경험을 여러번 해서 이번엔 어떤지 몸을 관찰해보다가 면역체계 무너짐(고양이 털 알러지)이 없는 것을 관찰하고 일요일에도 라이딩을 나서게 되었다. 약간의 L-글루타민을 섭취하고...
+
+이번 주말에 라이딩을 시작한 이유는 별 이유는 없고 봄부터 시작했어야 했는데 전자장비들 충전에 자전거 점검등등 귀찮아서 미루고 있다가 아침에 눈을 뜨기 힘들어졌고, 몸이 계속 운동 부족이라고 신호를 주고 있어서 8월이 되어서야 살기 위해 해야겠다는 생각을 했다. 작년에 사놓은 [아디다스 벨로 쌈바](https://www.amazon.com/adidas-Unisex-Adult-Velosamba-Cycling-Shoe/dp/B08N8VC1MQ)는 너무 예뻤다. 로드 자전거의 클릿슈즈는 정말 안예쁘다. 내가 빨리달리는 라이더도 아니기도 하고 너무 나의 라이프스타일이 아닌 것이다. 그래서 MTB 페달을 달고 MTB 클릿슈즈 중 제일 예쁜 벨로 쌈바를 신고 열심히 달린다. 그리고 생각을 한다. 그래블 가지고 싶다고....
+
+![velosamba](/static/images/2022/08/velosamba.png)
+
+이번주 금요일엔 안양천 합수부를 다녀왔고, 일요일엔 도림천으로 낙성대까지 다녀왔다. 다음주엔 여의도를 돌고 오는 코스를 다녀올 예정이다. (~~이러면 꼬리 끊긴 정자 코스 같은...~~). 그리고 기회가 되면 조만간 탄천 합수부까지 다녀오고 싶다.
+
+<div className="container flex justify-center">
+  <iframe
+    src="https://player.vimeo.com/video/737314340"
+    width="100%"
+    height="640"
+    frameBorder="0"
+    allow="autoplay; fullscreen; picture-in-picture"
+    webkitallowfullscreen="true"
+    mozallowfullscreen="true"
+    allowFullScreen
+  ></iframe>
+  <iframe
+    src="https://player.vimeo.com/video/737314376"
+    width="100%"
+    height="640"
+    frameBorder="0"
+    allow="autoplay; fullscreen; picture-in-picture"
+    webkitallowfullscreen="true"
+    mozallowfullscreen="true"
+    allowFullScreen
+  ></iframe>
+</div>
+
+그리고 토요일에 회복하면서 프로젝트 음악제작의뢰가 있어서 DAW 셋팅을 진행하였다. 예전에는 마땅한 맥이 없어서 윈도우 운영체제에서 작업을 했다면, 작년 10월에 나온 Macbook Pro M1 Max Pro 에 거의 풀옵션으로 구매를 해놓아서 여기서 DAW 셋업을 하였다. 이제서야 묵혀두었던 Analog Rytm MKI 과 Analog Four MKI 셋업을 했고 오버브릿지에 Analog Rytm의 12개의 드럼패드의 아웃풋을 모두 받을 수 있었다. 이 기능이 오래전 (거의 10년) 동안 안되었던 기능인데 Elektron은 정말 레거시 제품에도 펌웨어 지원이 잘 되는 것 같다.
+
+![a4ar](/static/images/2022/08/analogs.png)
+
+그리고 슬픈 소식은 나의 소울 드럼머신이라고 강력히 내 취향인 드럼 컴퓨터인 MFB Tanzbar를 구매 할까 말까 고민하면서 몇년의 세월을 보내다가 검색해보니 작년에 MFB가 문을 닫았다는 소식이다. 슬프다. [RIP MFB](https://cdm.link/2021/06/rip-berlin-synth-drum-machine-legend-manfred-frickes-of-mfb/)
+
+https://twitter.com/eunchurn/status/1555890706614722562
+
+![mfb-tanzbar](/static/images/2022/08/mfbtanzbar.webp)
+
+어찌되었든 어쩔 수 없이 이 드럼머신은 중고로 구매해야하는 버킷리스트에 들어가버렸다. Analog Rytm을 셋팅했다. 소리를 다시 하나하나 만드는 재미가 좋다. 메뉴얼을 보며 몇가지 모르던 기능도 알게된 것도 많았다. 이제서야 제대로 마주하며 써보게 되는 것 아닌가 싶다. 공연용으로 급하게 셋팅해서 가져나갔던 기기가 아닌 이제 섬세하게 하나씩 보면서 소리를 빌드업할 수 있게 된 것 같다(마음의 여유도 생겼고...).
+
+Doepfer [Dark Energy](https://doepfer.de/Dark_Energy_e.htm)와 [Dark Time](https://doepfer.de/Dark_Time_e.htm)도 꺼내서 셋팅해보았다. 관리를 잘 못해 녹이 약간 생긴것이 좀 안타깝지만 소리는 여전히 레전드다. 이렇게 토요일은 예전에 작업했던 음원소스들과 샘플들을 셋업하고 나니 옛날엔 정말 치열하게 작업했었구나 싶다. 안되는 성능을 끌어모아 프리징을 시켰던 건 기본, 오디오 트랙으로 많이 뽑아놓고 다시 셋업했던 기억들이 생생하다. 이제 성능 막강한 맥북프로는 나를 많이 도와줄꺼라 믿는다.
+
+다음주 부터는 저녁마다 스케치업을 시작할 예정이다. 슬슬 무그 신스들도 먼지를 털어야 하고 롤랜드 주피터와 MS-20도 셋업해야한다. 귀찮음이 도지지 않는다면 가상악기는 최대한 배제해보려고 한다.
+
+주저리 블로그가 되버렸다.
+
+이제 다시 개발 tWIL를 써보자면 맞다 Joy-UI 멋지다. 더 많은 곳에 사용하고 싶다. Joy UI에 잠깐 써보았던 느낌을 정리하고, 리액트 라우터의 이탈 방지를 위한 `usePrompt`와 본인인증으로 인해 이탈 허용하는 상황에 대한 충돌 해결 그리고 내 로그인 정보를 저장하는 방식에 `useRememberUser`를 만들어서 사용했는데 휴리스틱한 문제는 어떻게 해결해야할 지 모르겠다. 이번주에 한 것은 많은데 Learned한 것은 없는 것 같다. 반성 중...
+
+## Joy-UI
+
+### Advantages of Joy UI
+
+- Ship faster: Joy UI는 세련되고 세심하게 디자인된 look-and-feel로 웹 앱을 개발하는 데 필요한 사전 빌드된 컴포넌트를 상당량 제공하므로 전담 디자이너 없이도 멋진 결과를 얻을 수 있음.
+- Extensive customization: Joy UI 컴포넌트의 모든 작은 부분을 사용자 정의할 수 있어서 원하는 디자인에 매칭이 가능
+- Accessibility in mind: Joy UI 컴포넌트는 MUI Base의 스타일이 지정되지 않은 컴포넌트와 낮은 수준의 hook를 기반으로 하여 기본적으로 몇 가지 접근성 기능을 지원. 우리는 모든 컴포넌트를 높은 가독성으로 만들기 위해 최선을 다하고 문서 전체에서 접근성 최적화를 위한 제안도 제공.
+
+### Joy UI vs Material UI
+
+Joy UI는 Material UI에서 찾을 수 있는 것과 동일한 컴포넌트 목록을 특징으로 하며 컴포넌트 API 및 사용자 정의 확장성에 대한 유사한 철학을 가지고 있지만 Material Design look-and-feel은 없습니다.
+
+지원되는 Component의 폭, 신중하게 작성된 Component API, 시도되고 테스트된 라이브러리의 안정성을 위해 Material UI를 사용하고 싶었지만 Material Design 때문에 망설였다면 그 대안으로 Joy UI가 여기에 있습니다.
+
+### 원칙
+
+#### Keep it essential
+
+Joy UI는 가능한 한 최소한의 노력으로 작동해야 합니다. 우리는 컴포넌트 API와 디자인(룩앤필) 모두에서 필수적인 것만을 위해 노력하고 있습니다. 컴포넌트에는 작업을 수행하는 데 필요한 것만 있어야 합니다. 필수적인 것으로 간주되는 것은 수년간 컴포넌트 라이브러리를 개발한 MUI의 경험과 최신 API 및 디자인 지침의 벤치마크(특히 웹 앱 개발과 관련하여)에서 도출됩니다.
+
+#### Looks great out-of-the-box
+
+Joy UI는 단순하면서도 개성이 있어야 합니다. 규모, 크기, 밀도와 같은 시각적 속성은 모든 컴포넌트에서 일관되어야 잘 조화를 이룰 수 있습니다. 우리는 단순함과 세부 사항에 대한 관심으로 기쁨을 불러일으키는 것을 목표로 합니다. 처음부터 UI가 멋지게 보인다고 느껴야 합니다.
+
+#### Encourage creativity
+
+우리는 Joy UI를 완전히 사용자 정의할 수 있고 훌륭한 출발점으로 볼 수 있도록 하는 것을 목표로 하고 있습니다. 이는 Joy UI가 어떻게 보이는지 확장, 변경 및 개선하도록 권장하기 위한 것입니다. 자신의 것으로 만들어 창의력을 발휘하십시오.
+
+#### Focus on developer experience
+
+훌륭한 개발자 경험은 우리가 제공하는 코드의 품질뿐 아니라 문서가 얼마나 명확한지, 개발자가 사용할 수 있는 학습 리소스도 있습니다. 우리는 그것을 함께 묶는 것이 기쁨을 가져다주기를 바랍니다.
+
+Joy-UI를 쓰면서 Theme와 variant의 깔끔함은 굉장히 모던한 디자인 스러웠다. 말 그대로 어드민과 같은 디자이너가 많이 개입하지 않아도 되는 경우 개발자 경험을 살리며 예쁜 디자인이 나오는 것 같다. 조금 더 사용해보고 좋은 개발자 경험을 찾아보려고 한다.
+
+## `usePrompt`
+
+React-Router가 v6 업그레이드 하면서 `useBlocker`와 `usePrompt` 그리고 `Prompt`를 제거하였다. 이유는
+
+> This commit removes anything to do with blocking. The behavior isn't solid yet in the current release, and we don't want it to block shipping v6 stable. Will revisit post v6 stable.
+
+[관련 커밋](https://github.com/remix-run/react-router/commit/256cad70d3fd4500b1abcfea66f3ee622fb90874)
+
+그래서 살려서 https://mygumi.tistory.com/416 이 블로그의 도움을 받아 hooks를 만들어 보았다.
+
+`UNSAFE_NavigationContext`에 컨텍스트를 남겨 두었기 때문에 이 컨텍스트를 활용하면,
+
+```typescript:hooks/usePrompt.ts
+import { ContextType, useCallback, useContext, useEffect, useState } from "react";
+import type { Blocker, History, Transition } from "history";
+import {
+  Navigator as BaseNavigator,
+  UNSAFE_NavigationContext as NavigationContext,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
+interface Navigator extends BaseNavigator {
+  block: History["block"];
+}
+
+type NavigationContextWithBlock = ContextType<typeof NavigationContext> & {
+  navigator: Navigator;
+};
+
+/**
+ * @source https://github.com/remix-run/react-router/commit/256cad70d3fd4500b1abcfea66f3ee622fb90874
+ */
+function useBlocker(blocker: Blocker, when = true) {
+  const { navigator } = useContext(NavigationContext) as NavigationContextWithBlock;
+
+  useEffect(() => {
+    if (!when) {
+      return;
+    }
+
+    const unblock = navigator.block((tx: Transition) => {
+      const autoUnblockingTx = {
+        ...tx,
+        retry() {
+          // Automatically unblock the transition so it can play all the way
+          // through before retrying it. T O D O: Figure out how to re-enable
+          // this block if the transition is cancelled for some reason.
+          unblock();
+          tx.retry();
+        },
+      };
+
+      blocker(autoUnblockingTx);
+    });
+
+    // eslint-disable-next-line consistent-return
+    return unblock;
+  }, [navigator, blocker, when]);
+}
+
+//  showPrompt - modal on/off, when - prompt on/off
+export function usePrompt(when: boolean) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [lastLocation, setLastLocation] = useState<Transition | null>(null);
+  const [confirmedNavigation, setConfirmedNavigation] = useState(false);
+
+  const cancelNavigation = useCallback(() => {
+    setShowPrompt(false);
+  }, []);
+
+  const handleBlockedNavigation = useCallback(
+    (tx: Transition) => {
+      if (!confirmedNavigation && tx.location.pathname !== location.pathname) {
+        setShowPrompt(true);
+        setLastLocation(tx);
+        return false;
+      }
+      return true;
+    },
+    [confirmedNavigation, location.pathname]
+  );
+
+  const confirmNavigation = useCallback(() => {
+    setShowPrompt(false);
+    setConfirmedNavigation(true);
+  }, []);
+  useEffect(() => {
+    if (confirmedNavigation && lastLocation) {
+      navigate(lastLocation.location.pathname);
+    }
+  }, [confirmedNavigation, lastLocation, navigate]);
+
+  useBlocker(handleBlockedNavigation, when);
+
+  return { showPrompt, confirmNavigation, cancelNavigation };
+}
+```
+
+이 블로그에서
+
+> 새로고침 or 직접 URL 을 변경하여 접근하는 경우, React 쪽에서는 이를 탐지하는 것에 어려움이 있다.
+> 그래서 이 경우에는 커스텀 컨펌창이 아닌 window.confirm 창이 노출된다.
+
+실제로 그러하다. 하지만 어쩔 수 없어 보인다. 그러나 문제는 다른곳에 있었다. 비즈니스 로직에서는 회원가입 절차가 단계별로 이뤄지는데 본인인증을 하고난 후 본인인증을 이미 한 사용자의 경우 로그인 화면으로 이동해야하는데 이땐 `navigate.push`가 사용될 수 밖에 없다. 이 때 이탈 방지가 이것을 막아버리는 문제였다.
+
+따라서 일단 기본 이탈 방지를 위한 `Dialog`에 `onClose` 이벤트에 `cancelNavigation`을 달아주어야 하며,
+
+```tsx:views/Certification.tsx
+import React from "react";
+import { usePrompt } from "hooks";
+
+export function Certification(props: CertificationPropType) {
+  const { showPrompt, confirmNavigation, cancelNavigation } = usePrompt(true);
+
+  return (
+    // ...omitted
+      <SignupDialog
+        showPrompt={showPrompt}
+        confirmNavigation={confirmNavigation}
+        cancelNavigation={cancelNavigation}
+      />
+  )
+```
+
+```tsx:components/SignupDialog.tsx
+import * as React from "react";
+import { Dialog, DialogContent } from "@mui/material";
+
+interface PropType {
+  showPrompt: boolean;
+  confirmNavigation(): void;
+  cancelNavigation(): void;
+}
+
+export function SignupDialog(props: PropType) {
+  const { showPrompt, confirmNavigation, cancelNavigation } = props;
+  return (
+    <Dialog onClose={cancelNavigation} open={showPrompt}>
+      <DialogContent>// ...omitted</DialogContent>
+    </Dialog>
+  );
+}
+```
+
+본인인증이 이미 되어 실패한 경우에 띄우는 `Dialog`는 렌더링이 되자마자 `cancelNavigation`을 걸어주어야 하지만, 문제는 이 Dialog는 이미 렌더링이 되었기 때문에, `onClose` 이벤트나 로그인 Navigation으로 이동하기 직전에 `cancelNavigation`을 걸어주어야 했다.
+
+```tsx:components/Cerfitication.tsx
+import * as React from "react";
+import { Dialog, DialogContent } from "@mui/material";
+
+interface PropType {
+  open: boolean;
+  handleClose(): void;
+  confirmNavigation(): void;
+  email?: string;
+}
+
+export function CertificationDialog(props: PropType) {
+  const { open, handleClose, email, confirmNavigation } = props;
+  return (
+    <Dialog
+      onClose={() => {
+        confirmNavigation();
+        handleClose();
+      }}
+      open={open}
+    >
+      // ...omitted
+        <Button
+          onClick={() => {
+            confirmNavigation();
+            handleClose();
+          }}
+        >
+          <Typography variant="title20">로그인</Typography>
+        </Button>
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+이렇게 일단 비즈니스 로직은 동작하도록 구현했다.
+
+### `useRememberUser`
+
+`useRememberUser`를 만들기 전에 `useBeforeUnload`를 구현해 보았다.
+
+```typescript:hooks/useBeforeUnload.ts
+import { useEffect, useRef } from "react";
+import { UseBeforeunloadHandler } from "./types";
+
+/**
+ * It adds an event listener to the window object that listens for the beforeunload event
+ * @deprecation action in store reducer
+ * @param {UseBeforeunloadHandler} handler - UseBeforeunloadHandler
+ */
+export const useBeforeunload = (handler: UseBeforeunloadHandler) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const eventListenerRef = useRef<any>();
+
+  useEffect(() => {
+    eventListenerRef.current = (event: BeforeUnloadEvent) => {
+      const returnValue = handler?.(event);
+      // Handle legacy `event.returnValue` property
+      // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event
+      if (typeof returnValue === "string") {
+        return (event.returnValue = returnValue);
+      }
+      // Chrome doesn't support `event.preventDefault()` on `BeforeUnloadEvent`,
+      // instead it requires `event.returnValue` to be set
+      // https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload#browser_compatibility
+      if (event.defaultPrevented) {
+        return (event.returnValue = "");
+      }
+    };
+  }, [handler]);
+
+  useEffect(() => {
+    const eventListener = (event: BeforeUnloadEvent) =>
+      eventListenerRef.current(event);
+    window.addEventListener("beforeunload", eventListener);
+    return () => {
+      window.removeEventListener("beforeunload", eventListener);
+    };
+  }, []);
+};
+```
+
+주요 포인트는 `window`에 `beforeunload` 이벤트를 해당 컴포넌트 렌더링이 완료되면 걸어주고 언마운트 되면 해제시켜주는 원리이다. 문제는 이 `beforeUnload` 이벤트만 가지고 로그인할 사용자 정보(ID)를 미리 저장할지 삭제할 지 정해야하는데 F5키나 Refresh 버튼도 이 이벤트를 리슨하게 된다.
+
+따라서 `useRememberUser`라는 hook을 결국 reducer를 사용하여 구현하였다.
+
+```typescript:hooks/useRememberUser.ts
+import React from "react";
+import { getCookie } from "utils";
+import { useAppDispatch, rememberUserFetch } from "Store";
+
+const remember = getCookie("bhplf-auth-remember");
+
+/**
+ * This hook is used to remember the user's login status
+ */
+export function useRememberUser() {
+  const dispatch = useAppDispatch();
+  React.useEffect(() => {
+    if (remember === "true") {
+      dispatch(rememberUserFetch(true));
+    } else {
+      dispatch(rememberUserFetch(false));
+    }
+  }, [dispatch]);
+}
+```
+
+리듀서는 다음과 같은 함수를 사용하였다.
+
+```typescript:store/feature/auth/index.ts
+export const authSlice = createSlice({
+  name: "authentication",
+  initialState,
+  reducers: {
+    rememberUserFetch: (state, action: PayloadAction<boolean>) => {
+      state.rememberUser = action.payload;
+      const { rememberUser } = state;
+      setCookie("auth-remember", `${rememberUser}`);
+      if (!rememberUser) {
+        window.addEventListener("beforeunload", beforeUnloadEventListener);
+      } else {
+        window.removeEventListener("beforeunload", beforeUnloadEventListener);
+      }
+    },
+    // ...omitted
+  },
+});
+
+/**
+ * It sets a cookie with the name "bhplf-reg-date" and the value of the current time in milliseconds.
+ */
+function beforeUnloadEventListener() {
+  setCookie("reg-date", `${moment().valueOf()}`);
+}
+```
+
+그렇다. payload로 설정을 변경하고 쿠키에 셋팅한다. 없으면 undefined가 셋팅되고 리스너를 제거한다. 그런데 여기도 문제가 있다. refresh에 발생하는 문제다. 따라서 beforeUnload에는 시간설정을 한다. 이 시각이 5초이내(refresh 시간은 5초 이내라고 가정한다)인 경우 작동하지 않도록 한다. 브라우저를 종료하고 다시 열었을 경우에 이 상태에 따라 로그인 정보를 셋팅할지 결정할 것이다. 그리고 `thunk`에서 `checkAuth`에 이 로직 함수를 실행하도록 하였다. 초기 체크해야하는 함수는 아래와 같다.
+
+```typescript:checkRemember.ts
+import { Auth } from "aws-amplify";
+import { getCookie } from "utils";
+import moment from "moment";
+
+/**
+ * If the user has a cookie that says they registered more than 5 seconds ago and they didn't check the
+ * remember me box, then sign them out
+ * @returns A function that returns a promise.
+ */
+export async function checkRemember() {
+  const regDateString = getCookie("bhplf-reg-date");
+  const rememberUser = getCookie("bhplf-auth-remember");
+  if (!regDateString) return;
+  if (!rememberUser) return;
+  const regDate = moment(regDateString, "x");
+  const diff = moment().diff(regDate);
+  if (diff > 5000 && rememberUser === "false") {
+    await Auth.signOut();
+  }
+}
+```
+
+현 클라이언트에서 critical한 이슈없이 동작은 하기 때문에 이대로 두는데 추후 이런 휴리스틱한 로직은 불안정하기 때문에 다른 방식으로 고민을 해봐야할 것 같다.
