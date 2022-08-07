@@ -1,0 +1,11 @@
+.__fl_vimeo {
+  display: flex;
+  justify-content: space-between;
+}
+@media (max-width: 800px) {
+  .__fl_vimeo {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+  }
+}
