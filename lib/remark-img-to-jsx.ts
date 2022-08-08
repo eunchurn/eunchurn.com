@@ -10,6 +10,9 @@ type ImageNode = Parent & {
   attributes: (Literal & { name: string })[];
 };
 
+const blurDataUrl =
+  "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==";
+
 export default function remarkImgToJsx() {
   return (tree: Node) => {
     visit(
@@ -32,6 +35,8 @@ export default function remarkImgToJsx() {
               { type: "mdxJsxAttribute", name: "src", value: imageNode.url },
               { type: "mdxJsxAttribute", name: "width", value: dimensions.width },
               { type: "mdxJsxAttribute", name: "height", value: dimensions.height },
+              { type: "mdxJsxAttribute", name: "placeholder", value: "blur" },
+              { type: "mdxJsxAttribute", name: "blurDataURL", value: blurDataUrl },
             ]);
 
           // Change node type from p to div to avoid nesting error

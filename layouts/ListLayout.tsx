@@ -12,6 +12,9 @@ interface Props {
   pagination?: ComponentProps<typeof Pagination>;
 }
 
+const blurDataUrl =
+  "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==";
+
 export default function ListLayout({ posts, title, initialDisplayPosts = [], pagination }: Props) {
   const [searchValue, setSearchValue] = useState("");
   const filteredBlogPosts = posts.filter((frontMatter) => {
@@ -68,14 +71,18 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
                     </dd>
                     <dd className="pl-8 pt-8 -xl:invisible -xl:h-0 -xl:pt-0">
                       {featured && (
-                        <Image
-                          src={featured}
-                          alt="slug"
-                          width={100}
-                          height={100}
-                          objectFit="cover"
-                          className="rounded-full"
-                        />
+                        <Link href={`/blog/${slug}`}>
+                          <Image
+                            src={featured}
+                            alt="slug"
+                            width={100}
+                            height={100}
+                            objectFit="cover"
+                            className="rounded-full"
+                            placeholder="blur"
+                            blurDataURL={blurDataUrl}
+                          />
+                        </Link>
                       )}
                     </dd>
                   </dl>

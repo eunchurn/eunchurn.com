@@ -17,6 +17,9 @@ export const getStaticProps: GetStaticProps<{ posts: PostFrontMatter[] }> = asyn
   return { props: { posts } };
 };
 
+const blurDataUrl =
+  "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==";
+
 export default function Home({ posts }: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <>
@@ -45,14 +48,18 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                       </dd>
                       <dd className="pl-8 pt-8 -xl:invisible -xl:h-0 -xl:pt-0">
                         {featured && (
-                          <Image
-                            src={featured}
-                            alt="slug"
-                            width={100}
-                            height={100}
-                            objectFit="cover"
-                            className="rounded-full"
-                          />
+                          <Link href={`/blog/${slug}`}>
+                            <Image
+                              src={featured}
+                              alt="slug"
+                              width={100}
+                              height={100}
+                              objectFit="cover"
+                              className="rounded-full"
+                              placeholder="blur"
+                              blurDataURL={blurDataUrl}
+                            />
+                          </Link>
                         )}
                       </dd>
                     </dl>
@@ -90,14 +97,18 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                       </div>
                       {featured && (
                         <div className="aspect-w-1 min-w-1/4 pt-8 pl-8 xl:invisible xl:w-0">
-                          <Image
-                            src={featured}
-                            alt="slug"
-                            width={100}
-                            height={100}
-                            objectFit="cover"
-                            className="rounded-full"
-                          />
+                          <Link href={`/blog/${slug}`}>
+                            <Image
+                              src={featured}
+                              alt="slug"
+                              width={100}
+                              height={100}
+                              objectFit="cover"
+                              className="rounded-full"
+                              placeholder="blur"
+                              blurDataURL={blurDataUrl}
+                            />
+                          </Link>
                         </div>
                       )}
                     </div>

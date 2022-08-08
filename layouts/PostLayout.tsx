@@ -32,6 +32,9 @@ interface Props {
   children: ReactNode;
 }
 
+const blurDataUrl =
+  "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==";
+
 export default function PostLayout({ frontMatter, authorDetails, next, prev, children }: Props) {
   const { slug, fileName, date, title, tags } = frontMatter;
 
@@ -79,6 +82,8 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
                           height="38px"
                           alt="avatar"
                           className="h-10 w-10 rounded-full"
+                          placeholder="blur"
+                          blurDataURL={blurDataUrl}
                         />
                       )}
                       <dl className="whitespace-nowrap text-sm font-medium leading-5">
