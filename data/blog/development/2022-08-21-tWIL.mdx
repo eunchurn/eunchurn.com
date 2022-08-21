@@ -1,0 +1,118 @@
+---
+date: "2022-08-21"
+title: "tWIL 2022.08 3주차"
+draft: false
+summary: "This week I learned"
+featured: /static/images/eunchurn/gazing.PNG
+categories:
+  - development
+tags:
+  - development
+  - Aws Amplify
+  - Aws Cognito
+  - Developer EXperience
+  - IaC
+  - TypeScript
+  - generate api key
+  - GraphQL
+  - GraphQL-codegen
+  - graphql-codegen-apollo-next-ssr
+---
+
+이번 주는 의뢰온 음악 제작 마무리로 마음의 여유가 좀 없었다. 이벤트로는 우리의 신입 주니어개발자의 형님이 소유한 브랜드 flipdeep 이라는 안경브랜드를 알게 되었는데 자전거용 고글을 판매한다고 하여 안경을 보니 정말 고글고글 같지 않은 고글이라 너무 맘에 들었다. [Ta!](https://flipdeep.com/34)라는 제품군인데 역시나 또 우리 부부 라이프스타일에 딱 맞는 고글이었다. 심지어 지인 할인을 받을 수 있다니!! 바로 구매하러 갔고, 바로 사버렸다. 본래 아이템이 추가되면 바로 테스트겸 제품을 수령하고 바로 라이딩을 하러 나가고 싶었으나, 작업을 끝내야 하기에 집에서 와우 키커를 타며 달랬다. 결국 토요일 저녁까지 작업을 달렸고, 마무리한 후 일요일 밤에 라이딩!
+
+<div className="__fl_vimeo" style={{ position: "relative", padding: "56.25% 0 0 0" }}>
+  <iframe
+    src="https://player.vimeo.com/video/741625927?h=945d99e5da&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
+    frameBorder="0"
+    allow="autoplay; fullscreen; picture-in-picture"
+    allowFullScreen
+    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+    title="20220821 홀로 심야 라이딩"
+  ></iframe>
+</div>
+
+배우자님은 바쁜 일정이 있어 홀로 라이딩을 하게 되었다. 휴식시간 거의 없이 35분만에 12키로 다녀왔다.(어디가서 자전가 탄다는 소리 못할 거리임) 고글은 완전 맘에 들었다. 고글은 원래 없어서 가벼운 안경으로 착용하고 라이딩하러 나가면 땀에 흘러내려서 안경이 뒤틀리면 앞에 초점이 맞지 않아 계속해서 손으로 안경을 올려줘야 했다.(그래도 초점이 흔들림) 이런 손놀림을 계속 하다보면 땀이 안경에 떨어지고 그걸 닦아내면 렌즈가 더러워지고... 악순환 또한 라이딩 중엔 앞에서 바람이 계속 안경을 향해 들어오기 때문에 눈이 뻑뻑해진다. 눈을 계속 깜박거리면서 라이딩하던 상황에 비하면 이 고글은 안경처럼 생겼지만 가볍고 땀에 흘러내리지 않고 바람도 잘 막아주었으며 나의 뿔테 스타일링도 유지시켜주기 때문에 너무 좋았다. 단점이 하나도 없지만 단점 같지 않은 단점이라면 집에서 이 고글을 오래 착용하고 있으면 귀 뒷부분이 조여서 통증이 좀 있다. 이건 라이딩용 고글이니 말도 안되는 단점이다. (집에선 편한 안경을 착용하고 있는 걸로...)
+
+이번 주는 지난 주에 설정한 GraphQL codegen을 Nextjs에서 `page.tsx`를 생성까지 하고 이걸 활용 해보기 전에 Notion API를 사용한 정적(?) 페이지를 시도해보았다. 이건 베타 API에서 테스트해보고 CMS로 활용하면 좋을 것 같다는 판단하에 [nextjs-notion-starter-kit](https://github.com/transitive-bullshit/nextjs-notion-starter-kit)를 가지고 예전 회사 기술 블로그를 만들었었다. 개발자들을 독려하여 쓰게 만들었지만 아무도 쓰지 않았다. 나도 그렇게 많이 쓰지 않아서 뭐 할말은 없지만... 여기서는 블로그 템플릿이 아닌 그냥 일반 페이지를 사용할 수 있도록 해보자는 생각에 이것저것 찾아보다가 [react-notion-x](https://github.com/NotionX/react-notion-x)패키지를 알게되었다.
+
+## Static notion content
+
+[nextjs-notion-starter-kit](https://github.com/transitive-bullshit/nextjs-notion-starter-kit)에는 Notion을 CMS로 활용하여 블로그를 운영할 수 있도록 스타터 킷을 제공한다. 노션에서 쓰이는 거의 모든 컨텐츠를 표시할 수 있어 괜찮다. 이전 회사에서 개발 블로그를 여기서 배포하여 운영했었다.
+
+간단한 페이지를 노션에서 관리하고 헤더 및 푸터 없이 단순한 페이지를 만드는 경우를 고려했을 때, 굳이 저 무거운 패키지를 써야하나 고민하다 [react-notion-x](https://github.com/NotionX/react-notion-x)라는 패키지의 예제가 도움이 되었다. 현재 Notion API는 공식 배포되었고, 이전 베타일 때 이것저것 테스트하면서 만들어 보았던 적이 있었는데 Notion API DB에 복잡도 때문에 타입만들다가 포기했었다. 하지만 역시 전세계의 개발자들은 빠르다. [notion-client](https://www.npmjs.com/package/notion-client)로 한번에 해결이 된다. 이걸 사용하여 간단한 페이지를 미니멀하게 수정해보았다.
+
+https://github.com/eunchurn/notion-cms-nextjs-simple-page
+
+- 첫번째, 노션 페이지를 만들고,
+
+![page1](/static/images/2022/08/page1.png)
+
+- 웹페이지로 공유를 한다.
+
+![page2](/static/images/2022/08/page2.png)
+
+- 여기 이미지에서 처럼 `rootNotionPageId`를 복사한다. 복사한 코드를 `lib/config.ts`파일에 넣어준다.
+
+![page3](/static/images/2022/08/page3.png)
+
+- (옵션) 만약 특정 서브 페이지를 프리렌더링된 html파일로 배포하려면 `pageId`를 복사한다. 그리고 `src/pages/[pageId].tsx`에 위치한 `getStaticPaths`함수 `paths`에 넣어준다.
+
+![page4](/static/images/2022/08/page4.png)
+
+```typescript:src/pages/[pageId].tsx
+export async function getStaticPaths() {
+  return {
+    paths: ["/b4528200eb584f77aac8b2733ed25e87"],
+    fallback: true,
+  };
+}
+```
+
+다이내믹 페이지의 `getStaticProps`의 형태는 다음과 같다.
+
+```typescript:src/pages/[pageId].tsx
+import * as React from "react";
+import { ExtendedRecordMap } from "notion-types";
+import { NotionPage } from "components/NotionPage";
+import { rootNotionPageId } from "lib/config";
+import notion from "lib/notion";
+
+export const getStaticProps = async (context) => {
+  const pageId = (context.params.pageId as string) || rootNotionPageId;
+  const recordMap = await notion.getPage(pageId);
+
+  return {
+    props: {
+      recordMap,
+    },
+    revalidate: 10,
+  };
+};
+```
+
+실행하고 `yarn dev`
+
+`http://localhost:3000/b4528200eb584f77aac8b2733ed25e87`을 열어 확인. `yarn build`를 해보면 `.next/server/pages`에 해당 dynamic router의 페이지가 프리렌더링되어 html이 생성된다. 또한 같은 이름으로 `json`파일이 생성되는데 `props`에 노션 컨텐츠 데이터들이 담겨있다.
+
+프리렌더링은 처음에 사용자가 볼 화면이고, Notion 컨텐츠가 변경이 되면 이 변경된 컨텐츠를 다시 불러와 렌더링 한다. SSG이면서 서버 데이터를 가져와서 hydrate를 하는 페이지인 것이다.
+
+이러한 페이지가 필요한 이유는 컨텐츠를 다른 팀이 관리하고 매번 변경될 때마다 배포를 다시 해야하는 경우에 유용할 것 같다. Notion의 컨텐츠만 수정하면 되기 때문이다.
+
+- [Notion 페이지](https://grateful-amethyst-4b7.notion.site/b4528200eb584f77aac8b2733ed25e87)
+
+![notion](/static/images/2022/08/notion.png)
+
+- [배포된 Vercel 페이지](https://notion-cms-nextjs-simple-page.vercel.app/b4528200eb584f77aac8b2733ed25e87)
+
+![vercel](/static/images/2022/08/vercel.png)
+
+이 후 커스터마이징은 개발자 입맛에 맡게 하면 될 듯.
+
+## Dynamic router, GraphQL codegen
+
+지난주에 Nextjs에 Apollo-client를 붙이며, hook을 사용하는 방식에서 `props`에 데이터를 내려주는 방식으로 제너레이션을 시도해보았다. 이것의 장점은 Dynamic router에 `query`를 사용하여 Apollo-client에 필요한 GraphQL 쿼리 Variables를 셋팅할 수 있다는 점에 있다. React hook으로 `useQuery`를 사용할 경우 처음에는 `data`가 `undefined`였다가 데이터가 도착한 경우 `validator`를 가동하고, 가공한 데이터를 다시 렌더링한다. 하지만 이러한 `props`방식의 경우 이미 프리렌더링으로 컴포넌트는 렌더링이 되어 있고 여기에 데이터가 도착하면 hydrate를 하게 된다. 어차피 데이터 도달 시간은 유사할 것이나, UX적인 면에서는 조금더 빠르다는 느낌이 들 수 있을 것 같다.
+
+단순한 CRUD 리졸버의 경우 pagination이나 where절에 들어갈 단순한 `id`등엔 variables를 `getStaticProps`나 `getServerSideProps`엔 셋팅이 가능하나, 복잡도가 높은 경우 `query` 스트링이 길어지고 복잡해 질 것 같다. 이런 경우는 적절히 hook을 조합하는 과정으로 사용하면 될 것 같다. 예를들어 `props`의 데이터와 `variables`까지 `props`로 내려주고, 이 `variables`를 extends 하여 `useQuery`한다.
+
+다음주 부터 예제를 만들어 generated된 컴포넌트 타입과 `withApollo`를 사용한 다이내믹 페이지 그리고 `useQuery`와 조합까지 정리해보려고 한다. 예제 규모가 클 것 같다.
