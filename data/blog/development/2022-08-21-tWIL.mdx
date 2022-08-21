@@ -88,7 +88,7 @@ export const getStaticProps = async (context) => {
 
 실행하고 `yarn dev`
 
-`http://localhost:3000/b4528200eb584f77aac8b2733ed25e87`을 열어 확인. `yarn build`를 해보면 `.next/server/pages`에 해당 dynamic router의 페이지가 프리렌더링되어 html이 생성된다. 또한 같은 이름으로 `json`파일이 생성되는데 `props`에 노션 컨텐츠 데이터들이 담겨있다.
+http://localhost:3000/ 을 열어 확인. `yarn build`를 해보면 `.next/server/pages`에 해당 dynamic router의 페이지가 프리렌더링되어 html이 생성된다. 또한 같은 이름으로 `json`파일이 생성되는데 `props`에 노션 컨텐츠 데이터들이 담겨있다.
 
 프리렌더링은 처음에 사용자가 볼 화면이고, Notion 컨텐츠가 변경이 되면 이 변경된 컨텐츠를 다시 불러와 렌더링 한다. SSG이면서 서버 데이터를 가져와서 hydrate를 하는 페이지인 것이다.
 
