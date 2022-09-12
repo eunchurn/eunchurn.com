@@ -62,7 +62,7 @@ export type PageFindAllPostsPaginationComp = React.FC<{
 }>;
 ```
 
-이렇게 생성된 `React.FunctionComponent`으로 만들어진 컴포넌트 타입의 제네릭을 다시 꺼내는 조건부 타입을 만들어서 사용하였다.
+`React.Fc`만 걷어낸 타입도 생성해주면 좋을텐데 그런 옵션은 없었다. 따라서 이렇게 생성된 `React.FunctionComponent`으로 만들어진 컴포넌트 타입의 제네릭을 다시 꺼내는 조건부 타입을 만들어서 사용하였다.
 
 ```typescript
 type ExtractPropType<T> = T extends React.FunctionComponent<infer X> ? X : never;
@@ -70,7 +70,7 @@ type ExtractPropType<T> = T extends React.FunctionComponent<infer X> ? X : never
 type PropType = ExtractPropType<PageFindAllPostsPaginationComp>;
 ```
 
-이제 `withPage`방식을 시작하기 전에 GraphQL 오퍼레이터는 아래와 같이 만들고 제너레이션 시켜준다.
+이제 `withPage`방식을 시작하기 전에 GraphQL 오퍼레이터는 아래와 같이 만들고 제너레이션 시켜준다. `codegen.yml`설정은 지난 [2022-08-28-tWIL](/blog/development/2022-08-28-tWIL#graphql-codegen) 참고
 
 ```graphql
 query findAllPostsPagination($take: Int, $skip: Int) {

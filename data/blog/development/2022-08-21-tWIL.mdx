@@ -110,4 +110,4 @@ http://localhost:3000/ 을 열어 확인. `yarn build`를 해보면 `.next/serve
 
 단순한 CRUD 리졸버의 경우 pagination이나 where절에 들어갈 단순한 `id`등엔 variables를 `getStaticProps`나 `getServerSideProps`엔 셋팅이 가능하나, 복잡도가 높은 경우 `query` 스트링이 길어지고 복잡해 질 것 같다. 이런 경우는 적절히 hook을 조합하는 과정으로 사용하면 될 것 같다. 예를들어 `props`의 데이터와 `variables`까지 `props`로 내려주고, 이 `variables`를 extends 하여 `useQuery`한다.
 
-다음주 부터 예제를 만들어 generated된 컴포넌트 타입과 `withApollo`를 사용한 다이내믹 페이지 그리고 `useQuery`와 조합까지 정리해보려고 한다. 예제 규모가 클 것 같다.
+다음주 부터 예제를 만들어 generated된 컴포넌트 타입과 `withApollo`를 사용한 다이내믹 페이지 그리고 `useQuery`와 조합까지 정리해보려고 한다. ~~예제 규모가 클 것 같다.~~
