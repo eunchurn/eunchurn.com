@@ -1,0 +1,343 @@
+---
+date: "2022-09-13"
+title: "tWIL 2022.09 2주차"
+draft: false
+summary: "This week I learned"
+featured: /static/images/eunchurn/sky.PNG
+categories:
+  - development
+tags:
+  - development
+  - paljs
+  - admin
+  - nexus
+  - lowdb
+---
+
+추석연휴 첫날 40km를 다녀왔다. 이렇게 조금씩 거리를 늘리다가 하트코스를 다녀올 수 있을지... 이정도 되니 무릅이 조금 아파왔다. 자세가 안좋은것인지 다음번에도 아프면 클릿 피팅을 다시해야할 것 같기도 하다. 여튼 돌아올 땐 무릅이 조금 아파서 거의 당기는 힘을 주로 써서 라이딩을 하니 좀 편했다.
+
+<div className="__fl_vimeo" style={{ position: "relative", padding: "56.25% 0 0 0" }}>
+  <iframe
+    src="https://player.vimeo.com/video/748102998?h=362f7a746b&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
+    frameBorder="0"
+    allow="autoplay; fullscreen; picture-in-picture"
+    allowFullScreen
+    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+    title="20220909"
+  ></iframe>
+</div>
+
+## [Typescript Apollo Next](https://www.the-guild.dev/graphql/codegen/plugins/typescript/typescript-apollo-next)
+
+그간 미루던 `typescript-apollo-next` 플러그인으로 만든 `page.tsx`에서 `withSSR`과 `getServerPage`를 써보다가 이 플러그인이 만들어주는 페이지 컴포넌트 타입이 `React.FC`를 쓰고 있는 것을 알았다. 이 방식은 문제가 있다. [참고](https://woobiblog.com/Javascript/Typescript_FunctionComponent_FC_%EC%82%AC%EC%9A%A9_%EC%A4%84%EC%9D%B4%EA%B8%B0)
+
+- "암묵적으로 children props 가 포함된다"
+
+```typescript
+type PropsWithChildren<P> = P & { children?: ReactNode | undefined };
+```
+
+- "제네릭 문법을 지원하지 않는다."
+
+```typescript
+type GenericComponentProps<T> = {
+   prop: T
+   callback: (t: T) => void
+}
+
+const GenericComponent = <T>(props: GenericComponentProps<T>) => {/*...*/}
+
+const GenericComponent: React.FC</* 제네릭을 받는 props 를 전달할 수 없다. */> = <T>(props: GenericComponentProps<T>) => {/*...*/}
+```
+
+- "불필요한 속성들을 포함한다."
+  리액트 컴포넌트는 propTypes, defaultProps 등과 같은 속성을 가질 수 있다. 이러한 속성들은 타입스크립트를 사용하지 않는 경우 해당 컴포넌트가 받는 props 들에 대한 타입 정의 역할을 수행할 수 있고, 기본값 등을 설정하는데 도움을 주는데, FC 타입으로 선언된 컴포넌트의 경우 defaultProps 속성이 먹히질 않는다.
+
+`typescript-apollo-next`로 생성된 타입은 아래와 같이 만들어진다.
+
+```typescript
+export type PageFindAllPostsPaginationComp = React.FC<{
+  data?: Types.FindAllPostsPaginationQuery;
+  error?: Apollo.ApolloError;
+}>;
+```
+
+이렇게 생성된 `React.FunctionComponent`으로 만들어진 컴포넌트 타입의 제네릭을 다시 꺼내는 조건부 타입을 만들어서 사용하였다.
+
+```typescript
+type ExtractPropType<T> = T extends React.FunctionComponent<infer X> ? X : never;
+
+type PropType = ExtractPropType<PageFindAllPostsPaginationComp>;
+```
+
+이제 `withPage`방식을 시작하기 전에 GraphQL 오퍼레이터는 아래와 같이 만들고 제너레이션 시켜준다.
+
+```graphql
+query findAllPostsPagination($take: Int, $skip: Int) {
+  findManyPost(take: $take, skip: $skip) {
+    id
+    title
+    content
+    author {
+      name
+      _count {
+        posts
+      }
+    }
+    authorId
+    referredBlogs
+  }
+  aggregatePost {
+    _count {
+      id
+    }
+  }
+}
+```
+
+Pagination을 위한 변수까지 설정하고 생성하면
+
+```typescript:page.tsx {60-64} showLineNumbers
+export async function getServerPageFindAllPostsPagination(
+  options: Omit<
+    Apollo.QueryOptions<Types.FindAllPostsPaginationQueryVariables>,
+    "query"
+  >,
+  ctx: ApolloClientContext,
+) {
+  const apolloClient = getApolloClient(ctx);
+
+  const data = await apolloClient.query<Types.FindAllPostsPaginationQuery>({
+    ...options,
+    query: Operations.FindAllPostsPaginationDocument,
+  });
+
+  const apolloState = apolloClient.cache.extract();
+
+  return {
+    props: {
+      apolloState: apolloState,
+      data: data?.data,
+      error: data?.error ?? data?.errors ?? null,
+    },
+  };
+}
+export const useFindAllPostsPagination = (
+  optionsFunc?: (
+    router: NextRouter,
+  ) => QueryHookOptions<
+    Types.FindAllPostsPaginationQuery,
+    Types.FindAllPostsPaginationQueryVariables
+  >,
+) => {
+  const router = useRouter();
+  const options = optionsFunc ? optionsFunc(router) : {};
+  return useQuery(Operations.FindAllPostsPaginationDocument, options);
+};
+export type PageFindAllPostsPaginationComp = React.FC<{
+  data?: Types.FindAllPostsPaginationQuery;
+  error?: Apollo.ApolloError;
+}>;
+export const withPageFindAllPostsPagination =
+  (
+    optionsFunc?: (
+      router: NextRouter,
+    ) => QueryHookOptions<
+      Types.FindAllPostsPaginationQuery,
+      Types.FindAllPostsPaginationQueryVariables
+    >,
+  ) =>
+  (WrappedComponent: PageFindAllPostsPaginationComp): NextPage =>
+  (props) => {
+    const router = useRouter();
+    const options = optionsFunc ? optionsFunc(router) : {};
+    const { data, error } = useQuery(
+      Operations.FindAllPostsPaginationDocument,
+      options,
+    );
+    return <WrappedComponent {...props} data={data} error={error} />;
+  };
+export const ssrFindAllPostsPagination = {
+  getServerPage: getServerPageFindAllPostsPagination,
+  withPage: withPageFindAllPostsPagination,
+  usePage: useFindAllPostsPagination,
+};
+```
+
+마지막 `ssrFindAllPostsPagination`를 보통 가져와서 사용하며, `getServerPage`, `withPage`, `usePage`를 사용할 수 있다. `usePage`는 `useQuery`를 사용하기 때문에 여기서는 제외하고, `withPage` 방식을 구현해보자.
+
+### `withPage`
+
+일단 이 오퍼레이터의 타입을 정리하는 함수를 만들어준다.
+
+```typescript
+function getPosts(data: FindAllPostsPaginationQuery | undefined) {
+  if (!data) return defaultData;
+  const { findManyPost } = data;
+  const posts = compact(
+    findManyPost.map((post) => {
+      if (!post) return null;
+      const { id, title, content, author } = post;
+      if (!author) return null;
+      const { name } = author;
+      return { id, title, content, name };
+    })
+  );
+  return posts;
+}
+
+const defaultData = [{ id: "", title: "", content: "", name: "" }];
+```
+
+이렇게 `id`, `title`, `content`, `name`을 배열로 리턴하게 한다. `withPage`는 아래와 같이, `withApollo`와 함께 사용한다.
+
+```tsx {29-39} showLineNumbers
+import React from "react";
+import Layout from "Layouts";
+import { withApollo } from "withApollo";
+import { ssrFindAllPostsPagination, PageFindAllPostsPaginationComp } from "generated/page";
+import { FindAllPostsPaginationQuery } from "generated/types";
+import { compact } from "lodash";
+
+type ExtractGeneric<Type> = Type extends React.FunctionComponent<infer X> ? X : never;
+
+type PropType = ExtractGeneric<PageFindAllPostsPaginationComp>;
+
+function ListPosts(props: PropType) {
+  console.log(props);
+  return (
+    <Layout title="Project List">
+      {getPosts(props.data).map((item) => {
+        return (
+          <React.Fragment key={item.id}>
+            <div>
+              Title: {item.title}, Content: {item.content}, Author: {item.name}
+            </div>
+          </React.Fragment>
+        );
+      })}
+    </Layout>
+  );
+}
+
+export default withApollo(
+  ssrFindAllPostsPagination.withPage((arg) => ({
+    variables: {
+      take: 10,
+      skip:
+        (arg?.query?.page as unknown as number) == 1
+          ? 0
+          : ((arg?.query?.page as unknown as number) - 1) * 10 || 0,
+    },
+  }))(ListPosts)
+);
+```
+
+컴포넌트는 대충만들었기 때문에, 29-30라인을 보면 HOC로 `default export`한다.
+
+### `getServerPage`
+
+이제 `getServerPage`방식으로 구현해보자.
+
+```tsx {28} showLineNumbers
+import React from "react";
+import Layout from "Layouts";
+import { ssrFindAllPostsPagination, PageFindAllPostsPaginationComp } from "generated/page";
+import { FindAllPostsPaginationQuery } from "generated/types";
+import { compact } from "lodash";
+
+type ExtractPropType<T> = T extends React.FunctionComponent<infer X> ? X : never;
+
+type PropType = ExtractPropType<PageFindAllPostsPaginationComp>;
+
+function SSRListPost(props: PropType) {
+  console.log(props);
+  return (
+    <Layout title="Project List">
+      {getPosts(props.data).map((item) => {
+        return (
+          <React.Fragment key={item.id}>
+            <div>
+              Title: {item.title}, Content: {item.content}, Author: {item.name}
+            </div>
+          </React.Fragment>
+        );
+      })}
+    </Layout>
+  );
+}
+
+export const getServerSideProps = ssrFindAllPostsPagination.getServerPage;
+
+export default SSRListPost;
+```
+
+`withPage`에 비해 상당히 간단해 보이는데, `variables`를 넣지 않았기 때문이다. 넣는다고 해도 코드가 복잡할 것 같진 않다.
+
+```typescript:page.tsx[withPage]
+// omitted...
+export const withPageFindAllPostsPagination =
+  (
+    optionsFunc?: (
+      router: NextRouter,
+    ) => QueryHookOptions<
+      Types.FindAllPostsPaginationQuery,
+      Types.FindAllPostsPaginationQueryVariables
+    >,
+  ) =>
+  (WrappedComponent: PageFindAllPostsPaginationComp): NextPage =>
+  (props) => {
+    const router = useRouter();
+    const options = optionsFunc ? optionsFunc(router) : {};
+    const { data, error } = useQuery(
+      Operations.FindAllPostsPaginationDocument,
+      options,
+    );
+    return <WrappedComponent {...props} data={data} error={error} />;
+  };
+```
+
+`withPage`의 경우 HOC를 사용하여, 결국 `useQuery`가 내부에 있는것이라고 볼 수 있고,
+
+```typescript:page.tsx[getServerPage]
+export async function getServerPageFindAllPostsPagination(
+  options: Omit<
+    Apollo.QueryOptions<Types.FindAllPostsPaginationQueryVariables>,
+    "query"
+  >,
+  ctx: ApolloClientContext,
+) {
+  const apolloClient = getApolloClient(ctx);
+
+  const data = await apolloClient.query<Types.FindAllPostsPaginationQuery>({
+    ...options,
+    query: Operations.FindAllPostsPaginationDocument,
+  });
+
+  const apolloState = apolloClient.cache.extract();
+
+  return {
+    props: {
+      apolloState: apolloState,
+      data: data?.data,
+      error: data?.error ?? data?.errors ?? null,
+    },
+  };
+}
+```
+
+`getServerPage`가 SSR로 렌더링을 하고 있는 것을 확인할 수 있다. 컴포넌트에서는 `props`를 로그했을 때 터미널에 기록되는 것으로, 아니면 페이지 소스보기 형태로 서버에서 렌더링이 된 것을 확인할 수 있다.
+
+이 `getServerPage`는 next의 `getStaticProps`와 `getStaticPaths`를 활용하여 SSG로 렌더링 후 `useQuery`로 다시 서버 데이터를 패치하면 될 것 같다.
+
+이제 이 조합을 구현하려면 적절한 예제를 찾아야 하는데 아직 못찾았다. 만약 **업데이트가 잦은 데이터**와 **빌드하고 배포하는 시점에만 필요한 데이터** 그리고 인터렉션 가능 상태에서 **사용자 UI로 변동이 발생하는 데이터** 이 3가지의 경우 `getServerPage`와 `withPage` HOC를 걸고 컴포넌트 내부에서는 `useQuery`를 사용하면 될 것 같다.
+
+## 다음 주 할일
+
+- AWS Copilot => CDK혹은 Terraform 마이그레이션
+- Cognito 에서 SuperTokens 로 마이그레이션
+- SuperTokens with Prisma 테스트 및 ECS 배포
+- 모델링 OSS 데이터 glTF로 변환하여 Three.js 렌더링
+- 변환된 모델링 데이터 메타데이터 분석
+
+위의 일들을 진행해보고 다음 tWIL에 정리할 예정이다.

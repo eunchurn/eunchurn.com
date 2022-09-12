@@ -423,7 +423,7 @@ export class LowWithLodash<T> extends Low<T> {
 }
 ```
 
-TypeScript에서 위의 코드는 오류가 발생한다. 그 이유는 `lowdb`가 ESM 패키지이기 때문에 발생한다. commonjs의 `require()`를 더이상 지원하지 않기 때문이다. TypeScript는 transpile한 결과를 보면, `require()`방식으로 변환하기 때문에 오류가 발생한다. TypeScript 버전이 올라가면 이런 ESM 모듈이 앞으로는 추세이기 때문에 알아서 변환해주면 좋겠지만, 아직은 안된다. 따라서 ESM 모듈을 쓰기위해 babel을 이래저래 설정하면 되겠지만, TypeScript에서는 불편하지만 `dynamicImport`와 같은 패키지를 사용해서 import해야 한다. 다음과 같이 `async` 함수에서 사용하고 promise로 반환해야한다.
+TypeScript에서 위의 코드는 오류가 발생한다. `Error [ERR_REQUIRE_ESM]: require() of ES Module` 그 이유는 `lowdb`가 ESM 패키지이기 때문에 발생한다. commonjs의 `require()`를 더이상 지원하지 않기 때문이다. TypeScript는 transpile한 결과를 보면, `require()`방식으로 변환하기 때문에 오류가 발생한다. TypeScript 버전이 올라가면 이런 ESM 모듈이 앞으로는 추세이기 때문에 알아서 변환해주면 좋겠지만, 아직은 안된다. 따라서 ESM 모듈을 쓰기위해 babel을 이래저래 설정하면 되겠지만, TypeScript에서는 불편하지만 `dynamicImport`와 같은 패키지를 사용해서 import해야 한다. 다음과 같이 `async` 함수에서 사용하고 promise로 반환해야한다.
 
 ```typescript
 const { Low } = (await dynamicImport("lowdb", module)) as typeof import("lowdb");
