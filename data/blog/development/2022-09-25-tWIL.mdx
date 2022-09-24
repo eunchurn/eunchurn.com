@@ -1,0 +1,548 @@
+---
+date: "2022-09-25"
+title: "tWIL 2022.09 4주차"
+draft: false
+summary: "This week I learned"
+featured: /static/images/eunchurn/steps.PNG
+categories:
+  - development
+tags:
+  - development
+  - aws cdk
+  - postgresql
+  - aws ecs
+  - aws rds
+  - aurora serverless
+  - aws ssm
+  - supertokens
+---
+
+## Infrastructure as Code
+
+IaC로 [AWS CDK](https://docs.aws.amazon.com/cdk/api/v2/)로 결정했다. Terraform 보다 CDK를 선택해서 사용한 이유는 아직 Terraform을 써보지 않아서 잘모르겠지만 AWS 신규지원하는 기능에 대한 지원이 CDK가 더 빠를거라는 예상에서였다. 그리고 선언형태의 코드보다는 TypeScript가 익숙하기 때문이기도 하고, 선언적인 형태보다 프로그래밍 방식으로 조금 더 DevOps 개발자가 아닌 백엔드 개발자적으로 인프라를 빌드할 수 있어서였다. 그래서 일단 CDK를 시작해보았다. 기존 Copilot으로 구축한 인프라에서 CDK로 마이그레이션은 시간이 오래걸렸다. 아니 아직도 진행중이다.
+
+## AWS CDK
+
+아래와 같이 프로젝트를 시작할 수 있지만, `cdk.json`을 TypeScript 프로젝트에 설정해두면 CLI를 바로 사용할 수 있다.
+
+```sh
+mkdir cdk-workshop && cd $_
+cdk init sample-app --language=typescript
+```
+
+`cdj.json`은 프로젝트 루트에 위치하고, `cdk` 폴더에 코드를 구성한다.
+
+```json:cdk.json
+{
+  "app": "npx ts-node --prefer-ts-exts cdk/index.ts",
+  "watch": {
+    "include": ["**"],
+    "exclude": [
+      "README.md",
+      "cdk*.json",
+      "**/*.d.ts",
+      "**/*.js",
+      "tsconfig.json",
+      "package*.json",
+      "yarn.lock",
+      "node_modules",
+      "test"
+    ]
+  }
+}
+```
+
+그리고 `cdk` 폴더 내부에 `index.ts` 그리고 `libs`폴더를 만들어둔다. `index.ts`에서는 엔트리포인트로 `app`을 만들어 CDK Stack 클래스에 생성자 인자로 넘겨주는 원리로 스택을 만든다.
+
+여기서는 API와 인증관련 Auth 서버의 이미지를 ECS에 Fargate로 서비스를 구동하고, RDS는 PostgreSQL을 Serverless 클러스터로 구성하려고 한다.
+
+```typescript:cdk/index.ts
+#!/usr/bin/env node
+import * as cdk from "aws-cdk-lib";
+import { MyStacks } from "./libs";
+
+const app = new cdk.App();
+
+// https://docs.aws.amazon.com/cdk/v2/guide/stacks.html
+const defaultProps: cdk.StackProps = {
+  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+};
+new MyStacks(app, "mystacks-dev", defaultProps);
+new MyStacks(app, "mystacks-prod", defaultProps);
+
+app.synth();
+```
+
+여기서는 `dev`, `prod`로 분리해주었다. 추가 환경 예를들어 `staged`를 만들어 스택을 배포할 수 있다. 하위 스택들은 이 이름을 내려받아 여러 환경변수 형태로 전체 인프라를 구성할 수도 있다. QA를 위한 `staged`는 모두 배포하고 RDS에는 데이터를 시드한 후 E2E 테스트 환경을 구성하고, 인프라 전체 배포상태에서 테스트하도록 구성할 수 있을 것 같다. [CDK 앱을 각 다른 스테이지와 환경에 배포하는 과정](https://taimos.de/blog/deploying-your-cdk-app-to-different-stages-and-environments)을 참고했다. 그리고 테스트 완료 후 `destroy`로 배포한 인프라들을 모두 제거하는 일도 가능하다.
+
+`libs`폴더 내부는 `ecs`, `rds` 폴더를 만들어주고, `index.ts`를 만들어 이들을 적절히 구성하도록 export한다.
+
+여기는 부모에서 내려준 `id` 즉 stack 이름을 `ecs`와, `rds` post-fix를 달아서 배포하도록 한다.
+
+```typescript:cdk/libs/index.ts
+import * as cdk from "aws-cdk-lib";
+import { MyStackECSCluster } from "./ecs";
+import { MyStackRDSCluster } from "./rds";
+
+export class MyStacks extends cdk.Stack {
+  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+    new MyStackECSCluster(scope, `${id}-ecs`, props);
+    new MyStackRDSCluster(scope, `${id}-rds`, props);
+  }
+}
+```
+
+### AWS ECS 구성
+
+여기서는 2개의 ECS 클러스터(API 컨테이너와 Auth 컨테이너)를 운영할 예정이다. 우선 VPC를 생성하고, Public 서브넷에 이 두개의 클러스터를 붙이고, Private 서브넷에 RDS를 붙일 예정이다. VPC는 공통자원이니 VPC를 만들었을 때 클러스터들이 VPC 정보를 알고있어야 한다. 따라서 `cdk/libs/ecs/index.ts`에서 만들기로한다. 더 상위에서 만들어서 내려줘도 되지만, 이슈가 있었다.
+
+정의한 인프라들은 모두 배포되기 전이기 때문에 각 인프라정보는 `Tokens` 형태로 값을 지정하고 있다가 `synth`를 실행할 때 이름을 정하는 것 같다. 아니면 `bootstrap`명령에서 인프라 데이터를 얻을 수 있는지 모르겠는데 RDS에서는 `Tokens`형태의 `vpcId`는 허용하지 않았다. "All arguments to Vpc.fromLoopup() must be concrete(no Tokens)" 에러가 발생한다. 이와 관련해서 RDS는 나중에 배포하도록 하고 우선 VPC를 배포를 선행하면서 [SSM에 ParameterStore로 저장하는 방식](https://lzygo1995.medium.com/how-to-resolve-all-arguments-to-vpc-fromlookup-must-be-concrete-no-tokens-error-in-cdk-add1c2aba97b)같은 형태를 취해야했다.
+
+여기서는 ECS를 먼저 배포한다는 가정하에 ECS 스택에 VPC를 생성하고 이 VPC ID를 SSM 파라미터 스토어(`/vpcProvider/myvpc`)에 저장하도록 구성하였다. 그리고 RDS배포할 때에 이 값을 가져와서 사용하도록 한다.(추후 이런 방식은 다른 방법으로 수정해여할 필요가 있다.)
+
+```typescript:cdk/libs/ecs/index.ts
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as cdk from "aws-cdk-lib";
+import * as ssm from "aws-cdk-lib/aws-ssm";
+import { MyStackApi } from "./api";
+import { MyStackAuth } from "./auth";
+
+export class MyStackECSCluster extends cdk.Stack {
+  constructor(scope: cdk.App, name: string, props?: cdk.StackProps) {
+    super(scope, name, props);
+    const vpc = new ec2.Vpc(this, "myvpc", { maxAzs: 2 });
+    new ssm.StringParameter(this, "VpcId", {
+      parameterName: `/vpcProvider/myvpc`,
+      stringValue: vpc.vpcId,
+    });
+    /**
+     * Create a API Cluster
+     */
+    const apiFargateService = MyStackApi(this, vpc);
+    /**
+     * Create an Auth Cluster
+     */
+    const authFagateService = MyStackAuth(this, vpc);
+    new cdk.CfnOutput(this, "ApiLoadBalancerDNS", {
+      value: apiFargateService.loadBalancer.loadBalancerDnsName,
+      description: "Network LoadBalancer URL",
+    });
+    new cdk.CfnOutput(this, "AuthLoadBalancerDNS", {
+      value: authFagateService.loadBalancer.loadBalancerDnsName,
+    });
+  }
+}
+```
+
+위의 스택 클래스 생성자에서 함수를 호출하여 배포하고, 결과물은 `CfnOutput`으로 로드밸런서의 주소를 로깅한다. 이제 이 함수들을 만들어주는데 `this`는
+
+#### API Cluster
+
+현 프로젝트의 API를 Docker 이미지로 빌드하여, ECS로 배포 Fargate 서비스로 구동하는 함수이다.
+
+```typescript:cdk/libs/ecs/api.ts
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as ecs from "aws-cdk-lib/aws-ecs";
+import * as cdk from "aws-cdk-lib";
+import * as ssm from "aws-cdk-lib/aws-ssm";
+import { Platform } from "aws-cdk-lib/aws-ecr-assets";
+import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
+
+export function MyStackApi(stack: cdk.Stack, vpc: ec2.Vpc) {
+  const cluster = new ecs.Cluster(stack, "api", {
+    vpc,
+  });
+  // CloudWatch Logs로 보내는 테스트 정의
+  const logging = new ecs.AwsLogDriver({
+    streamPrefix: "api",
+  });
+  const taskDefinition = new ecs.FargateTaskDefinition(stack, "api-task", {
+    memoryLimitMiB: 512,
+    cpu: 256,
+  });
+  taskDefinition.addContainer("api-container", {
+    image: ecs.ContainerImage.fromAsset(".", {
+      platform: Platform.LINUX_AMD64,
+    }),
+    logging,
+    portMappings: [{ containerPort: 8000, hostPort: 8000 }],
+    // secrets:
+  });
+  const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(
+    stack,
+    "api-service",
+    {
+      cluster,
+      taskDefinition,
+    },
+  );
+  const scaling = fargateService.service.autoScaleTaskCount({
+    maxCapacity: 2,
+  });
+  scaling.scaleOnCpuUtilization("CpuScaling", {
+    targetUtilizationPercent: 50,
+    scaleInCooldown: cdk.Duration.seconds(60),
+    scaleOutCooldown: cdk.Duration.seconds(60),
+  });
+  return fargateService;
+}
+```
+
+인자로는 Stack 클래스를 받으며, VPC도 인자로 받는다.
+
+- `cluster`는 `api`라는 이름의 ECS 클러스터를 생성한 객체이다.
+- `logging`은 ECS 로깅 드라이버 생성한 객체이고 기본값은 클라우트 워치에서 로깅한다.
+- `taskDefinition`은 Fargate 작업 정의이다. 메모리와 CPU값을 설정할 수 있다. 그리고 `taskDefinition`에 컨테이너를 지정힌다. 여기서는 `fromAsset`을 지정했다. 현재 루트 경로에서 `Dockerfile`을 찾아 빌드를 수행할 예정이다. `portMappings`은 `containerPort`와 `hostPort`값을 지정해주어야 한다. 그리고 `secrets`를 추가하여 컨테이너가 사용할 `secrets`값을 지정해준다. 만약 Github action에서 이 작업이 수행된다면, Github의 환경에 따른 Secrets를 설정하여 사용할 수도 있다. 아니면 SSM ParameterStore의 값을 지정하여 사용할 수 도 있겠다.
+- `fargateService`는 `ecs_patterns`의 ALB를 연결한 Fargate서비스를 붙여준다.
+- `scaling`은 클러스터 내의 컨테이너 스케일링 설정을 추가한다.
+
+이렇게 `fargateService`를 반환하도록 함수를 만들면 쉽게 컨테이너가 배포된다. `fromAsset`에서 애플실리콘 Mac 사용자는 `platform`에 `LINUX_AMD64`값을 붙여주어야 로컬환경에서 빌드할 때 문제가 안생긴다. 당연 다른 컨테이너에서 CI/CD로 배포한다면 없어도 되지만 애플실리콘 맥사용자를 위해 지정해주는 편이 좋다.
+
+#### Auth Cluster
+
+지금까지 API에서 직접 토큰을 관리하며, accessToken과 refreshToken을 만들어서 사용자 관리를 했었다. deviceId를 이용하여 토큰이 탈취된 사용자인지 가려내기도 했지만, 요즘은 더 복잡한 과정이 필요한 것 같다. 예를들어 브라우저 Fingerprint를 알아내어 잘못된 사용자도 걸러내야 하는 로직을 만들었다고 하면 행여나 잘못된 로직으로 정상적인 사용자도 탈취된 토큰으로 인지할 수 도 있어서 개발자 코드에 의지하기엔 좀 불안정해 보인다. cIAM(Consumer Identity and Access Management)서비스들은 이러한 문제들을 많이 해결해 주지만 비용이 만만치 않다. SuperTokens와 Keycloak이 라인업에 있었지만, 비교 분석해본 결과 [SuperTokens](https://supertokens.com/)으로 선택했다. 오픈소스이며 컨테이너 이미지도 제공된다.
+
+![ciam-comparison](/static/images/2022/09/ciam-comparison.png)
+
+AWS Cognito에서 안좋은 사용자 경험 및 개발자 경험으로 인해 Keycloak도 걸렀다. 그래서 오픈소스로 언제든 커스터마이징이 될 수 있으며, 나중에 프로비저닝이 필요하게 되면 서비스를 이용하면 될 것 같다.
+
+현재 사용하고 있는 Cognito를 걷어내는데 시간이 많이 소요될 것으로 보이지만, 일단 아래와 같은 구조로 서비스 인증관련 코어들을 전면 수정할 예정이다.
+
+![supertokens](/static/images/2022/09/supertokens.png)
+
+비판적인 시각도 있다. Ben Awad 이 분은 https://www.youtube.com/watch?v=Hh_kiZTTBr0 에서 인증 서버따위 직접 만들어라라고 한다. 어느정도 동의한다. 나중에 엔터프라이즈급으로 성장하면 그때 생각해도 늦지 않을 것 같다는 생각도 한다. 하지만 출시부터 큰 건의 비용거래가 발생할 예정인 프로젝트라 어쩔 수 없다고 생각한다. 이 분의 컨텐츠를 종종 보는데, 모두까기로 어그로끄는 경향이 있다. ORM도 필요없다고 할 때도 있고, 컨텐츠는 좀 오래된거라 업데이트가 안되는 경우도 있고... 여튼 이 비판적인 시각도 여기에 남겨 둔다.
+
+<div className="aspect-ratio container flex justify-center">
+  <iframe
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/NllFeGH6QZ0"
+    frameBorder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowFullScreen
+  ></iframe>
+</div>
+
+멀리 돌아왔는데, 무튼 이 SuperTokens을 Cluster로 배포하면
+
+```typescript:cdk/libs/auth.ts
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as ecs from "aws-cdk-lib/aws-ecs";
+import * as cdk from "aws-cdk-lib";
+import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
+
+export function MyStackAuth(stack: cdk.Stack, vpc: ec2.Vpc) {
+  const cluster = new ecs.Cluster(stack, "auth-cluster", {
+    vpc,
+  });
+  // create a task definition with CloudWatch Logs
+  const logging = new ecs.AwsLogDriver({
+    streamPrefix: "auth",
+  });
+  const taskDefinition = new ecs.FargateTaskDefinition(stack, "TaskDef", {
+    memoryLimitMiB: 512,
+    cpu: 256,
+  });
+  taskDefinition.addContainer("auth-container", {
+    image: ecs.ContainerImage.fromRegistry(
+      "registry.supertokens.io/supertokens/supertokens-postgresql",
+    ),
+    logging,
+    portMappings: [{ containerPort: 3567, hostPort: 3567 }],
+  });
+  const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(
+    stack,
+    "auth-service",
+    {
+      cluster,
+      taskDefinition,
+    },
+  );
+  const scaling = fargateService.service.autoScaleTaskCount({
+    maxCapacity: 2,
+  });
+  scaling.scaleOnCpuUtilization("CpuScaling", {
+    targetUtilizationPercent: 50,
+    scaleInCooldown: cdk.Duration.seconds(60),
+    scaleOutCooldown: cdk.Duration.seconds(60),
+  });
+  return fargateService;
+}
+```
+
+API와 거의 같으며, 다른 점은 `fromRegistry`뿐이다. RDS는 공유하기에 스케일링해도 괜찮지 않을까 생각하지만 이것은 배포해보고 지켜봐야할 것 같다.
+
+### AWS RDS 구성
+
+AWS RDS의 AuroraDB의 PostgreSQL을 사용할 예정이다. EC2 인스턴스가 아닌 Serverless로 구동하였다. Aurora Serverless는 온디멘드 자동 크기 조정 구성방식이며 요구사항 기반으로 자동으로 시작과 종료가 된다. 당연히 사용용량과 시간만 비용지불하면 되므로 비용절감 된다. 대부분의 예제는 EC2 인스턴스 기반으로 나와있어서 Serverless 클러스터 방식으로 수정하였다.
+
+```typescript:cdk/rds/postgres.ts
+import { Tags, Fn, Duration, RemovalPolicy } from "aws-cdk-lib";
+import * as cdk from "aws-cdk-lib";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as kms from "aws-cdk-lib/aws-kms";
+import * as rds from "aws-cdk-lib/aws-rds";
+import * as ssm from "aws-cdk-lib/aws-ssm";
+import { isUndefined } from "lodash";
+
+export function MyStackRDS(stack: cdk.Stack, name: string) {
+  const id = name;
+  const dbName = "authdb";
+  const auroraClusterUsername = "postgres";
+  const vpcId = ssm.StringParameter.valueFromLookup(
+    stack,
+    "/vpcProvider/myVpc",
+  );
+  const backupRetentionDays = 14;
+
+  const ingressSources: any[] = [];
+
+  // vpc
+  const vpc = ec2.Vpc.fromLookup(stack, "ExistingVPC", {
+    vpcId,
+  });
+  // Subnets
+  const subnets = vpc.privateSubnets.map(({ subnetId }) => {
+    return ec2.Subnet.fromSubnetAttributes(stack, subnetId, {
+      subnetId,
+    });
+  });
+
+  // interface
+  const vpcSubnets: ec2.SubnetSelection = {
+    subnets: subnets,
+  };
+
+  // all the ports
+  const allAll = ec2.Port.allTraffic();
+  const tcp5432 = ec2.Port.tcpRange(5432, 5432);
+  const tcp1433 = ec2.Port.tcpRange(1433, 1433);
+
+  // Database Security Group
+  const dbsg = new ec2.SecurityGroup(stack, "DatabaseSecurityGroup", {
+    vpc: vpc,
+    allowAllOutbound: true,
+    description: id + "Database",
+    securityGroupName: id + "Database",
+  });
+  dbsg.addIngressRule(dbsg, allAll, "all from self");
+  dbsg.addEgressRule(ec2.Peer.ipv4("0.0.0.0/0"), allAll, "all out");
+
+  const connectionPort = tcp5432;
+  const connectionName = "tcp5432 PostgresSQL";
+
+  for (const ingress_source of ingressSources!) {
+    if (!isUndefined(ingress_source)) {
+      dbsg.addIngressRule(ingress_source, connectionPort, connectionName);
+      dbsg.addIngressRule(ingress_source, tcp1433, "tcp1433");
+    }
+  }
+
+  // Declaring postgres engine
+  const auroraEngine = rds.DatabaseClusterEngine.auroraPostgres({
+    /**
+     * 서울 리전 버전 체크
+     * aws rds describe-db-engine-versions | jq '.DBEngineVersions[] | select(.SupportedEngineModes != null and .SupportedEngineModes[] == "serverless" and .Engine == "aurora-postgresql")'
+     * */
+    version: rds.AuroraPostgresEngineVersion.VER_11_13,
+  });
+
+  const auroraParameters: any = {};
+  // aurora params
+  const auroraParameterGroup = new rds.ParameterGroup(
+    stack,
+    "AuroraParameterGroup",
+    {
+      engine: auroraEngine,
+      description: id + " Parameter Group",
+      parameters: auroraParameters,
+    },
+  );
+
+  // aurora credentials
+  const auroraClusterCrendentials = rds.Credentials.fromGeneratedSecret(
+    auroraClusterUsername,
+  );
+
+  // Aurora DB Key
+  const kmsKey = new kms.Key(stack, "AuroraDatabaseKey", {
+    enableKeyRotation: true,
+    alias: dbName,
+  });
+
+  const cluster = new rds.ServerlessCluster(stack, name, {
+    engine: auroraEngine,
+    vpc,
+    credentials: auroraClusterCrendentials,
+    backupRetention: Duration.days(backupRetentionDays),
+    parameterGroup: auroraParameterGroup,
+    clusterIdentifier: name,
+    defaultDatabaseName: "authdb",
+    storageEncryptionKey: kmsKey,
+    deletionProtection: true,
+    removalPolicy: RemovalPolicy.SNAPSHOT,
+    copyTagsToSnapshot: true,
+    vpcSubnets,
+    securityGroups: [dbsg],
+  });
+  cluster.applyRemovalPolicy(RemovalPolicy.RETAIN);
+
+  Tags.of(cluster).add("Name", dbName!, {
+    priority: 300,
+  });
+  return cluster;
+}
+```
+
+앞서 말한 이슈로 인해 VPC ID는 SSM Parameter Store에서 `valueFromLookup`으로 값을 받아와서 VPC에 붙여주었다.
+
+- Severless 이기때문에 replica set을 설정할 필요가 없다.
+- 백업본 제거(backupRetentionDays)는 14일 기준으로 설정
+- 서브넷은 앞서 만든 VPC에서 Private 서브넷을 추출하여 할당하였다.
+- `defaultDatabaseName`은 `authdb`라고 설정했는데, API는 마이그레이션하면서 `apidb`를 만들기 때문에 SupterTokens에서 사용할 DB를 미리 만들어 주도록 한다.
+- "SecurityGroup"
+  - IngressRule은 프라이빗 네트워크이기 때문에 VPC에 붙은 컨테이너들이 접근 가능하도록 모든 포트를 허용하도록 한다.
+  - EgressRule도 마찬가지로 프라이빗 네트워크이므로 모두 열어둔다.
+- `auroraEngine` 설정이 중요한데 서울리전에서 Aurora Serverless를 지원하는 PostgreSQL 버전을 맞추어야 한다. 이를 위해 아래와 같이 조회를 해봐야한다.
+
+```sh
+aws rds describe-db-engine-versions | jq '.DBEngineVersions[] | select(.SupportedEngineModes != null and .SupportedEngineModes[] == "serverless" and .Engine == "aurora-postgresql")'
+```
+
+그러면 아래 2개의 버전이 나온다. 따라서 11.13버전으로 설정해준다.
+
+```json
+{
+  "Engine": "aurora-postgresql",
+  "EngineVersion": "10.18",
+  "DBParameterGroupFamily": "aurora-postgresql10",
+  "DBEngineDescription": "Aurora (PostgreSQL)",
+  "DBEngineVersionDescription": "Aurora PostgreSQL (compatible with PostgreSQL 10.18)",
+  "ValidUpgradeTarget": [
+    {
+      "Engine": "aurora-postgresql",
+      "EngineVersion": "11.13",
+      "Description": "Aurora PostgreSQL (compatible with PostgreSQL 11.13)",
+      "AutoUpgrade": false,
+      "IsMajorVersionUpgrade": true,
+      "SupportedEngineModes": [
+        "serverless"
+      ],
+      "SupportsParallelQuery": false,
+      "SupportsGlobalDatabases": false,
+      "SupportsBabelfish": false
+    }
+  ],
+  "ExportableLogTypes": [
+    "postgresql"
+  ],
+  "SupportsLogExportsToCloudwatchLogs": true,
+  "SupportsReadReplica": false,
+  "SupportedEngineModes": [
+    "serverless"
+  ],
+  "SupportedFeatureNames": [
+    "Comprehend",
+    "s3Export",
+    "s3Import",
+    "SageMaker"
+  ],
+  "Status": "available",
+  "SupportsParallelQuery": false,
+  "SupportsGlobalDatabases": false,
+  "MajorEngineVersion": "10",
+  "SupportsBabelfish": false
+}
+{
+  "Engine": "aurora-postgresql",
+  "EngineVersion": "11.13",
+  "DBParameterGroupFamily": "aurora-postgresql11",
+  "DBEngineDescription": "Aurora (PostgreSQL)",
+  "DBEngineVersionDescription": "Aurora PostgreSQL (compatible with PostgreSQL 11.13)",
+  "ValidUpgradeTarget": [],
+  "ExportableLogTypes": [
+    "postgresql"
+  ],
+  "SupportsLogExportsToCloudwatchLogs": true,
+  "SupportsReadReplica": false,
+  "SupportedEngineModes": [
+    "serverless"
+  ],
+  "SupportedFeatureNames": [
+    "Comprehend",
+    "Lambda",
+    "s3Export",
+    "s3Import",
+    "SageMaker"
+  ],
+  "Status": "available",
+  "SupportsParallelQuery": false,
+  "SupportsGlobalDatabases": false,
+  "MajorEngineVersion": "11",
+  "SupportsBabelfish": false
+}
+```
+
+- `auroraClusterCrendentials`은 `fromGeneratedSecret`으로 만들고 SSM Parameter Store에 나중에 따로 저장해야 한다.(TODO)
+- `kmsKey`는 데이터베이스 암호화를 위해 설정한다. 기본값은 대칭 암호화키 KMS를 사용한다. (보안을 위해 꼭 설정해야 함)
+
+이렇게 RDS를 구성하는 함수를 실행하도록 Stack에 생성자를 만든다.
+
+```typescript:cdk/libs/rds/index.ts
+import * as cdk from "aws-cdk-lib";
+import { MyStackRDS } from "./postgres";
+
+export class MyStackRDSCluster extends cdk.Stack {
+  constructor(scope: cdk.App, name: string, props?: cdk.StackProps) {
+    super(scope, name, props);
+
+    const cluster = MyStackRDS(this, name);
+
+    new cdk.CfnOutput(this, "OutputSecretName", {
+      exportName: cluster.stack.stackName + ":SecretName",
+      value: cluster.secret?.secretArn!,
+    });
+
+    new cdk.CfnOutput(this, "OutputSecretArn", {
+      exportName: cluster.stack.stackName + ":SecretArn",
+      value: cluster.secret?.secretArn!,
+    });
+
+    new cdk.CfnOutput(this, "OutputGetSecretValue", {
+      exportName: cluster.stack.stackName + ":GetSecretValue",
+      value:
+        "aws secretsmanager get-secret-value --secret-id " +
+        cluster.secret?.secretArn,
+    });
+  }
+}
+```
+
+### Synthesize & Deployment
+
+CDK CLI로 `synth`를 하면 오류가 발생할 예정이다. `Tokens`이슈가 있기 때문에 따라서 앱을 따로 배포해야한다. 먼저 ECS를 Dev 스테이징으로 `synth`하면
+
+```sh
+cdk synth mystacks-dev-ecs
+```
+
+`cdk.out`에 CloudFormation 설정파일들이 생성된다. `mystacks-dev-ecs.template.json`파일을 열어 설정이 제대로 되어있는지 확인 후 배포한다.
+
+```sh
+cdk deploy mystacks-dev-ecs
+```
+
+이미지도 빌드하며 시간이 오래걸린다. 완료가 되면 ECS에 Fargate 형태로 API와 Auth 클러스터가 구동중인 것을 볼 수 있다.
+
+이제 SSM 설정도 되었으니 RDS도 배포가능한 상태가 되었다. Synthesize하고 배포한다.
+
+```sh
+cdk synth mystacks-dev-rds
+```
+
+```sh
+cdk deploy mystacks-dev-rds
+```
+
+이제 환경변수를 SSM에 설정하고 ECS 컨테이너가 이 환경변수를 사용하도록 설정해야한다. 환경변수 파라미터는 좀더 좋은 유즈 케이스를 찾아서 다음주에 적용하려고 한다.
