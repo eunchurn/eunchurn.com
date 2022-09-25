@@ -17,6 +17,29 @@ tags:
   - supertokens
 ---
 
+이번 주도 주말에 라이딩을 하게 되었다. 주중에도 날씨는 좋았는데 (반성) 이번엔 심장강화 운동을 시도했다. 목표는 심박수 170BPM을 넘긴 상태를 오래 유지하기였다.
+
+<div className="__fl_vimeo" style={{ position: "relative", padding: "56.25% 0 0 0" }}>
+  <iframe
+    src="https://player.vimeo.com/video/753563315?h=ab77e2738e&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
+    frameBorder="0"
+    allow="autoplay; fullscreen; picture-in-picture"
+    allowFullScreen
+    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+    title="20220925 심장강화 라이딩"
+  ></iframe>
+</div>
+
+![strava](/static/images/2022/09/strava.png)
+
+그리고 안양천 합수부에서 너무 지쳐버렸다. 초반에 너무 무리해서 달렸고, 쌀쌀해서 [아디다스 TS 사이클링 자켓](https://www.adidas.de/en/the-trackstand-cycling-jacket/HF9018.html)과 [아디다스 TS 사이클링 팬츠](https://www.adidas.de/en/the-trackstand-cycling-pants/GP8632.html)를 입고 타는 바람에 땀배출이 어려웠다. 10도 이하로 내려가면 입어야겠다. 뭐 이건 핑계고 체력은 언제나 바닥이다.
+
+![elevate](/static/images/2022/09/elevate.png)
+
+2달간 데이터에서 피트니스 중간값은 5.1이다. 잘타는 사람은 중간값 20이상이라고 들었다. 뭐 뚜르드프랑스 선수들은 200도 Freshness라고 한다. 워밍업도 안되는 수준도 힘들어 지치는 채력인 것이다. 추워지면 더 못타니 더 자주타서 체력을 끌어 올려야겠다.
+
+예고했다시피 인프라 구축에 한주를 보냈다. 인프라만 구축한것은 아니고 이 적합성 테스트까지 함께 진행중이다. 지난주에 진행했던 glTF 모델로 홈앱 테스트 가능성과 SuperTokens을 사용한 cIAM 인증서버 가능성 검토 등. 그래서 tWIL은 주로 인프라를 기준으로 작성하고, 적합성 테스트를 마치면 다음 주엔 가장 중요한 SuperTokens를 다루려고 한다.
+
 ## Infrastructure as Code
 
 IaC로 [AWS CDK](https://docs.aws.amazon.com/cdk/api/v2/)로 결정했다. Terraform 보다 CDK를 선택해서 사용한 이유는 아직 Terraform을 써보지 않아서 잘모르겠지만 AWS 신규지원하는 기능에 대한 지원이 CDK가 더 빠를거라는 예상에서였다. 그리고 선언형태의 코드보다는 TypeScript가 익숙하기 때문이기도 하고, 선언적인 형태보다 프로그래밍 방식으로 조금 더 DevOps 개발자가 아닌 백엔드 개발자적으로 인프라를 빌드할 수 있어서였다. 그래서 일단 CDK를 시작해보았다. 기존 Copilot으로 구축한 인프라에서 CDK로 마이그레이션은 시간이 오래걸렸다. 아니 아직도 진행중이다.
@@ -95,11 +118,11 @@ export class MyStacks extends cdk.Stack {
 
 ### AWS ECS 구성
 
-여기서는 2개의 ECS 클러스터(API 컨테이너와 Auth 컨테이너)를 운영할 예정이다. 우선 VPC를 생성하고, Public 서브넷에 이 두개의 클러스터를 붙이고, Private 서브넷에 RDS를 붙일 예정이다. VPC는 공통자원이니 VPC를 만들었을 때 클러스터들이 VPC 정보를 알고있어야 한다. 따라서 `cdk/libs/ecs/index.ts`에서 만들기로한다. 더 상위에서 만들어서 내려줘도 되지만, 이슈가 있었다.
+여기서는 2개의 ECS 클러스터(API 컨테이너와 Auth 컨테이너)를 운영하도록 한다. 우선 VPC를 생성하고, Public 서브넷에 이 두개의 클러스터를 붙이고, Private 서브넷에 RDS를 붙일 예정이다. VPC는 공통자원이니 VPC를 만들었을 때 클러스터들이 VPC 정보를 알고있어야 한다. 따라서 `cdk/libs/ecs/index.ts`에서 만들기로한다. 더 상위에서 만들어서 내려줘도 되지만, 이슈가 있었다.
 
 정의한 인프라들은 모두 배포되기 전이기 때문에 각 인프라정보는 `Tokens` 형태로 값을 지정하고 있다가 `synth`를 실행할 때 이름을 정하는 것 같다. 아니면 `bootstrap`명령에서 인프라 데이터를 얻을 수 있는지 모르겠는데 RDS에서는 `Tokens`형태의 `vpcId`는 허용하지 않았다. "All arguments to Vpc.fromLoopup() must be concrete(no Tokens)" 에러가 발생한다. 이와 관련해서 RDS는 나중에 배포하도록 하고 우선 VPC를 배포를 선행하면서 [SSM에 ParameterStore로 저장하는 방식](https://lzygo1995.medium.com/how-to-resolve-all-arguments-to-vpc-fromlookup-must-be-concrete-no-tokens-error-in-cdk-add1c2aba97b)같은 형태를 취해야했다.
 
-여기서는 ECS를 먼저 배포한다는 가정하에 ECS 스택에 VPC를 생성하고 이 VPC ID를 SSM 파라미터 스토어(`/vpcProvider/myvpc`)에 저장하도록 구성하였다. 그리고 RDS배포할 때에 이 값을 가져와서 사용하도록 한다.(추후 이런 방식은 다른 방법으로 수정해여할 필요가 있다.)
+여기서는 ECS를 먼저 배포한다는 가정하에 ECS 스택에 VPC를 생성하고 이 VPC ID를 SSM 파라미터 스토어(`/vpcProvider/myvpc`)에 저장하도록 구성하였다. 그리고 RDS배포할 때에 이 값을 가져와서 사용하도록 한다.(추후 이런 방식은 다른 방법으로 수정해야할 필요가 있다.)
 
 ```typescript:cdk/libs/ecs/index.ts
 import * as ec2 from "aws-cdk-lib/aws-ec2";
@@ -135,7 +158,7 @@ export class MyStackECSCluster extends cdk.Stack {
 }
 ```
 
-위의 스택 클래스 생성자에서 함수를 호출하여 배포하고, 결과물은 `CfnOutput`으로 로드밸런서의 주소를 로깅한다. 이제 이 함수들을 만들어주는데 `this`는
+위의 스택 클래스 생성자에서 함수를 호출하여 배포하고, 결과물은 `CfnOutput`으로 로드밸런서의 주소를 로깅한다. 이제 이 함수들을 만들어주는데 `this`는 현재의 스택 클래스를 가리키기 때문에 `super` 설정 이후에 생성자에서 함수로 넘기고 `vpc` 객체도 함수로 넘겨 실행하도록 구성하였다.
 
 #### API Cluster
 
@@ -201,7 +224,7 @@ export function MyStackApi(stack: cdk.Stack, vpc: ec2.Vpc) {
 
 #### Auth Cluster
 
-지금까지 API에서 직접 토큰을 관리하며, accessToken과 refreshToken을 만들어서 사용자 관리를 했었다. deviceId를 이용하여 토큰이 탈취된 사용자인지 가려내기도 했지만, 요즘은 더 복잡한 과정이 필요한 것 같다. 예를들어 브라우저 Fingerprint를 알아내어 잘못된 사용자도 걸러내야 하는 로직을 만들었다고 하면 행여나 잘못된 로직으로 정상적인 사용자도 탈취된 토큰으로 인지할 수 도 있어서 개발자 코드에 의지하기엔 좀 불안정해 보인다. cIAM(Consumer Identity and Access Management)서비스들은 이러한 문제들을 많이 해결해 주지만 비용이 만만치 않다. SuperTokens와 Keycloak이 라인업에 있었지만, 비교 분석해본 결과 [SuperTokens](https://supertokens.com/)으로 선택했다. 오픈소스이며 컨테이너 이미지도 제공된다.
+지금까지 API에서 직접 토큰을 관리하며, accessToken과 refreshToken을 만들어서 사용자 관리를 했었다. deviceId를 이용하여 토큰이 탈취된 사용자인지 가려내기도 했지만, 요즘은 더 복잡한 과정이 필요한 것 같다. 예를들어 브라우저 Fingerprint를 알아내어 잘못된 사용자도 걸러내야 하는 로직을 만들었다고 하면 행여나 잘못된 로직으로 정상적인 사용자도 탈취된 토큰으로 인지할 수 도 있어서 개발자 코드에 의지하기엔 할일이 많아 보인다. 더군다나 놓치고 있는 보안 이슈가 있을 수 있다. 따라서 cIAM(Consumer Identity and Access Management)서비스들은 이러한 문제들을 많이 해결해 주지만 비용이 만만치 않다. SuperTokens와 Keycloak이 라인업에 있었지만, 비교 분석해본 결과 [SuperTokens](https://supertokens.com/)으로 선택했다. 오픈소스이며 컨테이너 이미지도 제공된다.
 
 ![ciam-comparison](/static/images/2022/09/ciam-comparison.png)
 
@@ -211,7 +234,7 @@ AWS Cognito에서 안좋은 사용자 경험 및 개발자 경험으로 인해 K
 
 ![supertokens](/static/images/2022/09/supertokens.png)
 
-비판적인 시각도 있다. Ben Awad 이 분은 https://www.youtube.com/watch?v=Hh_kiZTTBr0 에서 인증 서버따위 직접 만들어라라고 한다. 어느정도 동의한다. 나중에 엔터프라이즈급으로 성장하면 그때 생각해도 늦지 않을 것 같다는 생각도 한다. 하지만 출시부터 큰 건의 비용거래가 발생할 예정인 프로젝트라 어쩔 수 없다고 생각한다. 이 분의 컨텐츠를 종종 보는데, 모두까기로 어그로끄는 경향이 있다. ORM도 필요없다고 할 때도 있고, 컨텐츠는 좀 오래된거라 업데이트가 안되는 경우도 있고... 여튼 이 비판적인 시각도 여기에 남겨 둔다.
+비판적인 시각도 있다. Ben Awad 이 분은 https://www.youtube.com/watch?v=Hh_kiZTTBr0 에서 인증 서버따위 직접 만들어라라고 한다. 어느정도 동의한다. 나중에 엔터프라이즈급으로 성장하면 그때 생각해도 늦지 않을 것 같다. 하지만 출시부터 큰 건의 비용거래가 발생할 예정인 프로젝트라 어쩔 수 없다고 생각한다. 이 분의 컨텐츠를 종종 보는데, 어딘지 모르게 좀 불편한 면이 있다. 정확히 파악은 못하겠지만... ORM도 필요없다고 할 때도 있고, 컨텐츠는 좀 오래된거라 업데이트가 안되는 경우도 있고... 그리고 라이브 코딩을 봤을 때 내가 선호하는 코딩 스타일도 아니라서.. 음 여튼 이 비판적인 시각도 여기에 남겨 둔다.
 
 <div className="aspect-ratio container flex justify-center">
   <iframe
@@ -271,7 +294,7 @@ export function MyStackAuth(stack: cdk.Stack, vpc: ec2.Vpc) {
 }
 ```
 
-API와 거의 같으며, 다른 점은 `fromRegistry`뿐이다. RDS는 공유하기에 스케일링해도 괜찮지 않을까 생각하지만 이것은 배포해보고 지켜봐야할 것 같다.
+API와 거의 같으며, 다른 점은 `fromRegistry`뿐이다. 버전이 올라가면 올라간 컨테이너로 받기만 하면 된다. 만약 변경점이 필요하면 컨테이너를 수정하면 된다. 하지만 SuperTokens는 DB를 사용하기 때문에 띄울 RDS에 새로 DB를 만들도록 했다. RDS는 공유하기에 스케일링해도 괜찮지 않을까 생각하지만 이것은 배포해보고 지켜봐야할 것 같다.
 
 ### AWS RDS 구성
 
@@ -485,7 +508,7 @@ aws rds describe-db-engine-versions | jq '.DBEngineVersions[] | select(.Supporte
 ```
 
 - `auroraClusterCrendentials`은 `fromGeneratedSecret`으로 만들고 SSM Parameter Store에 나중에 따로 저장해야 한다.(TODO)
-- `kmsKey`는 데이터베이스 암호화를 위해 설정한다. 기본값은 대칭 암호화키 KMS를 사용한다. (보안을 위해 꼭 설정해야 함)
+- `kmsKey`는 데이터베이스 암호화를 위해 설정한다. 기본값은 대칭 암호화키 KMS를 사용한다. (나중에 개인정보보호법등 법정 문제에 휘둘리지 않으려면 미리미리 보안 설정을 해두어야 할 것 같다.)
 
 이렇게 RDS를 구성하는 함수를 실행하도록 Stack에 생성자를 만든다.
 
