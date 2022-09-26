@@ -113,6 +113,7 @@ export const BlogSEO = ({
   url,
   images = [],
   canonicalUrl,
+  featured,
 }: BlogSeoProps) => {
   const publishedAt = new Date(date).toISOString();
   const modifiedAt = new Date(lastmod || date).toISOString();
@@ -168,7 +169,7 @@ export const BlogSEO = ({
     description: summary,
   };
 
-  const twImageUrl = featuredImages[0].url;
+  // const twImageUrl = featuredImages[0].url;
 
   return (
     <>
@@ -176,8 +177,10 @@ export const BlogSEO = ({
         title={title}
         description={summary}
         ogType="article"
-        ogImage={featuredImages}
-        twImage={twImageUrl}
+        // ogImage={featuredImages}
+        ogImage={`${siteMetadata.siteUrl}${featured}`}
+        // twImage={twImageUrl}
+        twImage={`${siteMetadata.siteUrl}${featured}`}
         canonicalUrl={canonicalUrl}
       />
       <Head>
