@@ -69,6 +69,11 @@ module.exports = withPWA(
       register: true,
       skipWaiting: true,
     },
+    images: {
+      unoptimized: true,
+      // loader: "cloudinary",
+      // path: "https://res.cloudinary.com/dspxl7nqq/image/upload/",
+    },
     async headers() {
       return [
         {
