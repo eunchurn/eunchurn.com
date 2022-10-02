@@ -1,0 +1,521 @@
+---
+date: "2022-10-02"
+title: "tWIL 2022.10 1주차"
+draft: false
+summary: "This week I learned"
+featured: /static/images/eunchurn/coding.gif
+categories:
+  - development
+tags:
+  - aws cdk
+  - terraform
+  - github page
+  - github action
+---
+
+## AWS CDK
+
+앱 인프라는 한 파일로 통합했다. `mystack.ts`에 앱이 담기고 나머진 `Stack`으로 선언되어 있다.
+
+### 배포 순서(Deployment order)
+
+VPC를 먼저 배포한 후 애플리케이션 스택을 배포한다. RDS VPC는 `TagName`을 허용하지 않기 때문이다.
+
+- AWS VPC: VPC, Subnets => SSM Parameter
+- AWS RDS => Secret Manager
+- AWS ECS
+
+#### 1단계: AWS VPC 배포
+
+```shell
+cdk deploy mystack-vpc
+```
+
+#### 2단계: AWS 서비스 컨테이너, RDS 배포
+
+```shell
+cdk deploy mystack-stack
+```
+
+앱의 Prop은 아래처럼 정의했다. `Stage`를 4단계로 구성했고, `MyStackProps`는 `domain`과 `certificateArn`을 내려주어 도메인 연결까지 수행한다.
+
+```ts
+export enum Stage {
+  Development = "dev",
+  Staged = "staged",
+  Release = "release",
+  Production = "prod",
+}
+
+export interface MyStackProps extends cdk.StackProps {
+  stage: Stage;
+  vpcName: string;
+  stackAlias: string;
+  /**
+   * 서비스 기준 도메인: {stage}.myapp.io
+   */
+  domain: string;
+  /**
+   * 서비스 기준 도메인의 ARN 값
+   */
+  certificateArn: string;
+}
+```
+
+파일 트리구성은 아래와 같다.
+
+```tree
+cdk
+├── __tests__
+│   └── index.spec.ts
+├── index.ts
+└── lib
+    ├── mystack.ts
+    ├── ecs
+    │   ├── api.ts
+    │   ├── auth.ts
+    │   ├── environment
+    │   │   ├── index.ts
+    │   │   └── validator
+    │   │       └── index.ts
+    │   └── index.ts
+    ├── index.ts
+    ├── rds
+    │   ├── aurora-rds.ts
+    │   └── index.ts
+    ├── types.ts
+    └── vpc
+        └── index.ts
+```
+
+CDK 배포앱은 아래와 같다. VPC(`MyStackVpc`)와 Stack(`MyStack`)을 분리하였다.
+
+```typescript:cdk/lib/mystack.ts
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+import * as cdk from "aws-cdk-lib";
+import * as ssm from "aws-cdk-lib/aws-ssm";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as acm from "aws-cdk-lib/aws-certificatemanager";
+import * as route53 from "aws-cdk-lib/aws-route53";
+import { myStackAuth, myStackApi } from "./ecs";
+import { myStackRDS } from "./rds";
+import { myStackVpc } from "./vpc";
+import { MyStackStackProps } from "./types";
+
+/* It creates a new stack and then calls the stackEnvironment function */
+export class MyStackVpc extends cdk.Stack {
+  constructor(scope: cdk.App, name: string, props: MyStackStackProps) {
+    const { stage, vpcName, stackAlias, ...rest } = props;
+    super(scope, name, rest);
+    const stringParamter = myStackVpc(
+      this,
+      name,
+      stage,
+      vpcName,
+      stackAlias,
+    );
+    new cdk.CfnOutput(this, "OutputVPCId", {
+      value: stringParamter.stringValue,
+    });
+  }
+}
+
+export class MyStack extends cdk.Stack {
+  constructor(scope: cdk.App, name: string, props: MyStackProps) {
+    const { stage, stackAlias, domain, certificateArn, ...rest } = props;
+    super(scope, name, rest);
+    const vpcId = ssm.StringParameter.valueFromLookup(
+      this,
+      `/cdk/${stackAlias}/${stage}/vpcProvider`,
+    );
+    const vpc = ec2.Vpc.fromLookup(this, "ExistingVPC", {
+      vpcId,
+    });
+    /**
+     * Create a MyStack Aurora PostgreSQL serverless Cluster
+     */
+    const cluster = myStackRDS(this, name, vpc, stage, stackAlias);
+    const stagedDomain = `${stage}.myapp.io`;
+    const domainZone = route53.HostedZone.fromLookup(this, "HostZone", {
+      domainName: stagedDomain,
+    });
+    const certificate = acm.Certificate.fromCertificateArn(
+      this,
+      "Certificate",
+      certificateArn,
+    );
+    const dbSecret = cluster.secret;
+    /**
+     * API server domain: api.{stage}.myapp.com
+     */
+    const apiDomain = `api.${domain}`;
+    /**
+     * Create a MyStack API Cluster
+     */
+    const apiFargateService = myStackApi(
+      this,
+      vpc,
+      stage,
+      stackAlias,
+      apiDomain,
+      domainZone,
+      certificate,
+      dbSecret,
+    );
+    /**
+     * Auth server domain: auth.{stage}.myapp.io
+     */
+    const authDomain = `auth.${domain}`;
+    /**
+     * Create an Auth API SuperTokens Cluster
+     */
+    const authFagateService = myStackAuth(
+      this,
+      vpc,
+      stage,
+      stackAlias,
+      authDomain,
+      domainZone,
+      certificate,
+      dbSecret,
+    );
+    new cdk.CfnOutput(this, "OutputSecretName", {
+      exportName: cluster.stack.stackName + ":SecretName",
+      value: cluster.secret?.secretArn!,
+    });
+
+    new cdk.CfnOutput(this, "OutputSecretArn", {
+      exportName: cluster.stack.stackName + ":SecretArn",
+      value: cluster.secret?.secretArn!,
+    });
+
+    new cdk.CfnOutput(this, "OutputGetSecretValue", {
+      exportName: cluster.stack.stackName + ":GetSecretValue",
+      value:
+        "aws secretsmanager get-secret-value --secret-id " +
+        cluster.secret?.secretArn,
+    });
+    new cdk.CfnOutput(this, "ApiLoadBalancerDNS", {
+      value: apiFargateService.loadBalancer.loadBalancerDnsName,
+      description: "Network LoadBalancer URL",
+    });
+    new cdk.CfnOutput(this, "AuthLoadBalancerDNS", {
+      value: authFagateService.loadBalancer.loadBalancerDnsName,
+    });
+  }
+}
+```
+
+하나의 케이스로 `api.ts`파일을 살펴보면 꽤많은 props를 내려받아 설정하도록 되어있다. 추가되는 앱과 연동에서 props는 더 추가될 여지가 많다.
+
+```typescript:cdk/lib/ecs/api.ts
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as ecs from "aws-cdk-lib/aws-ecs";
+import * as cdk from "aws-cdk-lib";
+import { Platform } from "aws-cdk-lib/aws-ecr-assets";
+import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
+import { setEnvironment } from "./environment";
+import { Stage } from "../types";
+
+/**
+ * It creates a Fargate service with a load balancer, and scales the number of tasks based on CPU
+ * utilization
+ * @param stack - The CDK stack object
+ * @param vpc - The VPC that the service will be deployed to.
+ * @param {Stage} stage - The stage of the application.
+ * @param {string} stackAlias - The name of the stack.
+ * @param [dbSecret] - This is the secret that we created in the previous step.
+ * @returns The fargateService
+ */
+export function myStackApi(
+  stack: cdk.Stack,
+  vpc: ec2.IVpc,
+  stage: Stage,
+  stackAlias: string,
+  domainName: string,
+  domainZone: cdk.aws_route53.IHostedZone,
+  certificate: cdk.aws_certificatemanager.ICertificate,
+  dbSecret?: cdk.aws_secretsmanager.ISecret,
+) {
+  const cluster = new ecs.Cluster(stack, "api", {
+    vpc,
+    clusterName: `${stackAlias}-api-${stage}`,
+  });
+  // environment
+  const { secrets: defaultSecrets } = setEnvironment(stack, stackAlias, stage);
+  // create a task definition with CloudWatch Logs
+  const logging = new ecs.AwsLogDriver({
+    streamPrefix: "api",
+  });
+  const taskDefinition = new ecs.FargateTaskDefinition(stack, "api-task", {
+    memoryLimitMiB: 512,
+    cpu: 256,
+  });
+  const secrets = (() => {
+    if (!dbSecret) return defaultSecrets;
+    return {
+      ...defaultSecrets,
+      APIDATABASE_SECRET: ecs.Secret.fromSecretsManager(dbSecret),
+    };
+  })();
+  taskDefinition.addContainer("api-container", {
+    image: ecs.ContainerImage.fromAsset(".", {
+      platform: Platform.LINUX_AMD64,
+    }),
+    logging,
+    portMappings: [{ containerPort: 8000, hostPort: 8000 }],
+    secrets,
+  });
+
+  const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(
+    stack,
+    "api-service",
+    {
+      cluster,
+      taskDefinition,
+      domainName,
+      domainZone,
+      certificate,
+      loadBalancerName: `${stage}-api-${stackAlias}`,
+    },
+  );
+  const scaling = fargateService.service.autoScaleTaskCount({
+    maxCapacity: 2,
+  });
+  scaling.scaleOnCpuUtilization("CpuScaling", {
+    targetUtilizationPercent: 50,
+    scaleInCooldown: cdk.Duration.seconds(60),
+    scaleOutCooldown: cdk.Duration.seconds(60),
+  });
+  return fargateService;
+}
+```
+
+여기서 SSM Parameter에 값을 넣어주는 방식은 스테이지 환경에 따라 `process.env` 환경을 가져온다. 즉 Github Action에 담길 `Secret`을 미리 설정해놓고, 원하는 타입을 미리 만들어놓는다.
+
+```typescript:cdk/types.ts
+export enum Env {
+  POSTGRESQL_HOST = "POSTGRESQL_HOST",
+  POSTGRESQL_PORT = "POSTGRESQL_PORT",
+  // omitted...
+  API_SECRET = "API_SECRET"
+}
+
+export type Environment = { [P in Env]: string };
+```
+
+그리고 이 환경변수의 타입대로 실제로 환경변수가 존재하는지 검사하도록 한다. `joi`패키지를 사용해서 enum 타입인 `Env`환경변수 중에 `process.env`중 사용되는 환경변수가 필수인데 빠져있는지 검사한다.
+
+```typescript:validator.ts
+import joi from "joi";
+import "dotenv/config";
+import { Environment, Env } from "../../../types";
+
+const keys = Object.keys(Env).reduce((acc, key) => {
+  return { ...acc, [key]: joi.string().required() };
+}, {} as { [P in Env]: joi.StringSchema });
+
+const envVarsSchema = joi.object().keys(keys).unknown();
+
+/**
+ * It validates the environment variables and returns them as a strongly typed object
+ * @returns The environment variables as an object.
+ */
+export function environmentValues() {
+  const { value: envVars, error } = envVarsSchema
+    .prefs({ errors: { label: "key" } })
+    .validate(process.env);
+  if (error) {
+    throw new Error(`Environment variables error: ${error.message}`);
+  }
+  return envVars as { [P in keyof Environment]: string };
+}
+```
+
+환경변수를 검사하고 문제가 있으면, 배포를 중단한다. 문제가 없으면 해당 ECS 스택에 아래와 같이 환경변수를 SSM Parameter로 셋팅한다. 단, 다른 환경변수 까지 Parameter값으로 만들면 안되기 때문에 `Object.keys(Env)` Enum 타입을 가지고 `envKeys`를 만들어 `reduce` 매서드로 `StringParameter`값을 설정하도록 하였다.
+
+```typescript:ecs/environment/index.ts
+import * as cdk from "aws-cdk-lib";
+import * as ssm from "aws-cdk-lib/aws-ssm";
+import * as ecs from "aws-cdk-lib/aws-ecs";
+import "dotenv/config";
+import { Stage, Environment, Env } from "../../types";
+import { environmentValues } from "./validator";
+
+const envVars = environmentValues();
+
+const envKeys = Object.keys(Env) as (keyof typeof envVars)[];
+
+/**
+ * It creates SSM parameters for each environment variable and returns the parameters and their
+ * corresponding secrets
+ * @param scope - the stack that the parameters are being created in
+ * @param {string} stackAlias - The name of the stack.
+ * @param {Stage} stage - The stage of the environment.
+ * @returns {
+ *   params: { [P in keyof Environment]: ssm.StringParameter };
+ *   secrets: { [P in keyof Environment]: ecs.Secret };
+ * }
+ */
+export function setEnvironment(
+  scope: cdk.Stack,
+  stackAlias: string,
+  stage: Stage,
+): {
+  params: { [P in keyof Environment]: ssm.StringParameter };
+  secrets: { [P in keyof Environment]: ecs.Secret };
+} {
+  const params = envKeys.reduce((acc, key) => {
+    return {
+      ...acc,
+      [key]: new ssm.StringParameter(scope, key, {
+        parameterName: `/cdk/${stackAlias}/${stage}/${key}`,
+        stringValue: envVars[key],
+      }),
+    };
+  }, {} as { [P in keyof Environment]: ssm.StringParameter });
+  const secrets = envKeys.reduce((acc, key) => {
+    return {
+      ...acc,
+      [key]: ecs.Secret.fromSsmParameter(params[key]),
+    };
+  }, {} as { [P in keyof Environment]: ecs.Secret });
+  return { params, secrets };
+}
+```
+
+이렇게 요구하는 VPC 및 서브넷, RCS Fargate 컨테이너들과 서버리스 RDS를 배포에는 성공하였다. 동작도 확인했고 하지만 여기서부터 문제가 좀 있다. Copilot처럼 컨테이너 exec를 동작시키려면 스크립트를 구성해야했고, 체계적이지 못했다. 그리고 Github Action을 사용하려고 했지만, VPC Private에 연결되려면 Bastion을 구성하든 같은 서브넷 컨테이너에서 수행해야하는 문제가 있다. Prisma를 사용하는데 Migrate을 동작하려면 CD에서 동작해야했다. 방법을 강구하려면, CodePipeline을 만들어서 CodeBuild에서 수행해야 하는데 Migrate 이후 배포가 되어야 한다. 그렇다면 나머지 CDK 명령이 CodeBuild에서 수행하든 CodeDeploy가 돌아가야 한다. CodeDeploy agent는 과거에 만들다가 멘붕이 온적이 많았기 때문에 여기서부터 과정에서 방향성을 잡기 힘들었다.
+
+방법은 CodeBuild 컨테이너를 Copilot에서 만들었던 것 처럼 VPC에 붙여야 했다. 붙이는 것 까진 몇번 더 진도를 나가면 될 것 같은데 CodeBuild에서 수행하는 과정과 Github Action에서 CDK가 수행되는 시점이 싱크가 맞아야 한다. 그렇지 않으면 서비스가 중간에 중단되거나 오류가 발생할 여지가 있다. 보통 API에서 쓰는 스키마와 클라이언트가 인지하는 스키마에 드리프트가 잠깐 발생하는 경우도 문제가 될 법한데 이런 경우는 더 클 수 있다. 그래서 방법을 찾아서 Fargate 서비스가 업데이트가 되는 동시에 Migrate를 진행할 수 있는 방법을 찾아봐야 했다.
+
+생각해본 방법으로는 Bastion으로 사용할 EC2 인스턴스를 배포해서 Prisma Migrate 명령을 사용한 Repository를 Checkout 하여, Migrate를 ECS를 모니터링하면서 업데이트와 동시에 수행하도록 하는 방법이 있다. 이렇게 되면 Migrate 실패의 경우 Roll back이 어렵다.
+
+다른 방법으로 Bastion EC2를 Github Action을 `self-hosted`방식으로 운영하는 방법도 있다. 이런 경우 Bastion EC2와 VPC만 별도로 인프라 구성을 하고, Github Action으로 우리의 CDK앱을 배포하는 방법이다. 가장 깔끔해보인다. 만약 Github Action 에서 `self-hosted` 방식에서 Cache 패키지들을 다운로드 받는데 매번 느렸었는데(Cache를 하지 않으면 그나마 시간 절약이 될 정도로...) 지금은 어떤지 모르겠다. 하지만 현시점에는 VPC와 Bastion EC2를 따로 구성해서 배포하고 Stack을 Github Action에서 배포하도록 구성하는 방법이 현재로선 Best practice인지는 잘 모르겠다. 고민하던중에 CDK for Terraform을 찾았는데 음, 결국 CDK와 다를 바가 없었다.
+
+[CDK for Terraform](https://www.terraform.io/cdktf)
+[Learn CDK for Terraform](https://learn.hashicorp.com/tutorials/terraform/cdktf-install?in=terraform/cdktf)
+
+## Terraform
+
+![terraform](/static/images/2022/10/terraform.png)
+
+어찌어찌 백엔드 배포는 해보았지만, CD에 대한 고민을 아직까진 해결해주진 못하고 있었다. 그러면서 Terraform을 공부하게 되었다.
+
+제일 이목을 끄는 점은 진화하는 설계(evolutionary architecture)라는 점에서 점진적으로 인프라를 구성한다는 점에서 앞에서 만난 CDK의 단점을 개선한다.
+
+- Terraform 프로젝트는 클라우드 계정에 있는 인프라를 소유하지 않는다.
+- 인프라를 변경하기 위해서 테라폼 코드를 수정한 시점에는 라이브 인프라와 일치하지 않는다(인프라를 명확하게 보여주도록 라이브 인프라를 변경하기 위해 Terraform에 의지하고 있다.)
+
+Terraform은 처음 명령을 실행한 후에 `terraform.tfstate`를 생성하고 유지하고 있는 상태에 대해 기록하며 관리한다. 그리고 `terraform apply` 명령을 실행할 때마다 `terraform.tfstate`를 참조하여 라이브 인프라 상태를 검사하고 변경되는 점을 배포하고 다시 `terraform.tfstate`를 업데이트한다. 이렇게 CDK처럼 배포유지를 위해 내가 기억하거나 git commit 상태로 관리하지 않아도 되는 점이 좋아보인다. CDK의 경우에 배포한 후 변경점이 발생했다가 라이브 인프라를 수정하려면 그 배포한 당시의 commit 상태로 돌아가서 동작시켜야 했다.
+
+### CDK에서 Terraform으로 선회한 이유
+
+[AWS CDK에서 Terraform으로](https://tech.inflab.com/202202-aws-cdk-to-terraform/) 여기에서 언급하는 이유에 대해 매우 공감한다.
+CDK로 스테이지별 배포까지 성공했지만, 문제가 있었다. 지난 tWIL에서 언급한 것 처럼 VPC를 미리 만들어 두어야 해서 `cdk.App`을 여러개 만들었어야 했다. 이러한 이유로 `destroy`에서 이 VPC를 제거하지 못하니 오류가 발생하고 이때 수동으로 인프라를 삭제해 주어야 한다. Copilot CLI처럼 컨테이너를 직접 접속하거나 하려면 몇가지 스크립트를 만들어야 한다. 저 블로그의 글처럼
+
+> - 이미 많은 사람들이 사용 중이며 따라서 많은 정보가 인터넷에 공개되어 있을 것.
+> - 직관적이고 간단하여 응용 및 확장에 용이할 것.
+> - 예외 상황이 발생하더라도 유연하게 안정성을 복구할 수 있을 것.
+
+여기서 3번째 이유에 공감하며 이런 경우 IaC로써 매우 안정성이 떨어졌다. 아직 미숙해서 그런것 같지만 TypeScript를 오래 써오던 개발자로써 API Reference를 일주일을 꼬박 연구하며 겪어보니 답이 아닌 느낌이 들었다. 왜냐하면 TypeScript로는 완벽하게 코드를 만들어 놓아서 Type 체크로 문제가 없지만 `synth`에는 문제가 발생하더라, 그리고 블로그에서 말한 주제인 "CDK에서 현실 추적 불가능"도 겪게 되었다. Draft detection이 되지 않으니 변경점을 만들어 버리면 새로운 스택들이 배포되는 경우가 발생한다. `cdk.context.json`은 VPC와 Subnet만 저장하고 있다. SSM Parameter값을 읽어와서 저장하는 것 뿐 커밋을 하지 않고 인프라 ID를 변경하게 되면 추적이 안된다. 즉, 메뉴얼로 모든 인프라를 지워줘야하는 일도 발생한다. "CDK의 diff 결과를 신뢰할 수 없음"은 아직 겪어보지 못했다고 생각했는데 읽어보니 CloudFormation에서 실패한 롤백 문제를 수동으로 처리해주거나 했던것 같다. 내가 겪은 것은 기존 인프라의 상황을 가지고 있지 않는다는 점이었다. 스택 이름을 바꾼 경우에도 기존 인프라의 버전에서 업데이트된 것으로 파악하지 못하고 새로 만들어버린다. 그렇다면 기존 인프라는 IaC로 변경할 방법이 없어 보인다. 아래는 위의 블로그의 글로 비슷한 상황이다.
+
+- CDK를 통해 리소스를 하나 만들었는데, 어떤 인자 값이 1 이었습니다. (이 인자 값이 커지는 인프라 변경은 리소스 재생성 없이 in-place로 동작하지만, 인자 값이 작아지려면 리소스 재생성을 해야 합니다. RDS의 Engine Version 처럼요.)
+- 시간이 지나는 동안 CDK를 통하지 않은 인프라 변경이 발생하여 해당 리소스의 인자 값이 3이 되었습니다.
+- 2번의 변화를 알지 못하는 어떤 사람이 CDK를 통해 해당 리소스의 인자 값을 2로 변경하려고 합니다.
+- CDK에서는 CloudFormation Template과 코드의 차이를 보고하므로 1에서 2가 되는 정상적인 in-place update로 표시합니다. 인프라 배포를 진행합니다.
+- CloudFormation은 변경된 Template을 처리하기 위해 리소스 업데이트를 하려고 합니다.
+- 현실을 보니 인자 값이 3이었고 변경할 값은 2이므로 리소스를 삭제하고 다시 생성합니다.
+
+"위와 같이 CDK에서 의도하지 않은 변경이 CloudFormation 단에서 벌어질 수가 있습니다. 물론 항상 CloudFormation이 무조건 Replace를 진행하는 것도 아니지만, CDK가 경고하지 않은 변경사항이 외부 요인과 CloudFormation의 판단에 따라 실행될 수 있음은 분명합니다.""
+
+"인프라 관리자에게 위와 같은 일이 일어날 수 있다는 가능성은 엄청난 불안감을 안겨주게 됩니다."
+
+매우 공감한다. 어쨌든 현 인프라 상황을 알 수 없다는 것은 엄청난 위험요소가 있다고 생각한다. 이전에 사용하던 AWS Copilot은 컨테이너와 RDS까지는 좋았으나, CodeBuild나 CodePipeline 사용하는데 있어서 Subnet이 Private에 붙은 경우 RDS 마이그레이션은 가능하고, npm 패키지 설치는 안되었다. Public에 붙이면 RDS 마이그레이션이 안된다. Isolated Subnet도 마찬가지이다. 결국 NAT Gateway를 붙여주어야 하는데 Copilot은 없고 수동으로 작업해야한다. 그리고 Routing까지 수동으로 해야하는데 이건 매 스테이지 환경마다 수동으로 설정해주어야 하는 문제가 생긴다. E2E 테스트를 자동으로 진행하기 어렵다. 이쯤에서 내리는 결론은 AWS에서 제공하는 CLI나 서비스는 믿고쓰기가 어렵고 일단 거르고 봐야할 것 같다.
+
+Terraform은 현재 Best practice를 찾아서 구현중에 있다. 배포까지 모두 시도해보고 블로그로 정리해보려고 한다. 목표로 하는 인프라는 아래와 유사하다.
+
+![aws_terraform_cicd](/static/images/2022/10/aws_terraform_cicd.png)
+
+Github action은 나날이 발전하고 있다. 예전에 Github page에 페이지를 게시하던 Github action이 공식(베타)이 나와서 시도해보았다.
+
+## Github action static page
+
+기존에는 Github page 배포는 third-party 액션 스크립트를 이용해야 했다. `GITHUB_TOKEN` 시크릿으로 Github 페이지로 정적 사이트를 배포할 수 있었는데 최근에 `action`에 오피셜이 나온 것 같다. 그리고 왜인지 모르겠지만 이 토큰으로 배포가 잘 되지 않았다. 그래서 Nextjs 템플릿을 수정해서 React 앱을 배포하는 스크립트를 만들어보았다. 이 방법은 `yarn` 혹은 `npm` 패키지 매니저를 현 프로젝트의 lock파일을 가지고 판다하고, 패키지들을 캐싱하며, 특정 Github가 제공하는 스토리지에 업로드하면서 `build` 스테이지가 끝난다. 그리고 `deploy` 스테이지에서는 이 `artifact`를 다운로드 받아서 배포하도록 되어있다. 지저분한 스크립트보단 공식 스크립트가 괜찮아 보인다. 베타버전이지만 기능엔 문제 없어 보인다. 그리고 `deploy` 스테이지 결과물은 배포된 URL을 표시한다. 다른 워크플로우 예제는 [여기](https://github.com/actions/starter-workflows/tree/main/pages)에서 확인.
+
+```yml
+name: Deploy React App
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Detect package manager
+        id: detect-package-manager
+        run: |
+          if [ -f "${{ github.workspace }}/yarn.lock" ]; then
+            echo "::set-output name=manager::yarn"
+            echo "::set-output name=command::install"
+            echo "::set-output name=runner::yarn"
+            exit 0
+          elif [ -f "${{ github.workspace }}/package.json" ]; then
+            echo "::set-output name=manager::npm"
+            echo "::set-output name=command::ci"
+            echo "::set-output name=runner::npx --no-install"
+            exit 0
+          else
+            echo "Unable to determine packager manager"
+            exit 1
+          fi
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: ${{ steps.detect-package-manager.outputs.manager }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+      - name: Install dependencies
+        run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+      - name: Build
+        env:
+          CI: false
+        run: ${{ steps.detect-package-manager.outputs.runner }} build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./build
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
+```
+
+`upload-pages-artifact`방식이 배포 실패해도 다시 빌드하도록하지 않으니 그리고 파이프라인이 형성되니 더 깔끔해 보인다. 그리고 Page 연결을 하면 도메인까지 걸어준다.
+
+![github-page](/static/images/2022/10/github-page.png)
+
+다음 주는 Terrform 배포를 빠르게 시도해보고 인프라 결론을 빨리 내려야할 것 같다.
