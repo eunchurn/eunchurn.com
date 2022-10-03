@@ -58,7 +58,7 @@ const securityHeaders = [
  **/
 module.exports = withPWA(
   withBundleAnalyzer({
-    productionBrowserSourceMaps: true,
+    // productionBrowserSourceMaps: true,
     reactStrictMode: true,
     pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
     eslint: {
