@@ -80,7 +80,7 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
                             objectFit="cover"
                             className="rounded-full"
                             // placeholder="blur"
-                            blurDataURL={blurDataUrl}
+                            // blurDataURL={blurDataUrl}
                           />
                         </Link>
                       )}
