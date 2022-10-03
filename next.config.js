@@ -1,4 +1,4 @@
-const withPWA = require("next-pwa");
+const withPWA = require("next-pwa")({ dest: "public" });
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
@@ -58,7 +58,8 @@ const securityHeaders = [
  **/
 module.exports = withPWA(
   withBundleAnalyzer({
-    // productionBrowserSourceMaps: true,
+    dest: "public",
+    productionBrowserSourceMaps: true,
     reactStrictMode: true,
     pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
     eslint: {
