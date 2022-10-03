@@ -82,7 +82,7 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
                           height="38px"
                           alt="avatar"
                           className="h-10 w-10 rounded-full"
-                          placeholder="blur"
+                          // placeholder="blur"
                           blurDataURL={blurDataUrl}
                         />
                       )}
