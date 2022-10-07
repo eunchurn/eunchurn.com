@@ -18,7 +18,7 @@
     "e2e:headless": "start-server-and-test start http://localhost:3000 cypress:headless"
   },
   "dependencies": {
-    "@fontsource/inter": "4.5.12",
+    "@fontsource/inter": "4.5.13",
     "@mailchimp/mailchimp_marketing": "3.0.78",
     "@remark-embedder/core": "3.0.1",
     "@remark-embedder/transformer-oembed": "3.0.0",
