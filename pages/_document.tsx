@@ -26,7 +26,7 @@ class MyDocument extends Document {
           <link
             rel="stylesheet"
             type="text/css"
-            href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css"
+            href="https://cdn.jsdelivr.net/gh/eunchurn/NanumSquareNeo@0.0.2/nanumsquareneo.css"
           ></link>
           <link
             rel="stylesheet"
