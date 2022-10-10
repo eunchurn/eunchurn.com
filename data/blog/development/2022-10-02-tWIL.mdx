@@ -441,7 +441,7 @@ Github action은 나날이 발전하고 있다. 예전에 Github page에 페이�
 
 ## Github action static page
 
-기존에는 Github page 배포는 third-party 액션 스크립트를 이용해야 했다. `GITHUB_TOKEN` 시크릿으로 Github 페이지로 정적 사이트를 배포할 수 있었는데 최근에 `action`에 오피셜이 나온 것 같다. 그리고 왜인지 모르겠지만 이 토큰으로 배포가 잘 되지 않았다. 그래서 Nextjs 템플릿을 수정해서 React 앱을 배포하는 스크립트를 만들어보았다. 이 방법은 `yarn` 혹은 `npm` 패키지 매니저를 현 프로젝트의 lock파일을 가지고 판다하고, 패키지들을 캐싱하며, 특정 Github가 제공하는 스토리지에 업로드하면서 `build` 스테이지가 끝난다. 그리고 `deploy` 스테이지에서는 이 `artifact`를 다운로드 받아서 배포하도록 되어있다. 지저분한 스크립트보단 공식 스크립트가 괜찮아 보인다. 베타버전이지만 기능엔 문제 없어 보인다. 그리고 `deploy` 스테이지 결과물은 배포된 URL을 표시한다. 다른 워크플로우 예제는 [여기](https://github.com/actions/starter-workflows/tree/main/pages)에서 확인.
+기존에는 Github page 배포는 third-party 액션 스크립트를 이용해야 했다. `GITHUB_TOKEN` 시크릿으로 Github 페이지로 정적 사이트를 배포할 수 있었는데 최근에 `action`에 오피셜이 나온 것 같다. 그리고 왜인지 모르겠지만 이 토큰으로 배포가 잘 되지 않았다. 그래서 Nextjs 템플릿을 수정해서 React 앱을 배포하는 스크립트를 만들어보았다. 이 방법은 `yarn` 혹은 `npm` 패키지 매니저를 현 프로젝트의 lock파일을 가지고 판단하고, 패키지들을 캐싱하며, 특정 Github가 제공하는 스토리지에 업로드하면서 `build` 스테이지가 끝난다. 그리고 `deploy` 스테이지에서는 이 `artifact`를 다운로드 받아서 배포하도록 되어있다. 지저분한 스크립트보단 공식 스크립트가 괜찮아 보인다. 베타버전이지만 기능엔 문제 없어 보인다. 그리고 `deploy` 스테이지 결과물은 배포된 URL을 표시한다. 다른 워크플로우 예제는 [여기](https://github.com/actions/starter-workflows/tree/main/pages)에서 확인.
 
 ```yml
 name: Deploy React App
