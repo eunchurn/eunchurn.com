@@ -100,7 +100,7 @@ body {
 
 정도로 Terraform에 대한 학습을 하지 않고 시작한 것 치고 매우 훌륭하게 인프라를 배포할 수 있었다. Terraform module를 이용해서 `main.tf`, `variables.tf`, `outputs.tf`를 만들었는데 의존성 인프라도 `depends_on`을 통해 상태값을 공유할 수 있었다. 그리고 State를 로컬이 아닌 Remote로 저장할 수 있는 Terraform backend도 매우 훌륭했다. 그렇게 인프라를 배포한 후 한가지 놓친 것이 있었다. Terraform workspace 인데, 나는 Remote state도 각각 별개로 다른 환경을 만들어 state를 관리할 것 같아. 스테이지별 환경변수를 variable로 관리하고 있었다.
 
-결국 다시 모든 인프라를 지우고, Terraform workspace를 만들었다. `development`, `staging`, `production` 이 3단계로 구성하고, Remote로 상태를 배포해보니 각각 다른 폴더로 env를 관리하게 되었다. 하지만, 최초 배포시에 상태가 없기 때문에 따로 만들어주어야 하는데 로컬에서 3개의 스테이지를 모두 만들어 놓고 Remote로 배포했어야 했다. 이 삽질기를 통해 다시 처음부터 인프라 구성을 다시해보기로 했다.
+결국 다시 모든 인프라를 지우고, Terraform workspace를 만들었다. `development`, `staging`, `production` 이 3단계로 구성하고, Remote로 상태를 배포해보니 각각 다른 폴더로 env를 관리하게 되었다. 하지만, 최초 배포시에 상태가 없기 때문에 따로 만들어주어야 하는데 로컬에서 `default` 워크스페이스에서 Remote로 배포했어야 했다. 이 삽질기를 통해 다시 처음부터 인프라 구성을 다시해보기로 했다.
 
 ## Terraform
 
