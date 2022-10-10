@@ -96,9 +96,21 @@ body {
 
 ### CDK to Terraform
 
-지난 AWS CDK로부터 현재의 인프라 state를 알 수 없는 문제에 대해 Terraform으로 변경하고 하루만에 구성해서 인프라 배포에 성공했다. 러닝커브는 그렇게 높지 않았다. 예상했던 선언적인 언어 형태로 학습하기 어려울 거라는 기대와 달리 HCL(Hashicorp Configuration Language)는 이상하지만서도 유용하고 배우기 쉬운 프로그래밍 언어였다. 2시간만에 책을 독파하고 하루만에 배포한 인프라는 AWS ECS(Fargate), AWS VPC(Subnets, Route, NAT Gateway), AWS RDS(Aurora PostgreSQL serverless 클러스터), AWS S3(Terraform live state를 위한 버킷, CodeDeploy를 위한 버킷), AWS DynamoDB(Terraform live state lock 저장), AWS CodeBuild, AWS CodeDeploy(AWS ECR build and push), AWS CodePipeline(AWS CodeStart connect Github branch), AWS SSM(Parameter store)등이다.
+지난 AWS CDK로부터 현재의 인프라 state를 알 수 없는 문제에 대해 Terraform으로 변경하고 하루만에 구성해서 인프라 배포에 성공했다. 러닝커브는 그렇게 높지 않았다. 예상했던 선언적인 언어 형태로 학습하기 어려울 거라는 기대와 달리 HCL(Hashicorp Configuration Language)는 이상하지만서도 유용하고 배우기 쉬운 프로그래밍 언어였다. 2시간만에 책을 독파하고 하루만에 배포한 인프라는 아래와 같다.
 
-정도로 Terraform에 대한 학습을 하지 않고 시작한 것 치고 매우 훌륭하게 인프라를 배포할 수 있었다. Terraform module를 이용해서 `main.tf`, `variables.tf`, `outputs.tf`를 만들었는데 의존성 인프라도 `depends_on`을 통해 상태값을 공유할 수 있었다. 그리고 State를 로컬이 아닌 Remote로 저장할 수 있는 Terraform backend도 매우 훌륭했다. 그렇게 인프라를 배포한 후 한가지 놓친 것이 있었다. Terraform workspace 인데, 나는 Remote state도 각각 별개로 다른 환경을 만들어 state를 관리할 것 같아. 스테이지별 환경변수를 variable로 관리하고 있었다.
+- AWS ECS: Fargate, Task definition, AutoScaling, Security Group, Load balancer
+- AWS VPC: Subnets, Route, NAT Gateway
+- AWS RDS: Aurora PostgreSQL serverless 클러스터, 데이터 KMS key 암호화, Security Group, Secret Manager DB credential 저장,
+- AWS S3: Terraform live state를 위한 버킷, CodeDeploy를 위한 버킷
+- AWS DynamoDB: Terraform live state lock
+- AWS CodeBuild: SSM Parameter Environment
+- AWS CodeDeploy: AWS ECR build and push, ECS Task definition update, Blue-Green API
+- AWS CodePipeline: AWS CodeStar connect Github branch
+- AWS SSM: Parameter store
+
+![terraform-infra](/static/images/2022/10/terraform-infra.png)
+
+따로 많은 시간을 내어 Terraform에 대한 학습을 하지 않고 시작한 것 치고 매우 훌륭하게 인프라를 배포할 수 있었다. Terraform module를 이용해서 `main.tf`, `variables.tf`, `outputs.tf`를 만들었는데 의존성 인프라도 `depends_on`을 통해 상태값을 공유할 수 있었다. 막강한 점은 Hashicorp AWS 모듈은 CloudFormation을 사용하지 않았다. 그리고 State를 로컬이 아닌 Remote로 저장할 수 있는 Terraform backend도 매우 훌륭했다. 그렇게 인프라를 배포한 후 한가지 놓친 것이 있었다. Terraform workspace 인데, 나는 Remote state도 각각 별개로 다른 환경을 만들어 state를 관리할 것 같아. 스테이지별 환경변수를 variable로 관리하고 있었다.
 
 결국 다시 모든 인프라를 지우고, Terraform workspace를 만들었다. `development`, `staging`, `production` 이 3단계로 구성하고, Remote로 상태를 배포해보니 각각 다른 폴더로 env를 관리하게 되었다. 하지만, 최초 배포시에 상태가 없기 때문에 따로 만들어주어야 하는데 로컬에서 `default` 워크스페이스에서 Remote로 배포했어야 했다. 이 삽질기를 통해 다시 처음부터 인프라 구성을 다시해보기로 했다.
 
