@@ -41,7 +41,7 @@ tags:
 - 로컬 환경변수들을 SSM Parameter를 저장하고, 이를 ECS Fargate 서비스에서 사용할 수 있는 Secret 형태로 환경변수를 제공한다.
 - CodeBuild는 렌더링되어 제공되어지는 `buildspec.yml`을 사용하며, `postBuild`에서 CodeDeploy를 위한 `appspec.yaml`과 `taskdef.json`그리고 이미지 메타정보를 저장한다.
 
-Terraform 모듈을 사용하여 구성하였으며, 네트워크부터 시작하면
+Terraform 모듈을 사용하여 구성하였다. 여기서 코드가 너무 길어서 각 모듈에 대한 코드는 닫아놓았다.
 
 ### 네트워크: `./modules/networks`
 
@@ -440,6 +440,23 @@ output "API_SECRET" {
 
 - 메인: `main.tf`
 
+SSM Parameter중 Prisma가 사용해야할 `DATABASE_URL`은 SecretManager가 먼저 만들어진 후 직접 값을 저장하도록 설정하였다.
+
+```hcl
+## DB Secrets
+
+data "aws_secretsmanager_secret" "by-name" {
+  name = "rds-db-credentials/${var.application_name}/${terraform.workspace}/${var.random_id_prefix}"
+  depends_on = [
+    var.rds_depend_on
+  ]
+}
+
+data "aws_secretsmanager_secret_version" "db_secret" {
+  secret_id = data.aws_secretsmanager_secret.by-name.id
+}
+```
+
 <details>
  <summary>main</summary>
 
@@ -520,6 +537,8 @@ resource "aws_ssm_parameter" "API_SECRET" {
 </details>
 
 ### RDS `./modules/database`
+
+Database는 AWS RDS Aurora Serverless를 사용한다. 이에 맞추어 Parameter Group을 설정하기 위해 지난 tWIL에서 명시한 바와 같이 서울리전에 지원되는 PostgreSQL serverless 정보를 찾아야 한다. 하지만 버전 11.3이 있지만 `aurora-postgresql10`만 받을 수 있다. 이것은 테스트를 해보니 직접 콘솔에서 11버전으로 변경 후 `aurora-postgresql11`로 변경하니 문제는 없었다. 이건 언젠간 업데이트 될 것이라 생각한다. Aurora는 안정성이 문제인지 최신버전을 지원이 많이 느린 것 같다.
 
 - 변수: `variables.tf`
 
@@ -654,6 +673,8 @@ description = "vpc id"
 
 - 출력: `outputs.tf`
 
+여기서 만든 DB Security Group은 ECS에 붙일 예정이다.
+
 <details>
  <summary>outputs</summary>
 
@@ -686,6 +707,8 @@ output "aws_rds_db_security_group_ids" {
 </details>
 
 - 메인: `main.tf`
+
+`aws_secretsmanager_secret_version` 버전관리는 필요할까 생각했지만, 어쨌든 시크릿메니저로 DB credential을 관리하도록 하였다. 그리고 ECS 서비스의 보안그룹을 RDS에 ingress에 붙여주었는데(문제가 되진 않겠지...) 반대로 ECS에 DB Access Security Group을 붙여주어도 무방할 것 같다.
 
 <details>
  <summary>main</summary>
@@ -909,6 +932,8 @@ output "route53" {
 </details>
 
 - 메인: `main.tf`
+
+여기서 우리는 Route53 존과 Route53 레코드를 생성하고 Certificate Manager를 통해 인증서를 발급 받아 validation을 시켜준 이후, ALB 리스너(Blue/Green)에 443포트로 생성하고 인증서를 붙여준다. 그리고 80포트로 들어오는 트래픽은 HTTPS로 redirect 시키도록 설정한다. Target Group은 API가 8000번 포트를 리스닝하기 때문에 동일한 Port를 설정해준다. 이후 CodeDeploy 앱에서 Blue 타겟과 Green 타겟을 붙여주도록 한다.
 
 <details>
  <summary>main</summary>
@@ -1807,7 +1832,7 @@ output "api_ecs_service" {
 
 - 메인: `main.tf`
 
-ECS의 Service에서 삽질을 많이했다. 즉, `CODE_DEPLOY`를 Deployment Controller로 사용할 때 다른 인프라를 수정할 때도 배포 오류가 발생한다. ECS Service를 CodeDeploy로 배포한다고 정의했기 때문에 직접 인프라 수정이 안되는 것이다.
+ECS의 Service에서 삽질을 많이했다. 즉, `CODE_DEPLOY`를 Deployment Controller로 사용할 때 다른 인프라를 수정할 때도 배포 오류가 발생한다. ECS Service를 CodeDeploy로 배포한다고 정의했기 때문에 직접 인프라 수정이 안되는 것이다. [참고: Blue Green Deployments with ECS #6802](https://github.com/hashicorp/terraform-provider-aws/issues/6802#issuecomment-458433573)
 
 ```hcl
   lifecycle {
@@ -1820,7 +1845,7 @@ ECS의 Service에서 삽질을 많이했다. 즉, `CODE_DEPLOY`를 Deployment Co
   }
 ```
 
-변경점을 무시하라는 lifecycle을 정의해 주어야 배포가 가능했다. 물론 ECS가 변경이 되면 클러스터와 서비스를 모두 다시 생성해 주어야 한다. 만약 Production 운영중이라면, 문제가 된다.
+변경점을 무시하라는 lifecycle을 정의해 주어야 배포가 가능했다. 물론 ECS가 변경이 되면 클러스터와 서비스를 모두 다시 생성해 주어야 한다. 만약 Production 운영중이라면, ECS는 수정할 수 없다.
 
 <details>
  <summary>main.tf</summary>
@@ -3229,7 +3254,13 @@ variable "ecs_execution_role_arn" {
 
 - 메인: `main.tf`
 
-일반적인 `CodeDeploy` best practice에서 `load_balancer`에 `prod_traffic_route`을 설정하는데 삽질을 많이 했다. Blue 로드밸런서를 붙여주면 CodeDeploy는 배포과정에서 Blue에서 자동으로 Green으로 변경해주며, ALB 설정도 Green으로 변경해준다. 이 사실을 모르고 두개를 붙여보기도 하고, ALB에 여러 타겟을 붙여보기도 하였다.
+일반적인 `CodeDeploy` best practice에서 `load_balancer`에 `prod_traffic_route`을 설정하는데 삽질을 많이 했다. Blue 로드밸런서를 붙여주면 CodeDeploy는 배포과정에서 Blue에서 자동으로 Green으로 변경해주며, ALB 설정도 Green으로 변경해준다. 이 사실을 모르고 두개를 붙여보기도 하고, ALB에 여러 타겟을 붙여보기도 하였다. 이때 발생하는 오류에 대한 해결은
+
+[로드 밸런서/ECS 관련 문제](https://aws.amazon.com/ko/premiumsupport/knowledge-center/ecs-blue-green-deployment/)
+
+> 오류 메시지: The ELB could not be updated due to the following error: Primary taskset target group must be behind listener:(다음 오류로 인해 ELB를 업데이트할 수 없습니다. 기본 태스크 세트 대상 그룹이 리스너를 통해 연결되어야 합니다.) Elastic Load Balancing 리스너 또는 대상 그룹이 잘못 구성된 경우 이 오류가 발생합니다. ELB 기본 리스너와 테스트 리스너가 모두 현재 워크로드를 처리하고 있는 기본 대상 그룹을 가리키는지 확인합니다.
+
+즉, CodeDeploy가 쓰는 ALB는 단 하나이고, ECS Taskset은 모두 CodeDeploy가 관리하는 ALB에 붙어있어야 한다. 해당 문제는 [블루/그린 배포 유형에 대한 로드 밸런서 구성](https://docs.aws.amazon.com/ko_kr/AmazonECS/latest/developerguide/service-create-loadbalancer-bluegreen.html)을 면밀히 읽어보아야 한다.
 
 <details>
  <summary>main.tf</summary>
@@ -3654,6 +3685,10 @@ variable "API_SECRET" {
 
 - 메인: `main.tf`
 
+앞선 tWIL에서 작성한 것 처럼 workspace `default`에서 Remote로 Live 상태 관리를 위한 S3 backend 를 설정하였고, 다른 워크스페이스에서는 주석처리를 해주어야 한다.
+
+각 모듈간에 의존성이 필요한 경우가 있다. RDS가 만들어져야 SecretManager의 `data`소스를 그리고 SSM Parameter가 먼저 만들어져야 `data` 소스를 사용할 수 있다. 따라서 이 의존성이 필요한 모듈들은 variable로 넘겨주는 방식으로 설정하였다.
+
 ```hcl:main.tf
 provider "aws" {
   region = var.region
@@ -3890,8 +3925,6 @@ module "database" {
 ```
 
 ## Conclusion
-
-여기서 코드가 너무 길어서 각 모듈에 대한 코드는 닫아놓았다.
 
 한달 반 정도 시간을 들여 AWS Copilot, AWS CDK, AWS CDK for Terraform을 시도해보고 결국 Terraform으로 선회하였다. 나에겐 Terraform을 사용함으로써 Live state를 Remote backend로 관리할 수 있다는 장점이 매우 컸다. Terraform 자체를 공부하는 데에는 많은 어려움이 없었지만 첫단추를 잘못 끼우는 실수를 여러번 하여 인프라를 여러번 지워가며 설정하게 되었다. 인프라를 최종적으로 배포하는데 오래걸린 이유는 결국 AWS자체에 대한 이해가 부족한 것이 좀 있었다. Blue-Green 배포전략부터 이해했어야 했고, 보안그룹 설정에 대한 이해도 매우 필요했다. 오류가 발생하면 그 메시지로 여러가지 검색해 가면서 Role과 Policy설정하는 것도 있었지만, 오류 메시지가 없는 경우 매우 파악하기 힘들었다. 이때는 AWS CLI에 대한 예제를 찾아보면 해결되는 일들이 많았다.
 
