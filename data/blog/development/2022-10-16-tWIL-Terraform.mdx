@@ -1,0 +1,3900 @@
+---
+date: "2022-10-16"
+title: "tWIL 2022.10 3주차: Terraform"
+draft: false
+summary: "This week I learned"
+featured: /static/images/eunchurn/goodluck.gif
+categories:
+  - development
+tags:
+  - terraform
+  - aws vpc
+  - aws iam
+  - aws ecs
+  - fargate
+  - aws rds
+  - postgresql serverless
+  - aws codepipeline
+  - aws codebuild
+  - aws codestar
+  - aws codedeploy
+  - aws route53
+  - aws acm
+---
+
+## 완성된 인프라
+
+![complete-infra](/static/images/2022/10/complete_infra.png)
+
+인프라 구성도를 보면 좀 복잡해 보이겠지만, 실제로는 단순한 ECS 서비스 하나를 Fargate로 띄우는 것이 목적이다.
+
+미션이 복잡해서 이런 복잡한 구성도가 나오게 되었는데 정리하면,
+
+- ECS Fargate 서비스가 오토 스케일링이 가능해야 하며 서비스는 VPC Private 서브넷에 연결되어 컨테이너가 돌아가야 한다.
+- RDS는 Serverless 형태로 Aurora PostgreSQL을 띄우고 VPC Private subnet에서 구동되어야 한다.
+- ECS Fargate 서비스는 AWS CodePipeline을 통해 CodeBuild와 CodeDeploy로 배포가 되어야 하는데 CodeBuild에서는 RDS에 접근 가능해야 하며 Prisma Migration을 수행해야 한다. 그리고 Apollo Rover를 통해 Apollo Studio로 스키마를 전송해야한다.
+- CodeDeploy는 Blue-Green 배포 형태로 배포가 되어야 하며, Blue와 Green 타겟 그룹은 443포트를 사용한다.
+- Application LoadBalancer는 SSL인증서를 발급받아야 하는데 Route53에 배포 스테이지(dev, staged, prod) 워크스페이스에 따라 특정 도메인에 연결한다.
+- SSL인증서 Validation을 수행하여, Blue 타겟과 Green 타겟에 ACM 인증서를 모두 연결한다.
+- 보안그룹은 ECS에서 RDS는 허용해야하며, ALB 보안그룹은 443포트를 허용한다.
+- RDS는 서울리전에서 사용가능한 Serverless를 사용하며, 데이터는 KMS키로 보안을 유지한다. 그리고 RDS의 credential은 SecretManager에 저장하며, Prisma에서 사용할 수 있는 환경변수로 변경하여 SSM Parameter에 저장한다.
+- 로컬 환경변수들을 SSM Parameter를 저장하고, 이를 ECS Fargate 서비스에서 사용할 수 있는 Secret 형태로 환경변수를 제공한다.
+- CodeBuild는 렌더링되어 제공되어지는 `buildspec.yml`을 사용하며, `postBuild`에서 CodeDeploy를 위한 `appspec.yaml`과 `taskdef.json`그리고 이미지 메타정보를 저장한다.
+
+Terraform 모듈을 사용하여 구성하였으며, 네트워크부터 시작하면
+
+### 네트워크: `./modules/networks`
+
+네트워크는 VPC를 만들고, Subnets과 Route를 만든다. 그리고 Internet Gateway와 NAT를 만들어서 각 서브넷 그룹에 연결한다. 이후 이 VPC 자원을 사용하기 위해 생성된 결과를 출력한다.
+
+- 변수: `variables.tf`
+
+<details>
+ <summary>variables</summary>
+
+```hcl:variables.tf
+variable "application_name" {
+  description = "Application name"
+}
+
+variable "vpc_cidr" {
+  description = "The CIDR block of the vpc"
+}
+
+variable "public_subnets_cidr" {
+  type        = list(any)
+  description = "The CIDR block for the public subnet"
+}
+
+variable "private_subnets_cidr" {
+  type        = list(any)
+  description = "The CIDR block for the private subnet"
+}
+
+variable "region" {
+  description = "The region to launch the bastion host"
+}
+
+variable "availability_zones" {
+  type        = list(any)
+  description = "The az that the resources will be launched"
+}
+
+variable "namespace_name" {
+  description = "private namespace name"
+}
+```
+
+</details>
+
+- 출력: `outputs.tf`
+
+<details>
+ <summary>outputs</summary>
+
+```hcl:outputs.tf
+output "vpc_id" {
+  value = aws_vpc.vpc.id
+}
+
+output "public_subnets_id" {
+  value = ["${aws_subnet.public_subnet.*.id}"]
+}
+
+output "private_subnets_id" {
+  value = ["${aws_subnet.private_subnet.*.id}"]
+}
+
+output "public_subnet_1" {
+  value = aws_subnet.public_subnet.0.id
+}
+
+output "public_subnet_2" {
+  value = aws_subnet.public_subnet.1.id
+}
+
+output "private_subnet_1" {
+  value = aws_subnet.private_subnet.0.id
+}
+
+output "private_subnet_2" {
+  value = aws_subnet.private_subnet.1.id
+}
+
+output "default_sg_id" {
+  value = aws_security_group.default.id
+}
+
+output "security_groups_ids" {
+  value = ["${aws_security_group.default.id}"]
+}
+
+output "public_route_table" {
+  value = aws_route_table.public.id
+}
+```
+
+</details>
+
+- `main.tf`
+
+<details>
+ <summary>main</summary>
+
+```hcl:main.tf
+# VPC
+resource "aws_vpc" "vpc" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name        = "${var.application_name}-${terraform.workspace}-vpc"
+    Environment = "${terraform.workspace}"
+  }
+}
+
+# Subnets
+## Internet gateway for the public subnet
+resource "aws_internet_gateway" "ig" {
+  vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    Name        = "${var.application_name}-${terraform.workspace}-igw"
+    Environment = "${terraform.workspace}"
+  }
+}
+
+
+# Elastic IP for NAT
+resource "aws_eip" "nat_eip" {
+  vpc        = true
+  depends_on = [aws_internet_gateway.ig]
+}
+
+# NAT
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = element(aws_subnet.public_subnet.*.id, 0)
+  depends_on    = [aws_internet_gateway.ig]
+
+  tags = {
+    Name        = "${var.application_name}-nat"
+    Environment = "${terraform.workspace}"
+  }
+}
+
+# Public subnet
+resource "aws_subnet" "public_subnet" {
+  vpc_id                  = aws_vpc.vpc.id
+  count                   = length(var.public_subnets_cidr)
+  cidr_block              = element(var.public_subnets_cidr, count.index)
+  availability_zone       = element(var.availability_zones, count.index)
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name        = "${terraform.workspace}-${element(var.availability_zones, count.index)}-public-subnet"
+    Environment = "${terraform.workspace}"
+  }
+}
+
+# Private subnet
+resource "aws_subnet" "private_subnet" {
+  vpc_id                  = aws_vpc.vpc.id
+  count                   = length(var.private_subnets_cidr)
+  cidr_block              = element(var.private_subnets_cidr, count.index)
+  availability_zone       = element(var.availability_zones, count.index)
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name        = "${var.application_name}-${terraform.workspace}-${element(var.availability_zones, count.index)}-private-subnet"
+    Environment = "${terraform.workspace}"
+  }
+}
+
+# Routing table for private subnet
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat.id
+  }
+
+  tags = {
+    Name        = "${var.application_name}-${terraform.workspace}-private-route-table"
+    Environment = "${terraform.workspace}"
+  }
+}
+
+# Routing table for public subnet
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.ig.id
+  }
+  tags = {
+    Name        = "${var.application_name}-${terraform.workspace}-public-route-table"
+    Environment = "${terraform.workspace}"
+  }
+  depends_on = [
+    aws_internet_gateway.ig
+  ]
+}
+
+resource "aws_route" "public_internet_gateway" {
+  route_table_id         = aws_route_table.public.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.ig.id
+}
+
+# resource "aws_route" "private_nat_gateway" {
+#   route_table_id         = aws_route_table.private.id
+#   destination_cidr_block = "0.0.0.0/0"
+#   nat_gateway_id         = aws_nat_gateway.nat.id
+# }
+
+# Route table associations
+resource "aws_route_table_association" "public" {
+  count          = length(var.public_subnets_cidr)
+  subnet_id      = element(aws_subnet.public_subnet.*.id, count.index)
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "private" {
+  count          = length(var.private_subnets_cidr)
+  subnet_id      = element(aws_subnet.private_subnet.*.id, count.index)
+  route_table_id = aws_route_table.private.id
+}
+
+
+# VPC's Default Security Group
+
+resource "aws_security_group" "default" {
+  name        = "${terraform.workspace}-default-sg"
+  description = "Default security group to allow inbound/outbound from the VPC"
+  vpc_id      = aws_vpc.vpc.id
+  depends_on  = [aws_vpc.vpc]
+
+  ingress {
+    from_port = "0"
+    to_port   = "0"
+    protocol  = "-1"
+    self      = true
+  }
+
+  egress {
+    from_port = "0"
+    to_port   = "0"
+    protocol  = "-1"
+    self      = "true"
+  }
+
+  tags = {
+    Environment = "${terraform.workspace}"
+  }
+}
+
+resource "aws_default_network_acl" "default" {
+  default_network_acl_id = aws_vpc.vpc.default_network_acl_id
+
+  ingress {
+    protocol   = -1
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  egress {
+    protocol   = -1
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+
+  lifecycle {
+    ignore_changes = [subnet_ids]
+  }
+
+  tags = {
+    Name = join("_", ["${var.application_name}-${terraform.workspace}-vpc", "default_nacl"])
+  }
+}
+```
+
+</details>
+
+### SSM System Manager Parameter: `./modules/ssm`
+
+ECS Fargate 서비스에서 사용할 Secret 환경변수 설정을 위해 SSM Parameter 설정을 한다. `terraform.tfvars`에 환경변수를 담고 셋팅하게 된다. 서비스는 Apollo Studio 사용을 위한 `APOLLO_KEY`와 `APOLLO_GRAPH_REF` 그리고 S3 버킷 사용을 위한 `S3_ACCESS_KEY_ID`와 `S3_ACCESS_SECRET_ID`를 담았는데 `S3_ACCESS_KEY_ID`는 보안을 유지해야할 정도가 낮기 때문에 ECS 일반 환경변수로 설정해도 무방하다. 그리고 결제 시스템 연동을 위한 아임포트키 `IAMPORT_KEY`와 `IAMPORT_SECRET_KEY`를 설정한다. 마지막으로 ECS 서비스에서 여러 시크릿키 발급을 위한 `API_SECRET`도 설정한다.
+
+- 변수: `variables.tf`
+
+<details>
+ <summary>variables</summary>
+
+```hcl:variables.tf
+variable "application_name" {
+  description = "Application name"
+}
+
+variable "random_id_prefix" {
+  description = "random prefix"
+}
+
+variable "rds_depend_on" {
+  description = "RDS depend on"
+}
+
+variable "APOLLO_KEY" {
+  description = "Apollo secret key of Apollo Studio for API container"
+  type        = string
+  sensitive   = true
+}
+
+variable "APOLLO_GRAPH_REF" {
+  description = "Apollo Graph Ref value of Apollo Studio for API container"
+  type        = string
+  sensitive   = false
+}
+
+variable "S3_ACCESS_KEY_ID" {
+  description = "AWS S3 Access Key ID"
+  type        = string
+  sensitive   = true
+}
+variable "S3_ACCESS_SECRET_ID" {
+  description = "AWS S3 Access Secret ID"
+  type        = string
+  sensitive   = true
+}
+variable "IAMPORT_KEY" {
+  description = "IAMPORT Access Key"
+  type        = string
+  sensitive   = true
+}
+variable "IAMPORT_SECRET_KEY" {
+  description = "IAMPORT Access Secret Key"
+  type        = string
+  sensitive   = true
+}
+variable "API_SECRET" {
+  description = "API Secret Key"
+  type        = string
+  sensitive   = true
+}
+```
+
+</details>
+
+- 출력: `outputs.tf`
+
+<details>
+ <summary>outputs</summary>
+
+```hcl:outputs.tf
+output "DATABASE_URL" {
+  value = aws_ssm_parameter.DATABASE_URL.value
+}
+
+output "APOLLO_KEY" {
+  description = "Apollo secret key of Apollo Studio for API container"
+  value       = aws_ssm_parameter.APOLLO_KEY.value
+}
+
+output "APOLLO_GRAPH_REF" {
+  description = "Apollo Graph Ref value of Apollo Studio for API container"
+  value       = aws_ssm_parameter.APOLLO_GRAPH_REF.value
+}
+
+output "S3_ACCESS_KEY_ID" {
+  description = "AWS S3 Access Key ID"
+  value       = aws_ssm_parameter.S3_ACCESS_KEY_ID.value
+}
+output "S3_ACCESS_SECRET_ID" {
+  description = "AWS S3 Access Secret ID"
+  value       = aws_ssm_parameter.S3_ACCESS_SECRET_ID.value
+}
+output "IAMPORT_KEY" {
+  description = "IAMPORT Access Key"
+  value       = aws_ssm_parameter.IAMPORT_KEY.value
+}
+output "IAMPORT_SECRET_KEY" {
+  description = "IAMPORT Access Secret Key"
+  value       = aws_ssm_parameter.IAMPORT_SECRET_KEY.value
+}
+output "API_SECRET" {
+  description = "API Secret Key"
+  value       = aws_ssm_parameter.API_SECRET.value
+}
+```
+
+</details>
+
+- 메인: `main.tf`
+
+<details>
+ <summary>main</summary>
+
+```hcl:main.tf
+## DB Secrets
+
+data "aws_secretsmanager_secret" "by-name" {
+  name = "rds-db-credentials/${var.application_name}/${terraform.workspace}/${var.random_id_prefix}"
+  depends_on = [
+    var.rds_depend_on
+  ]
+}
+
+data "aws_secretsmanager_secret_version" "db_secret" {
+  secret_id = data.aws_secretsmanager_secret.by-name.id
+}
+
+## Setting SSM Environment value
+
+resource "aws_ssm_parameter" "DATABASE_URL" {
+  name        = "/${var.application_name}/${terraform.workspace}/DATABASE_URL"
+  description = "DATABASE_URL"
+  type        = "SecureString"
+  value       = "postgresql://${jsondecode(data.aws_secretsmanager_secret_version.db_secret.secret_string)["username"]}:${jsondecode(data.aws_secretsmanager_secret_version.db_secret.secret_string)["password"]}@${jsondecode(data.aws_secretsmanager_secret_version.db_secret.secret_string)["host"]}:${jsondecode(data.aws_secretsmanager_secret_version.db_secret.secret_string)["port"]}/apidb?schema=public"
+  overwrite   = true
+}
+
+resource "aws_ssm_parameter" "APOLLO_KEY" {
+  name        = "/${var.application_name}/${terraform.workspace}/APOLLO_KEY"
+  description = "APOLLO_KEY of Apollo Studio for API Container"
+  type        = "SecureString"
+  value       = var.APOLLO_KEY
+}
+
+resource "aws_ssm_parameter" "APOLLO_GRAPH_REF" {
+  name        = "/${var.application_name}/${terraform.workspace}/APOLLO_GRAPH_REF"
+  description = "Apollo Graph Ref value of Apollo Studio for API container"
+  type        = "SecureString"
+  value       = var.APOLLO_GRAPH_REF
+}
+
+resource "aws_ssm_parameter" "S3_ACCESS_KEY_ID" {
+  name        = "/${var.application_name}/${terraform.workspace}/S3_ACCESS_KEY_ID"
+  description = "AWS S3 Access Key ID"
+  type        = "SecureString"
+  value       = var.S3_ACCESS_KEY_ID
+}
+
+resource "aws_ssm_parameter" "S3_ACCESS_SECRET_ID" {
+  name        = "/${var.application_name}/${terraform.workspace}/S3_ACCESS_SECRET_ID"
+  description = "AWS S3 Access Secret ID"
+  type        = "SecureString"
+  value       = var.S3_ACCESS_SECRET_ID
+}
+
+resource "aws_ssm_parameter" "IAMPORT_KEY" {
+  name        = "/${var.application_name}/${terraform.workspace}/IAMPORT_KEY"
+  description = "IAMPORT Access Key"
+  type        = "SecureString"
+  value       = var.IAMPORT_KEY
+}
+
+resource "aws_ssm_parameter" "IAMPORT_SECRET_KEY" {
+  name        = "/${var.application_name}/${terraform.workspace}/IAMPORT_SECRET_KEY"
+  description = "IAMPORT Access Secret Key"
+  type        = "SecureString"
+  value       = var.IAMPORT_SECRET_KEY
+}
+
+resource "aws_ssm_parameter" "API_SECRET" {
+  name        = "/${var.application_name}/${terraform.workspace}/API_SECRET"
+  description = "API Secret Key"
+  type        = "SecureString"
+  value       = var.API_SECRET
+}
+```
+
+</details>
+
+### RDS `./modules/database`
+
+- 변수: `variables.tf`
+
+<details>
+ <summary>variables</summary>
+
+```hcl:variables.tf
+variable "application_name" {
+  description = "Application name"
+}
+
+variable "random_id_prefix" {
+description = "random prefix"
+}
+
+variable "subnet_ids" {
+type = list(any)
+description = "Subnet ids"
+}
+
+variable "global_cluster_identifier" {
+description = "global cluster identifier"
+}
+
+variable "cluster_identifier" {
+description = "cluster identifier"
+}
+
+variable "replication_source_identifier" {
+description = "replication source identifier"
+}
+
+variable "source_region" {
+description = "source region"
+}
+
+variable "engine" {
+description = "engine"
+}
+
+variable "engine_mode" {
+description = "engine mode"
+}
+
+variable "database_name" {
+description = "database name"
+}
+
+variable "master_username" {
+description = "master username"
+}
+
+variable "vpc_security_group_ids" {
+description = "vpc security group ids"
+}
+
+variable "db_cluster_parameter_group_name" {
+description = "db cluster parameter group name"
+}
+
+variable "final_snapshot_identifier" {
+description = "final snapshot identifier"
+}
+
+variable "backup_retention_period" {
+description = "backup retention period"
+}
+
+variable "preferred_backup_window" {
+description = "preferred backup window"
+}
+
+variable "preferred_maintenance_window" {
+description = "preferred maintenance window"
+}
+
+variable "skip_final_snapshot" {
+description = "skip final snapshot"
+}
+
+variable "storage_encrypted" {
+description = "storage encrypted"
+}
+
+variable "apply_immediately" {
+description = "apply immediately"
+}
+
+variable "iam_database_authentication_enabled" {
+description = "iam database authentication enabled"
+}
+
+variable "backtrack_window" {
+description = "backtrack window"
+}
+
+variable "copy_tags_to_snapshot" {
+description = "copy tags to snapshot"
+}
+
+variable "deletion_protection" {
+description = "deletion protection"
+}
+
+variable "auto_pause" {
+description = "auto pause"
+}
+
+variable "max_capacity" {
+description = "max capacity"
+}
+
+variable "min_capacity" {
+description = "min capacity"
+}
+
+variable "seconds_until_auto_pause" {
+description = "seconds until auto pause"
+}
+
+variable "api_server_sg" {
+description = "API server security group"
+}
+
+variable "vpc_id" {
+description = "vpc id"
+}
+
+```
+
+</details>
+
+- 출력: `outputs.tf`
+
+<details>
+ <summary>outputs</summary>
+
+```hcl:outputs.tf
+output "aws_rds_cluster_endpoint" {
+  value = aws_rds_cluster.this.endpoint
+}
+
+output "aws_rds_cluster_database_name" {
+  value = aws_rds_cluster.this.database_name
+}
+
+output "aws_rds_cluster_master_username" {
+  value = aws_rds_cluster.this.master_username
+}
+
+output "aws_rds_cluster_credentials" {
+  value = aws_secretsmanager_secret_version.rds_credentials.secret_string
+}
+
+output "aws_rds_access_security_group_ids" {
+  value = aws_security_group.db_access_sg.id
+}
+
+output "aws_rds_db_security_group_ids" {
+  value = aws_security_group.rdsdb_sg.id
+}
+```
+
+</details>
+
+- 메인: `main.tf`
+
+<details>
+ <summary>main</summary>
+
+```hcl:main.tf
+# master password
+resource "random_password" "master_password" {
+  length  = 16
+  special = false
+}
+
+resource "aws_secretsmanager_secret" "rds_credentials" {
+  name = "rds-db-credentials/${var.application_name}/${terraform.workspace}/${var.random_id_prefix}"
+}
+
+resource "aws_db_subnet_group" "db_subnet_group" {
+  name       = "${var.application_name}-${terraform.workspace}-${var.random_id_prefix}-db_subnet_group"
+  subnet_ids = flatten(["${var.subnet_ids}"])
+
+  tags = {
+    Name = "${var.application_name}-${terraform.workspace}-${var.random_id_prefix}-db_subnet_group"
+  }
+}
+
+# Security Group for resources that want to access the Database
+resource "aws_security_group" "db_access_sg" {
+  vpc_id      = var.vpc_id
+  name        = "${var.application_name}-${terraform.workspace}-db-access-sg"
+  description = "Allow access to DocumentDB"
+
+  tags = {
+    Name        = "${var.application_name}-${terraform.workspace}-db-access-sg"
+    Environment = "${terraform.workspace}"
+  }
+}
+
+resource "aws_security_group" "rdsdb_sg" {
+  name        = "${var.application_name}-${terraform.workspace}-rdsdb-sg"
+  description = "${var.application_name}-${terraform.workspace} RDS PostgreSQL aurora serverless Security Group"
+  vpc_id      = var.vpc_id
+  tags = {
+    Name        = "${var.application_name}-${terraform.workspace}-rdsdb-sg"
+    Environment = "${terraform.workspace}"
+  }
+
+  # allows traffic from the SG itself
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+  }
+
+  # allow traffic for TCP 5432
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.db_access_sg.id}"]
+  }
+  # allow traffic for TCP 5432 from API Container
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = ["${var.api_server_sg}"]
+  }
+
+  # outbound internet access
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_rds_cluster_parameter_group" "default" {
+  name = "${var.application_name}-${terraform.workspace}-${var.random_id_prefix}-rds-cluster-pg"
+  /**
+     * 서울 리전 버전 체크
+     * aws rds describe-db-engine-versions | jq '.DBEngineVersions[] | select(.SupportedEngineModes != null and .SupportedEngineModes[] == "serverless" and .Engine == "aurora-postgresql")'
+     * */
+  family      = "aurora-postgresql10"
+  description = "RDS default cluster parameter group"
+}
+
+resource "aws_rds_cluster" "this" {
+  cluster_identifier                  = var.cluster_identifier
+  source_region                       = var.source_region
+  engine                              = var.engine
+  engine_mode                         = var.engine_mode
+  database_name                       = var.database_name
+  master_username                     = var.master_username
+  master_password                     = random_password.master_password.result
+  final_snapshot_identifier           = var.final_snapshot_identifier
+  skip_final_snapshot                 = var.skip_final_snapshot
+  backup_retention_period             = var.backup_retention_period
+  preferred_backup_window             = var.preferred_backup_window
+  preferred_maintenance_window        = var.preferred_maintenance_window
+  db_subnet_group_name                = aws_db_subnet_group.db_subnet_group.name
+  vpc_security_group_ids              = ["${aws_security_group.rdsdb_sg.id}"]
+  storage_encrypted                   = var.storage_encrypted
+  apply_immediately                   = var.apply_immediately
+  db_cluster_parameter_group_name     = aws_rds_cluster_parameter_group.default.id
+  iam_database_authentication_enabled = var.iam_database_authentication_enabled
+  backtrack_window                    = var.backtrack_window
+  copy_tags_to_snapshot               = var.copy_tags_to_snapshot
+  deletion_protection                 = var.deletion_protection
+
+  scaling_configuration {
+    auto_pause               = var.auto_pause
+    max_capacity             = var.max_capacity
+    min_capacity             = var.min_capacity
+    seconds_until_auto_pause = var.seconds_until_auto_pause
+    timeout_action           = "ForceApplyCapacityChange"
+  }
+
+  tags = {
+    Name = "${var.application_name}-${terraform.workspace} RDS Cluster"
+  }
+}
+
+# Secret value update https://stackoverflow.com/a/67927860
+resource "aws_secretsmanager_secret_version" "rds_credentials" {
+  secret_id = aws_secretsmanager_secret.rds_credentials.id
+  secret_string = jsonencode({
+    "username" : "${aws_rds_cluster.this.master_username}",
+    "password" : "${random_password.master_password.result}",
+    "engine" : "${aws_rds_cluster.this.engine}",
+    "host" : "${aws_rds_cluster.this.endpoint}",
+    "port" : "${aws_rds_cluster.this.port}",
+    "dbClusterIdentifier" : "${aws_rds_cluster.this.cluster_identifier}"
+  })
+}
+```
+
+</details>
+
+### Application LoadBalancer `./modules/api-alb`
+
+- 변수: `variables.tf`
+
+<details>
+ <summary>variables</summary>
+
+```hcl:variables.tf
+variable "region" {
+  description = "AWS Region"
+}
+
+variable "application_name" {
+  description = "Application name"
+}
+
+variable "random_id_prefix" {
+  description = "random id prefix"
+}
+
+variable "vpc_id" {
+  description = "vpc id"
+}
+
+
+variable "public_subnet_ids" {
+  type        = list(any)
+  description = "Public subnets to use"
+}
+
+variable "security_groups_ids" {
+  type        = list(any)
+  description = "The SGs to use"
+}
+
+variable "ecs_security_group" {
+  description = "ECS Security group"
+}
+
+variable "alb_security_group" {
+  description = "ALB Security group"
+}
+
+
+variable "root_domain" {
+  description = "Root domain"
+  type        = string
+  default     = "platform.mystack.io"
+
+}
+```
+
+</details>
+
+- 출력: `outputs.tf`
+
+<details>
+ <summary>outputs</summary>
+
+```hcl:outputs.tf
+output "aws_target_group_blue" {
+  value = aws_alb_target_group.alb_target_group_blue
+}
+
+output "aws_target_group_green" {
+  value = aws_alb_target_group.alb_target_group_green
+}
+
+output "aws_alb_blue_green" {
+  value = aws_alb_listener.application_blue_green
+}
+
+output "aws_alb_test_blue_green" {
+  value = aws_alb_listener.application_test_blue_green
+}
+
+output "route53" {
+  value = aws_route53_record.platform_sub
+}
+```
+
+</details>
+
+- 메인: `main.tf`
+
+<details>
+ <summary>main</summary>
+
+```hcl:main.tf
+# Application Load Balancer
+resource "aws_alb" "alb_application" {
+  name            = "${var.application_name}-${terraform.workspace}-${var.random_id_prefix}-alb"
+  subnets         = flatten(["${var.public_subnet_ids}"])
+  security_groups = flatten(["${var.security_groups_ids}", "${var.ecs_security_group.id}", "${var.alb_security_group.id}"])
+
+  tags = {
+    Name        = "${var.application_name}-${terraform.workspace}-${var.random_id_prefix}-alb"
+    Environment = "${terraform.workspace}"
+  }
+}
+
+resource "aws_alb_listener" "application_blue_green" {
+  load_balancer_arn = aws_alb.alb_application.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate.certificate.arn
+  depends_on        = [aws_alb_target_group.alb_target_group_blue]
+
+  default_action {
+    target_group_arn = aws_alb_target_group.alb_target_group_blue.arn
+    type             = "forward"
+  }
+}
+
+resource "aws_alb_listener" "application_test_blue_green" {
+  load_balancer_arn = aws_alb.alb_application.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate.certificate.arn
+  depends_on        = [aws_alb_target_group.alb_target_group_blue]
+
+  default_action {
+    target_group_arn = aws_alb_target_group.alb_target_group_blue.arn
+    type             = "forward"
+  }
+}
+
+resource "aws_alb_listener" "application_redirection" {
+  load_balancer_arn = aws_alb.alb_application.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+# AWS ALB Target Blue groups/Listener for Blue/Green Deployments
+resource "aws_alb_target_group" "alb_target_group_blue" {
+  name        = "${var.application_name}-${terraform.workspace}-tg-${var.random_id_prefix}-blue"
+  port        = 8000
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  health_check {
+    healthy_threshold   = "3"
+    interval            = "30"
+    protocol            = "HTTP"
+    matcher             = "200-399"
+    timeout             = "3"
+    path                = "/.well-known/apollo/server-health"
+    unhealthy_threshold = "2"
+  }
+
+  tags = {
+    Environment = "${terraform.workspace}-blue"
+  }
+
+  depends_on = [aws_alb.alb_application]
+}
+
+# AWS ALB Target Green groups/Listener for Blue/Green Deployments
+resource "aws_alb_target_group" "alb_target_group_green" {
+  name        = "${var.application_name}-${terraform.workspace}-tg-${var.random_id_prefix}-green"
+  port        = 8000
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  health_check {
+    healthy_threshold   = "3"
+    interval            = "30"
+    protocol            = "HTTP"
+    matcher             = "200-399"
+    timeout             = "3"
+    path                = "/.well-known/apollo/server-health"
+    unhealthy_threshold = "2"
+  }
+
+  tags = {
+    Environment = "${terraform.workspace}-green"
+  }
+
+  depends_on = [aws_alb.alb_application]
+}
+
+# Standard route53 DNS record for "mystack" pointing to an ALB
+
+data "aws_route53_zone" "platform" {
+  name = var.root_domain
+}
+
+resource "aws_route53_zone" "platform_sub" {
+  name = "${terraform.workspace}.${data.aws_route53_zone.platform.name}"
+  depends_on = [
+    data.aws_route53_zone.platform
+  ]
+}
+
+# Sub DNS for API
+
+resource "aws_route53_record" "platform_sub-ns" {
+  zone_id = data.aws_route53_zone.platform.zone_id
+  name    = aws_route53_zone.platform_sub.name
+  type    = "NS"
+  ttl     = "30"
+  records = aws_route53_zone.platform_sub.name_servers
+
+}
+
+resource "aws_route53_record" "domain_record" {
+  for_each = {
+    for dvo in aws_acm_certificate.certificate.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = aws_route53_zone.platform_sub.zone_id
+}
+
+# Sub DNS for API
+
+resource "aws_route53_record" "platform_sub" {
+  zone_id = aws_route53_zone.platform_sub.zone_id
+  name    = "api.${aws_route53_zone.platform_sub.name}"
+  type    = "A"
+  alias {
+    name                   = aws_alb.alb_application.dns_name
+    zone_id                = aws_alb.alb_application.zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_acm_certificate" "certificate" {
+  domain_name               = aws_route53_zone.platform_sub.name
+  subject_alternative_names = ["api.${aws_route53_zone.platform_sub.name}", "*.${aws_route53_zone.platform_sub.name}"]
+  validation_method         = "DNS"
+
+  tags = {
+    Environment = terraform.workspace
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_acm_certificate_validation" "dns_validation" {
+  certificate_arn         = aws_acm_certificate.certificate.arn
+  validation_record_fqdns = [for record in aws_route53_record.domain_record : record.fqdn]
+}
+```
+
+</details>
+
+### ECS IAM Roles & Policies `./modules/api-iam`
+
+IAM은 ECS에서 사용할 AssumeRole과 정책, 그리고 AutoScaling에서 사용할 Role과 정책을 만든다. 출력은 AutoScaling에서 사용할 `ecs_execution_role`을 출력한다.
+
+- 변수: `variables.tf`
+
+<details>
+ <summary>variables</summary>
+
+```hcl:variables.tf
+variable "region" {
+  description = "AWS Region"
+}
+
+variable "application_name" {
+  description = "Application name"
+}
+
+variable "random_id_prefix" {
+  description = "random id prefix"
+}
+```
+
+</details>
+
+- 출력: `outputs.tf`
+
+<details>
+ <summary>outputs</summary>
+
+```hcl:outputs.tf
+output "ecs_execution_role" {
+  value = aws_iam_role.ecs_execution_role
+}
+```
+
+</details>
+
+- 메인: `main.tf`
+
+<details>
+ <summary>main</summary>
+
+```hcl:main.tf
+
+data "aws_iam_policy_document" "ecs_service_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "ecs_role" {
+  name               = "${var.random_id_prefix}-ecs-role"
+  assume_role_policy = data.aws_iam_policy_document.ecs_service_role.json
+}
+
+data "aws_iam_policy_document" "ecs_service_policy" {
+  statement {
+    effect    = "Allow"
+    resources = ["*"]
+    actions = [
+      "elasticloadbalancing:Describe*",
+      "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+      "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+      "ec2:Describe*",
+      "ec2:AuthorizeSecurityGroupIngress"
+    ]
+  }
+}
+
+/* ecs service scheduler role */
+resource "aws_iam_role_policy" "ecs_service_role_policy" {
+  name   = "${var.random_id_prefix}-ecs_service_role_policy"
+  policy = data.aws_iam_policy_document.ecs_service_policy.json
+  role   = aws_iam_role.ecs_role.id
+}
+
+/* role that the Amazon ECS container agent and the Docker daemon can assume */
+resource "aws_iam_role" "ecs_execution_role" {
+  name               = "${var.random_id_prefix}-ecs_execution_role_policy"
+  assume_role_policy = file("${path.module}/policies/ecs-task-execution-role.json")
+}
+resource "aws_iam_role_policy" "ecs_execution_role_policy" {
+  name   = "${var.random_id_prefix}-ecs_execution_role_policy"
+  policy = file("${path.module}/policies/ecs-execution-role-policy.json")
+  role   = aws_iam_role.ecs_execution_role.id
+}
+
+# AutoScaling Role
+resource "aws_iam_role" "ecs_autoscale_role" {
+  name               = "${var.random_id_prefix}-ecs_autoscale_role_policy"
+  assume_role_policy = file("${path.module}/policies/ecs-autoscale-role.json")
+}
+
+resource "aws_iam_role_policy" "ecs_autoscale_role_policy" {
+  name   = "${var.random_id_prefix}-ecs_autoscale_role_policy"
+  policy = file("${path.module}/policies/ecs-autoscale-role-policy.json")
+  role   = aws_iam_role.ecs_autoscale_role.id
+}
+```
+
+</details>
+
+- ECS Role: `policies/ecs-role.json`
+
+<details>
+ <summary>`ecs-role.json`</summary>
+
+```json:ecs-role.json
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": [
+          "ecs.amazonaws.com",
+          "ec2.amazonaws.com"
+        ]
+      },
+      "Effect": "Allow"
+    }
+  ]
+}
+```
+
+</details>
+
+- ECS Service Role `policies/ecs-service-role.json`
+
+<details>
+ <summary>`ecs-service-role.json`</summary>
+
+```json:ecs-service-role.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:Describe*",
+        "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+        "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+        "ec2:Describe*",
+        "ec2:AuthorizeSecurityGroupIngress"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
+}
+```
+
+</details>
+
+- ECS Task Execution Role: `policies/ecs-task-execution-role.json`
+
+<details>
+ <summary>`ecs-task-execution-role.json`</summary>
+
+```json:ecs-task-execution-role.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+</details>
+
+- ECS Execution Role Policy: `policies/ecs-execution-role-policies.json`
+
+<details>
+ <summary>`ecs-execution-role-policies.json`</summary>
+
+```json:ecs-execution-role-policies.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:ListBucket",
+        "s3:HeadBucket",
+        "s3:PutObjectAcl",
+        "mobiletargeting:*",
+        "mobiletargeting:CreateApp",
+        "s3:PutObject",
+        "logs:CreateLogStream",
+        "ses:*",
+        "ecr:BatchGetImage",
+        "s3:ListBucket",
+        "cognito-identity:*",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchCheckLayerAvailability",
+        "ssm:GetParameters",
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+</details>
+
+- ECS Autoscale Role: `policies/ecs-autoscale-role.json`
+
+<details>
+ <summary>`ecs-autoscale-role.json`</summary>
+
+```json:ecs-autoscale-role.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "application-autoscaling.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+</details>
+
+- ECS Autoscale Role Policy: `policies/ecs-autoscale-role-policies.json`
+
+<details>
+ <summary>`ecs-autoscale-role-policies.json`</summary>
+
+```json:ecs-autoscale-role-policies.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecs:DescribeServices",
+        "ecs:UpdateService"
+      ],
+      "Resource": [
+        "*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:DescribeAlarms"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
+}
+```
+
+</details>
+
+### ECS Security Group `./modules/api-sg`
+
+ECS의 서비스 보안그룹과 ALB의 보안그룹을 만든다. ALB에서는 80, 443, 8000포트를 ingress 허용하며, egress는 모든 곳에 허용한다. ECS 보안그룹은 컨테이너 포트를 ingress 허용하고, egress는 모든 곳에 허용한다.
+
+- 변수: `variables.tf`
+
+<details>
+ <summary>variables.tf</summary>
+
+```hcl:variables.tf
+variable "region" {
+  description = "AWS Region"
+}
+
+variable "application_name" {
+  description = "Application name"
+}
+
+variable "random_id_prefix" {
+  description = "random id prefix"
+}
+
+variable "vpc_id" {
+  description = "vpc id"
+}
+variable "container_port" {
+  description = "ECS container port"
+}
+```
+
+</details>
+
+- 출력: `outputs.tf`
+
+<details>
+ <summary>outputs.tf</summary>
+
+```hcl:outputs.tf
+output "alb_security_group" {
+  value = aws_security_group.alb_sg
+}
+output "ecs_security_group" {
+  value = aws_security_group.ecs_sg
+}
+```
+
+</details>
+
+- 메인: `main.tf`
+
+<details>
+ <summary>main.tf</summary>
+
+```hcl:main.tf
+
+# Security group for ALB
+resource "aws_security_group" "alb_sg" {
+  name        = "${var.random_id_prefix}-${var.application_name}-${terraform.workspace}-alb-sg"
+  description = "Application Load Balancer Security Group"
+  vpc_id      = var.vpc_id
+
+  ingress = [{
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    description      = "Allow HTTP Access On Port 80"
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups  = []
+    self             = false
+    },
+    {
+      description      = "TLS from VPC"
+      from_port        = 443
+      to_port          = 443
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
+      from_port        = 8000
+      to_port          = 8000
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      description      = "Allow HTTP Access On Port 8080"
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
+      from_port        = 8
+      to_port          = 0
+      protocol         = "icmp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      description      = "Allow Ping"
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+  }]
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.random_id_prefix}-${var.application_name}-${terraform.workspace}-alb-sg"
+  }
+}
+
+# ECS Security Group
+resource "aws_security_group" "ecs_sg" {
+  name        = "${var.random_id_prefix}-${var.application_name}-${terraform.workspace}-ecs-sg"
+  vpc_id      = var.vpc_id
+  description = "ECS Task Security Group Allow egress from container"
+
+  ingress {
+    from_port       = var.container_port
+    to_port         = var.container_port
+    protocol        = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+    security_groups = [aws_security_group.alb_sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "${var.random_id_prefix}-${var.application_name}-${terraform.workspace}-ecs-sg"
+    Environment = "${terraform.workspace}"
+  }
+}
+
+```
+
+</details>
+
+### ECS AutoScaling: `./modules/api-autoscaling`
+
+- 변수: `variables.tf`
+
+<details>
+ <summary>variables.tf</summary>
+
+```hcl:variables.tf
+variable "region" {
+  description = "AWS Region"
+}
+variable "application_name" {
+  description = "Application name"
+}
+variable "random_id_prefix" {
+  description = "random id prefix"
+}
+variable "ecs_autoscale_role" {
+  description = "ECS AutoScale Role"
+}
+variable "ecs_cluster_name" {
+  description = "ECS Cluster Name"
+}
+variable "ecs_service_name" {
+  description = "ECS Service Name"
+}
+```
+
+</details>
+
+- 메인: `main.tf`
+
+<details>
+ <summary>main.tf</summary>
+
+```hcl:main.tf
+## Auto Scaling for ECS
+
+resource "aws_appautoscaling_target" "target_api" {
+  service_namespace  = "ecs"
+  resource_id        = "service/${var.ecs_cluster_name}/${var.ecs_service_name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  role_arn           = var.ecs_autoscale_role.arn
+  min_capacity       = 1
+  max_capacity       = 4
+}
+
+resource "aws_appautoscaling_policy" "up_api" {
+  name               = "${var.random_id_prefix}-${terraform.workspace}_scale_up_api"
+  service_namespace  = "ecs"
+  resource_id        = "service/${var.ecs_cluster_name}/${var.ecs_service_name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+
+
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 60
+    metric_aggregation_type = "Maximum"
+
+    step_adjustment {
+      metric_interval_lower_bound = 0
+      scaling_adjustment          = 1
+    }
+  }
+
+  depends_on = [aws_appautoscaling_target.target_api]
+}
+
+resource "aws_appautoscaling_policy" "down_api" {
+  name               = "${var.random_id_prefix}-${terraform.workspace}_scale_down_api"
+  service_namespace  = "ecs"
+  resource_id        = "service/${var.ecs_cluster_name}/${var.ecs_service_name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    cooldown                = 60
+    metric_aggregation_type = "Maximum"
+
+    step_adjustment {
+      metric_interval_lower_bound = 0
+      scaling_adjustment          = -1
+    }
+  }
+
+  depends_on = [aws_appautoscaling_target.target_api]
+}
+
+resource "aws_appautoscaling_policy" "cpu_tracking" {
+  name               = "${var.random_id_prefix}-${terraform.workspace}_cpu_tracking"
+  policy_type        = "TargetTrackingScaling"
+  service_namespace  = "ecs"
+  resource_id        = "service/${var.ecs_cluster_name}/${var.ecs_service_name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    target_value       = 99
+    scale_in_cooldown  = 300
+    scale_out_cooldown = 60
+  }
+
+  depends_on = [aws_appautoscaling_target.target_api]
+}
+
+## metric used for auto scale
+
+resource "aws_cloudwatch_metric_alarm" "service_cpu_high_api" {
+  alarm_name          = "${var.random_id_prefix}-${var.application_name}-${terraform.workspace}_application_cpu_utilization_high_api"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Maximum"
+  threshold           = "85"
+
+  dimensions = {
+    ClusterName = "${var.ecs_cluster_name}"
+    ServiceName = "${var.ecs_service_name}"
+  }
+
+  alarm_actions = ["${aws_appautoscaling_policy.up_api.arn}"]
+  ok_actions    = ["${aws_appautoscaling_policy.down_api.arn}"]
+}
+```
+
+</details>
+
+### ECS Cluster & Service
+
+- 변수: `variables.tf`
+
+<details>
+ <summary>variables.tf</summary>
+
+```hcl:variables.tf
+variable "region" {
+  description = "AWS Region"
+}
+variable "application_name" {
+  description = "Application name"
+}
+variable "vpc_id" {
+  description = "vpc id"
+}
+variable "random_id_prefix" {
+  description = "random id prefix"
+}
+variable "ecr_api_repository_name" {
+  description = "The name of the repisitory"
+}
+variable "aws_target_group_blue" {
+  description = "ECS Target Group Blue"
+}
+variable "aws_target_group_green" {
+  description = "ECS Target Group Green"
+}
+variable "ecs_execution_role" {
+  description = "ECS Execute Role"
+}
+variable "security_groups_ids" {
+  type        = list(any)
+  description = "The SGs to use"
+}
+variable "ecs_security_group" {
+  description = "ECS Security Group"
+}
+variable "private_subnets_ids" {
+  type        = list(any)
+  description = "Private subnets ids"
+}
+variable "container_port" {
+  description = "ECS container port"
+}
+variable "scan_on_push" {
+  description = "ECR scan on push"
+}
+variable "api_container_memory" {
+  description = "API container memory"
+}
+variable "DATABASE_URL" {
+  description = "DATABASE_URL for Prisma"
+  type        = string
+  sensitive   = true
+}
+variable "APOLLO_KEY" {
+  description = "Apollo secret key of Apollo Studio for API container"
+  type        = string
+  sensitive   = true
+}
+variable "APOLLO_GRAPH_REF" {
+  description = "Apollo Graph Ref value of Apollo Studio for API container"
+  type        = string
+  sensitive   = false
+}
+variable "S3_ACCESS_KEY_ID" {
+  description = "AWS S3 Access Key ID"
+  type        = string
+  sensitive   = true
+}
+variable "S3_ACCESS_SECRET_ID" {
+  description = "AWS S3 Access Secret ID"
+  type        = string
+  sensitive   = true
+}
+variable "IAMPORT_KEY" {
+  description = "IAMPORT Access Key"
+  type        = string
+  sensitive   = true
+}
+variable "IAMPORT_SECRET_KEY" {
+  description = "IAMPORT Access Secret Key"
+  type        = string
+  sensitive   = true
+}
+variable "API_SECRET" {
+  description = "API Secret Key"
+  type        = string
+  sensitive   = true
+}
+variable "ssm_depends_on" {
+  type    = any
+  default = []
+}
+```
+
+</details>
+
+- 출력: `outputs.tf`
+
+<details>
+ <summary>outputs.tf</summary>
+
+```hcl:outputs.tf
+output "api_repository_url" {
+  value = aws_ecr_repository.api.repository_url
+}
+output "api_repository_name" {
+  value = aws_ecr_repository.api.name
+}
+output "cluster_name" {
+  value = aws_ecs_cluster.cluster.name
+}
+output "api_service_name" {
+  value = aws_ecs_service.api.name
+}
+output "ecs_api_task_defination_family" {
+  value = aws_ecs_task_definition.api.family
+}
+output "api_ecs_cluster_id" {
+  value = aws_ecs_cluster.cluster
+}
+output "api_ecs_task_id" {
+  value = data.aws_ecs_task_definition.api
+}
+output "api_ecs_service" {
+  value = aws_ecs_service.api
+}
+```
+
+</details>
+
+- 메인: `main.tf`
+
+ECS의 Service에서 삽질을 많이했다. 즉, `CODE_DEPLOY`를 Deployment Controller로 사용할 때 다른 인프라를 수정할 때도 배포 오류가 발생한다. ECS Service를 CodeDeploy로 배포한다고 정의했기 때문에 직접 인프라 수정이 안되는 것이다.
+
+```hcl
+  lifecycle {
+    ignore_changes = [
+      desired_count,
+      load_balancer,
+      network_configuration,
+      task_definition
+    ]
+  }
+```
+
+변경점을 무시하라는 lifecycle을 정의해 주어야 배포가 가능했다. 물론 ECS가 변경이 되면 클러스터와 서비스를 모두 다시 생성해 주어야 한다. 만약 Production 운영중이라면, 문제가 된다.
+
+<details>
+ <summary>main.tf</summary>
+
+```hcl:main.tf
+locals {
+  container_name = "${var.random_id_prefix}-${var.application_name}-${terraform.workspace}-api"
+}
+
+data "aws_ecs_task_definition" "api" {
+  task_definition = aws_ecs_task_definition.api.family
+  depends_on      = [aws_ecs_task_definition.api]
+}
+
+module "parameters" {
+  source = "./parameters"
+
+  application_name = var.application_name
+  ssm_depends_on   = var.ssm_depends_on
+}
+
+resource "aws_ecr_repository" "api" {
+  name = var.ecr_api_repository_name
+
+  image_scanning_configuration {
+    scan_on_push = var.scan_on_push
+  }
+  force_delete = true
+
+  tags = {
+    Environment = "${terraform.workspace}"
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "api_policy" {
+  repository = aws_ecr_repository.api.name
+
+  policy = file("${path.module}/policies/ecs-lifecycle-policy.json")
+}
+
+# ECS cluster
+resource "aws_ecs_cluster" "cluster" {
+  name = "${var.application_name}-api-${terraform.workspace}"
+
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+
+  tags = {
+    Environment = "${terraform.workspace}"
+  }
+}
+
+# AWS Service discovery service
+
+resource "aws_service_discovery_private_dns_namespace" "private_dns_name" {
+  name        = "${var.application_name}.local"
+  description = "Private DNS"
+  vpc         = var.vpc_id
+}
+
+resource "aws_service_discovery_service" "private_dns" {
+  name = terraform.workspace
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.private_dns_name.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+    routing_policy = "MULTIVALUE"
+  }
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+  force_destroy = true
+}
+
+# ECS Service
+resource "aws_ecs_service" "api" {
+  name                   = local.container_name
+  task_definition        = "${aws_ecs_task_definition.api.family}:${max("${aws_ecs_task_definition.api.revision}", "${data.aws_ecs_task_definition.api.revision}")}"
+  desired_count          = 1
+  launch_type            = "FARGATE"
+  cluster                = aws_ecs_cluster.cluster.id
+  enable_execute_command = true
+
+  network_configuration {
+    security_groups  = flatten(["${var.security_groups_ids}", "${var.ecs_security_group.id}"])
+    subnets          = flatten(["${var.private_subnets_ids}"])
+    assign_public_ip = true
+  }
+
+  deployment_controller {
+    type = "CODE_DEPLOY"
+  }
+  propagate_tags          = "TASK_DEFINITION"
+  enable_ecs_managed_tags = true
+
+  health_check_grace_period_seconds = 30
+
+
+  load_balancer {
+    target_group_arn = var.aws_target_group_blue.arn
+    container_name   = local.container_name
+    container_port   = "8000"
+  }
+
+  # load_balancer {
+  #   target_group_arn = var.aws_target_group_green.arn
+  #   container_name   = local.container_name
+  #   container_port   = "8000"
+  # }
+  service_registries {
+    registry_arn = aws_service_discovery_service.private_dns.arn
+  }
+
+  tags = {
+    Environment = "${terraform.workspace}"
+  }
+  depends_on = [var.ssm_depends_on]
+  lifecycle {
+    ignore_changes = [
+      desired_count,
+      load_balancer,
+      network_configuration,
+      task_definition
+    ]
+  }
+}
+
+resource "aws_cloudwatch_log_group" "api_log" {
+  name              = "${var.random_id_prefix}-${var.application_name}-${terraform.workspace}"
+  retention_in_days = 30
+
+  tags = {
+    Environment = "${terraform.workspace}"
+    Application = "${var.application_name}-api"
+  }
+}
+
+resource "aws_cloudwatch_log_stream" "api_log_stream" {
+  name           = "${var.random_id_prefix}-${terraform.workspace}-jobs-log-stream"
+  log_group_name = aws_cloudwatch_log_group.api_log.name
+}
+
+## ECS task definitions
+
+resource "aws_ecs_task_definition" "api" {
+  family                   = local.container_name
+  container_definitions    = <<DEFINITION
+  [
+    {
+      "name": "${local.container_name}",
+      "image": "${aws_ecr_repository.api.repository_url}",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000
+        }
+      ],
+      "memory": ${var.api_container_memory},
+      "networkMode": "awsvpc",
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "${module.parameters.DATABASE_URL.name}"
+        },
+        {
+          "name": "APOLLO_KEY",
+          "valueFrom": "${module.parameters.APOLLO_KEY.name}"
+        },
+        {
+          "name": "S3_ACCESS_KEY_ID",
+          "valueFrom": "${module.parameters.S3_ACCESS_KEY_ID.name}"
+        },
+        {
+          "name": "S3_ACCESS_SECRET_ID",
+          "valueFrom": "${module.parameters.S3_ACCESS_SECRET_ID.name}"
+        },
+        {
+          "name": "IAMPORT_KEY",
+          "valueFrom": "${module.parameters.IAMPORT_KEY.name}"
+        },
+        {
+          "name": "IAMPORT_SECRET_KEY",
+          "valueFrom": "${module.parameters.IAMPORT_SECRET_KEY.name}"
+        },
+        {
+          "name": "API_SECRET",
+          "valueFrom": "${module.parameters.API_SECRET.name}"
+        }
+      ],
+      "environment": [
+        {
+          "name": "API_ENV",
+          "value": "${terraform.workspace}"
+        },
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "${aws_cloudwatch_log_group.api_log.name}",
+          "awslogs-region": "${var.region}",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "linuxParameters": {
+        "initProcessEnabled": true
+      }
+    }
+  ]
+  DEFINITION
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "512"
+  memory                   = "1024"
+  execution_role_arn       = var.ecs_execution_role.arn
+  task_role_arn            = var.ecs_execution_role.arn
+  depends_on = [
+    var.ssm_depends_on
+  ]
+  tags = {
+    Environment = "${terraform.workspace}"
+  }
+}
+```
+
+</details>
+
+- Module Parameter variable `parameters/variables.tf`
+
+<details>
+ <summary>parameters/variables.tf</summary>
+
+```hcl:parameters/variables.tf
+variable "application_name" {
+  description = "Application name"
+}
+variable "ssm_depends_on" {
+  type    = any
+  default = []
+}
+```
+
+</details>
+
+- Module Parameter outputs `parameters/outputs.tf`
+
+<details>
+ <summary>parameters/outputs.tf</summary>
+
+```hcl:parameters/outputs.tf
+output "DATABASE_URL" {
+  value = data.aws_ssm_parameter.DATABASE_URL
+}
+output "APOLLO_KEY" {
+  value = data.aws_ssm_parameter.APOLLO_KEY
+}
+output "APOLLO_GRAPH_REF" {
+  value = data.aws_ssm_parameter.APOLLO_GRAPH_REF
+}
+output "S3_ACCESS_KEY_ID" {
+  value = data.aws_ssm_parameter.S3_ACCESS_KEY_ID
+}
+output "S3_ACCESS_SECRET_ID" {
+  value = data.aws_ssm_parameter.S3_ACCESS_SECRET_ID
+}
+output "IAMPORT_KEY" {
+  value = data.aws_ssm_parameter.IAMPORT_KEY
+}
+output "IAMPORT_SECRET_KEY" {
+  value = data.aws_ssm_parameter.IAMPORT_SECRET_KEY
+}
+output "API_SECRET" {
+  value = data.aws_ssm_parameter.API_SECRET
+}
+```
+
+</details>
+
+- Module Parameter main `parameters/main.tf`
+
+<details>
+ <summary>parameters/main.tf</summary>
+
+```hcl:parameters/main.tf
+data "aws_ssm_parameter" "DATABASE_URL" {
+  name       = "/${var.application_name}/${terraform.workspace}/DATABASE_URL"
+  depends_on = [var.ssm_depends_on]
+}
+data "aws_ssm_parameter" "APOLLO_KEY" {
+  name       = "/${var.application_name}/${terraform.workspace}/APOLLO_KEY"
+  depends_on = [var.ssm_depends_on]
+}
+data "aws_ssm_parameter" "APOLLO_GRAPH_REF" {
+  name       = "/${var.application_name}/${terraform.workspace}/APOLLO_GRAPH_REF"
+  depends_on = [var.ssm_depends_on]
+}
+data "aws_ssm_parameter" "S3_ACCESS_KEY_ID" {
+  name       = "/${var.application_name}/${terraform.workspace}/S3_ACCESS_KEY_ID"
+  depends_on = [var.ssm_depends_on]
+}
+data "aws_ssm_parameter" "S3_ACCESS_SECRET_ID" {
+  name       = "/${var.application_name}/${terraform.workspace}/S3_ACCESS_SECRET_ID"
+  depends_on = [var.ssm_depends_on]
+}
+data "aws_ssm_parameter" "IAMPORT_KEY" {
+  name       = "/${var.application_name}/${terraform.workspace}/IAMPORT_KEY"
+  depends_on = [var.ssm_depends_on]
+}
+data "aws_ssm_parameter" "IAMPORT_SECRET_KEY" {
+  name       = "/${var.application_name}/${terraform.workspace}/IAMPORT_SECRET_KEY"
+  depends_on = [var.ssm_depends_on]
+}
+data "aws_ssm_parameter" "API_SECRET" {
+  name       = "/${var.application_name}/${terraform.workspace}/API_SECRET"
+  depends_on = [var.ssm_depends_on]
+}
+```
+
+</details>
+
+- Policies: `policies/ecs-lifecycle-policy.json`
+
+<details>
+ <summary>policies/ecs-lifecycle-policy.json</summary>
+
+```json:policies/ecs-lifecycle-policy.json
+{
+  "rules": [
+    {
+      "rulePriority": 1,
+      "description": "Keep last 10 images",
+      "selection": {
+        "tagStatus": "any",
+        "countType": "imageCountMoreThan",
+        "countNumber": 10
+      },
+      "action": {
+        "type": "expire"
+      }
+    }
+  ]
+}
+```
+
+</details>
+
+### CodePipeline: `./modules/codepipeline`
+
+- 변수: `variables.tf`
+
+<details>
+ <summary>variables.tf</summary>
+
+```hcl:variables.tf
+variable "region" {
+  description = "AWS region"
+}
+variable "random_id_prefix" {
+  description = "random prefix"
+}
+variable "api_pipeline_name" {
+  description = "Code pipeline project name"
+}
+variable "buildproject_name" {
+  description = "build project name"
+}
+variable "api_repository_name" {
+  description = "API Repository Name"
+}
+variable "cluster_name" {
+  description = "cluster name"
+}
+variable "api_service_name" {
+  description = "API name job"
+}
+```
+
+</details>
+
+- 메인: `main.tf`
+
+CodePipeline은 S3 버킷으로 build artifact를 저장하고, Deploy를 수행하도록 한다. 저장 위치는 `buildout`이다. `buildspec.yml`에서 CodeDeploy에서 필요한 데이터를 저장해야한다. 특히 `taskdef.json`과 `appspec.yaml`을 잘 만들어주어야 삽질을 줄일 수 있다.
+
+<details>
+ <summary>main.tf</summary>
+
+```hcl:main.tf
+locals {
+  github_owner = "mystack-platform"
+  github_repo  = var.api_repository_name
+}
+
+resource "aws_s3_bucket" "codepipeline_bucket" {
+  bucket        = "${var.random_id_prefix}-codepipeline-bucket"
+  force_destroy = true
+}
+
+resource "aws_s3_bucket_acl" "codepipeline_acl" {
+  bucket = aws_s3_bucket.codepipeline_bucket.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_public_access_block" "codepipeline_bucket_access_block" {
+  bucket = aws_s3_bucket.codepipeline_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  restrict_public_buckets = true
+}
+
+# Role for AWS CodePipeline
+resource "aws_iam_role" "codepipeline_role" {
+  name               = "${var.random_id_prefix}-codepipeline-role"
+  assume_role_policy = file("${path.module}/policies/code-pipeline-role.json")
+}
+
+resource "aws_iam_role_policy" "codepipeline_policy" {
+  name   = "${var.random_id_prefix}-codepipeline-policy"
+  policy = file("${path.module}/policies/codepipeline-service-role-policy.json")
+  role   = aws_iam_role.codepipeline_role.id
+}
+
+# Console Action 필요: CodePipeline > Settings
+resource "aws_codestarconnections_connection" "github" {
+  name          = "github-connection"
+  provider_type = "GitHub"
+}
+
+resource "aws_codepipeline" "codepipeline_blue-green_api" {
+  name     = "${var.random_id_prefix}-${var.api_pipeline_name}-${terraform.workspace}-blue-green"
+  role_arn = aws_iam_role.codepipeline_role.arn
+
+  artifact_store {
+    location = aws_s3_bucket.codepipeline_bucket.bucket
+    type     = "S3"
+  }
+
+  stage {
+    name = "Source"
+    # https://github.com/hashicorp/terraform-provider-aws/issues/2796#issuecomment-399229140
+    action {
+      name             = "Source"
+      category         = "Source"
+      owner            = "AWS"
+      provider         = "CodeStarSourceConnection"
+      version          = "1"
+      output_artifacts = ["source_output"]
+
+      configuration = {
+        ConnectionArn    = "${aws_codestarconnections_connection.github.arn}"
+        FullRepositoryId = "mystack-platform/mystack-api"
+        BranchName       = "deploy/${terraform.workspace}"
+      }
+    }
+  }
+
+  stage {
+    name = "Build"
+
+    action {
+      name             = var.buildproject_name
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["buildout"]
+      version          = "1"
+
+      configuration = {
+        ProjectName = "${var.buildproject_name}"
+      }
+    }
+  }
+
+  stage {
+    name = "Deploy"
+
+    action {
+      name            = "Deploy"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "CodeDeployToECS"
+      input_artifacts = ["buildout"]
+      version         = "1"
+
+      configuration = {
+        ApplicationName                = "${var.api_service_name}-service-deploy"
+        DeploymentGroupName            = "${var.api_service_name}-service-deploy-group"
+        TaskDefinitionTemplateArtifact = "buildout"
+        AppSpecTemplateArtifact        = "buildout"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+- CodePipeline Role: `policies/code-pipeline-role.json`
+
+<details>
+ <summary>policies/code-pipeline-role.json</summary>
+
+```json:code-pipeline-role.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codepipeline.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+</details>
+
+- CodePipeline Service Role Policy: `policies/codepipeline-service-role-policy.json`
+
+<details>
+ <summary>policies/codepipeline-service-role-policy.json</summary>
+
+```json:codepipeline-service-role-policy.json
+{
+  "Statement": [
+    {
+      "Action": [
+        "iam:PassRole"
+      ],
+      "Resource": "*",
+      "Effect": "Allow",
+      "Condition": {
+        "StringEqualsIfExists": {
+          "iam:PassedToService": [
+            "cloudformation.amazonaws.com",
+            "elasticbeanstalk.amazonaws.com",
+            "ec2.amazonaws.com",
+            "ecs-tasks.amazonaws.com"
+          ]
+        }
+      }
+    },
+    {
+      "Action": [
+        "codecommit:CancelUploadArchive",
+        "codecommit:GetBranch",
+        "codecommit:GetCommit",
+        "codecommit:GetUploadArchiveStatus",
+        "codecommit:UploadArchive"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "codedeploy:CreateDeployment",
+        "codedeploy:GetApplication",
+        "codedeploy:GetApplicationRevision",
+        "codedeploy:GetDeployment",
+        "codedeploy:GetDeploymentConfig",
+        "codedeploy:RegisterApplicationRevision"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "codestar-connections:UseConnection"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "elasticbeanstalk:*",
+        "ec2:*",
+        "elasticloadbalancing:*",
+        "autoscaling:*",
+        "cloudwatch:*",
+        "s3:*",
+        "sns:*",
+        "cloudformation:*",
+        "rds:*",
+        "sqs:*",
+        "ecs:*"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "lambda:InvokeFunction",
+        "lambda:ListFunctions"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "opsworks:CreateDeployment",
+        "opsworks:DescribeApps",
+        "opsworks:DescribeCommands",
+        "opsworks:DescribeDeployments",
+        "opsworks:DescribeInstances",
+        "opsworks:DescribeStacks",
+        "opsworks:UpdateApp",
+        "opsworks:UpdateStack"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "cloudformation:CreateStack",
+        "cloudformation:DeleteStack",
+        "cloudformation:DescribeStacks",
+        "cloudformation:UpdateStack",
+        "cloudformation:CreateChangeSet",
+        "cloudformation:DeleteChangeSet",
+        "cloudformation:DescribeChangeSet",
+        "cloudformation:ExecuteChangeSet",
+        "cloudformation:SetStackPolicy",
+        "cloudformation:ValidateTemplate"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "codebuild:BatchGetBuilds",
+        "codebuild:StartBuild"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "devicefarm:ListProjects",
+        "devicefarm:ListDevicePools",
+        "devicefarm:GetRun",
+        "devicefarm:GetUpload",
+        "devicefarm:CreateUpload",
+        "devicefarm:ScheduleRun"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "servicecatalog:ListProvisioningArtifacts",
+        "servicecatalog:CreateProvisioningArtifact",
+        "servicecatalog:DescribeProvisioningArtifact",
+        "servicecatalog:DeleteProvisioningArtifact",
+        "servicecatalog:UpdateProduct"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:ValidateTemplate"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:DescribeImages"
+      ],
+      "Resource": "*"
+    }
+  ],
+  "Version": "2012-10-17"
+}
+```
+
+</details>
+
+### CodeBuild `./modules/codebuild`
+
+- 변수: `varialbes.tf`
+
+<details>
+ <summary>variables.tf</summary>
+
+```hcl:variables.tf
+variable "region" {
+  description = "AWS region..."
+}
+variable "application_name" {
+  description = "Application name"
+}
+variable "random_id_prefix" {
+  description = "random prefix"
+}
+variable "buildproject_name" {
+  description = "build project name..."
+}
+variable "ecr_api_repository_url" {
+  description = "ecr be repository url..."
+}
+variable "api_repository_name" {
+  description = "ecr be repository name..."
+}
+variable "api_container_memory" {
+  description = "api_container_memory"
+}
+variable "api_endpoint_url" {
+  description = "API Endpoint URL"
+}
+variable "vpc_id" {
+  description = "VPC id"
+}
+variable "subnets_id_1" {
+  description = "subnets ids"
+}
+variable "subnets_id_2" {
+  description = "subnets ids"
+}
+variable "public_subnet_id_1" {
+  description = "public subnets ids"
+}
+variable "public_subnet_id_2" {
+  description = "public subnets ids"
+}
+variable "security_groups_ids" {
+  type        = list(any)
+  description = "The SGs to use"
+}
+variable "ecs_security_group_id" {
+  description = "ecs_security_group_id"
+}
+variable "rds_access_security_group_id" {
+  description = "RDS Access Security Group ID"
+}
+variable "rds_db_security_group_id" {
+  description = "RDS DB Securuty Group ID"
+}
+variable "ecs_api_task_defination_family" {
+  description = "ecs_api_task_defination_family"
+}
+variable "DATABASE_URL" {
+  description = "DATABASE_URL for Prisma"
+}
+variable "APOLLO_KEY" {
+  description = "APOLLO_KEY of Apollo Studio for API"
+}
+variable "APOLLO_GRAPH_REF" {
+  description = "APOLLO_GRAPH_REF of Apollo Studio for API"
+}
+variable "ssm_depends_on" {
+  type    = any
+  default = []
+}
+variable "rds_depend_on" {
+  description = "RDS depend on"
+  type        = any
+  default     = []
+}
+```
+
+</details>
+
+- 출력: `outputs.tf`
+
+<details>
+ <summary>outputs.tf</summary>
+
+```hcl:outputs.tf
+output "build_project_name" {
+  value = aws_codebuild_project.codebuild_project.name
+}
+```
+
+</details>
+
+- 메인: `main.tf`
+
+`template_file`을 통해 각 Role과 Policy를 렌더링하고, `buildspec.yml`을 렌더링 한다. 그리고 빌드과정에서 필요한 VPC와 서브넷을 연결해주고, 필요하면 환경변수를 붙여준다.
+
+<details>
+ <summary>main.tf</summary>
+
+```hcl:main.tf
+locals {
+  container_name = "${var.random_id_prefix}-${var.application_name}-${terraform.workspace}-api"
+}
+
+data "aws_caller_identity" "current" {}
+
+data "aws_secretsmanager_secret_version" "secret-version" {
+  secret_id = "rds-db-credentials/${var.application_name}/${terraform.workspace}/${var.random_id_prefix}"
+  depends_on = [
+    var.rds_depend_on
+  ]
+}
+
+data "template_file" "codebuild-role" {
+  template = file("${path.module}/policies/codebuild-role-policy.json")
+  vars = {
+    region      = "${var.region}"
+    account_id  = "${data.aws_caller_identity.current.account_id}"
+    subnet_id_1 = "${var.subnets_id_1}"
+    subnet_id_2 = "${var.subnets_id_2}"
+  }
+}
+
+resource "aws_iam_role" "codebuild_role" {
+  name               = "${var.random_id_prefix}-codebuild-role"
+  assume_role_policy = file("${path.module}/policies/codebuild-role.json")
+}
+
+resource "aws_iam_role_policy" "codebuild_ec2container_policy" {
+  name   = "${var.random_id_prefix}-codebuild-ec2container-policy"
+  policy = file("${path.module}/policies/codepipeline-ec2container-role-policy.json")
+  role   = aws_iam_role.codebuild_role.id
+}
+
+resource "aws_iam_role_policy" "codebuild_policy" {
+  name = "${var.random_id_prefix}-codebuild-policy"
+  # policy = file("${path.module}/policies/codebuild-role-policy.json")
+  policy = data.template_file.codebuild-role.rendered
+  role   = aws_iam_role.codebuild_role.id
+}
+
+resource "aws_iam_role_policy" "codebuild_ecs_policy" {
+  name   = "${var.random_id_prefix}-ecs-policy"
+  policy = file("${path.module}/policies/codebuild-ecs-role-policy.json")
+  role   = aws_iam_role.codebuild_role.id
+}
+
+data "template_file" "buildspec" {
+  template = file("${path.module}/buildspec/buildspec.yml")
+
+  vars = {
+    region                 = "${var.region}"
+    ecr_api_repository_url = "${var.ecr_api_repository_url}"
+    api_repository_name    = "${var.api_repository_name}"
+    task_definition        = local.container_name
+    apollo_graph_ref       = "${var.APOLLO_GRAPH_REF}"
+    api_endpoint_url       = "${var.api_endpoint_url}"
+    # task_definition        = "${var.application_name}-${terraform.workspace}-api"
+  }
+}
+
+resource "aws_codebuild_project" "codebuild_project" {
+  name          = join("-", [var.random_id_prefix, var.buildproject_name, "codebuild"])
+  description   = "API docker container image build"
+  build_timeout = "50"
+  service_role  = aws_iam_role.codebuild_role.arn
+
+  artifacts {
+    # name                   = join("-", ["ecs-build", var.application_name, terraform.workspace])
+    # override_artifact_name = true
+    # packaging              = "NONE"
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/amazonlinux2-x86_64-standard:2.0"
+    type                        = "LINUX_CONTAINER"
+    image_pull_credentials_type = "CODEBUILD"
+    privileged_mode             = true
+
+    environment_variable {
+      name  = "REPOSITORY_URI"
+      value = var.ecr_api_repository_url
+    }
+
+    environment_variable {
+      name  = "TASK_DEFINITION"
+      value = "arn:aws:ecs:${var.region}:${data.aws_caller_identity.current.account_id}:task-definition/${var.ecs_api_task_defination_family}"
+    }
+
+    environment_variable {
+      name  = "CONTAINER_NAME"
+      value = local.container_name
+    }
+
+    environment_variable {
+      name  = "SUBNET_1"
+      value = var.subnets_id_1
+    }
+
+    environment_variable {
+      name  = "SUBNET_2"
+      value = var.subnets_id_2
+    }
+
+    environment_variable {
+      name  = "SECURITY_GROUP"
+      value = var.ecs_security_group_id
+    }
+
+    environment_variable {
+      name  = "DATABASE_URL"
+      value = var.DATABASE_URL
+    }
+
+    environment_variable {
+      name  = "APOLLO_KEY"
+      value = var.APOLLO_KEY
+    }
+
+    environment_variable {
+      name  = "APOLLO_GRAPH_REF"
+      value = var.APOLLO_GRAPH_REF
+    }
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = data.template_file.buildspec.rendered
+
+  }
+  vpc_config {
+    vpc_id = var.vpc_id
+
+    subnets = [
+      var.subnets_id_1,
+      var.subnets_id_2
+    ]
+
+    security_group_ids = [
+      var.ecs_security_group_id,
+      var.rds_access_security_group_id,
+      var.rds_db_security_group_id
+    ]
+  }
+  depends_on = [
+    var.ssm_depends_on
+  ]
+  tags = {
+    Environment = "${terraform.workspace}"
+  }
+}
+```
+
+</details>
+
+- Buildspec: `buildspec/buildspec.yml`
+
+이 `buildspec.yml`은 내가 사용하는 API앱에서 필요한 과정이다. `build` phase에서 API 필요에 맞게 수정해야 한다.
+
+<details>
+ <summary>buildspec/buildspec.yml</summary>
+
+```yaml:buildspec.yml
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+    commands:
+      - echo "cd into $CODEBUILD_SRC_DIR"
+      - cd $CODEBUILD_SRC_DIR
+      - echo "NVM install"
+      - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+      - export NVM_DIR="$HOME/.nvm"
+      - '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' # This loads nvm
+      - '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' # This loads nvm bash_completion
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --no-include-email --region ${region})
+      - REPOSITORY_URI=${ecr_api_repository_url}
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-8)
+      - IMAGE_TAG=$${COMMIT_HASH}
+  build:
+    on-failure: ABORT
+    commands:
+      - echo "Make DATABASEURL env var for prisma"
+      - echo "DATABASE_URL=$DATABASE_URL" > .env
+      - . "$NVM_DIR/nvm.sh" && nvm install 16
+      - . "$NVM_DIR/nvm.sh" && nvm use 16
+      - echo "Build a service"
+      - yarn install
+      # Prisma generate and GraphQL Schema generate
+      - yarn generate
+      # Type Check
+      - yarn typecheck
+      # Unit Test
+      - NODE_ENV=test yarn test --collectCoverage
+      # TypeScript build
+      - yarn build
+      # Database migration by using Prisma Engine. DATABASE_URL should be specified in environment.
+      - yarn prisma migrate deploy
+      # GraphQL schema send to Apollo Studio
+      - yarn rover subgraph publish ${apollo_graph_ref} --name mystack --schema ./src/generated/schema.graphql --routing-url ${api_endpoint_url}
+      # Build Docker image
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build --cache-from ${ecr_api_repository_url}:latest -t ${api_repository_name} .
+      - docker tag ${api_repository_name}:latest ${ecr_api_repository_url}:latest
+
+      - docker build -t ${api_repository_name}:latest .
+      - docker tag ${api_repository_name}:latest ${ecr_api_repository_url}:$${IMAGE_TAG}
+  post_build:
+    on-failure: ABORT
+    commands:
+      - echo Pushing the Docker images...
+      - docker push ${ecr_api_repository_url}:latest
+      - docker push ${ecr_api_repository_url}:$${IMAGE_TAG}
+      - echo Writing image definitions file...
+      - aws ecs describe-task-definition --task-definition ${task_definition} | jq '.taskDefinition' > taskdef.json
+      - envsubst < appspec_template.yaml > appspec.yaml
+      - printf '[{"name":"api","imageUri":"%s"}]' ${ecr_api_repository_url}:latest > apiimagedefinitions.json
+artifacts:
+  files:
+    - appspec.yaml
+    - apiimagedefinitions.json
+    - taskdef.json
+# reports:
+#   jest_reports:
+#     files:
+#       - testResult.xml
+#     file-format: JUNITXML
+#     base-directory: .report
+#   coverage_reports:
+#     files:
+#       - coverage/clover.xml
+#     file-format: CLOVERXML
+```
+
+</details>
+
+- CodeBuild ECS Role Policy: `policies/codebuild-ecs-role-policy.json`
+
+일반적으로 사용하는 정책에 ServiceDiscovery를 붙였다. 같은 VPC에서 로컬 도메인을 붙이기 위해서이다.
+
+<details>
+ <summary>codebuild-ecs-role-policy.json</summary>
+
+```json:codebuild-ecs-role-policy.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "application-autoscaling:DeleteScalingPolicy",
+        "application-autoscaling:DeregisterScalableTarget",
+        "application-autoscaling:DescribeScalableTargets",
+        "application-autoscaling:DescribeScalingActivities",
+        "application-autoscaling:DescribeScalingPolicies",
+        "application-autoscaling:PutScalingPolicy",
+        "application-autoscaling:RegisterScalableTarget",
+        "appmesh:ListMeshes",
+        "appmesh:ListVirtualNodes",
+        "appmesh:DescribeVirtualNode",
+        "autoscaling:UpdateAutoScalingGroup",
+        "autoscaling:CreateAutoScalingGroup",
+        "autoscaling:CreateLaunchConfiguration",
+        "autoscaling:DeleteAutoScalingGroup",
+        "autoscaling:DeleteLaunchConfiguration",
+        "autoscaling:Describe*",
+        "cloudformation:CreateStack",
+        "cloudformation:DeleteStack",
+        "cloudformation:DescribeStack*",
+        "cloudformation:UpdateStack",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:DeleteAlarms",
+        "cloudwatch:GetMetricStatistics",
+        "cloudwatch:PutMetricAlarm",
+        "codedeploy:CreateApplication",
+        "codedeploy:CreateDeployment",
+        "codedeploy:CreateDeploymentGroup",
+        "codedeploy:GetApplication",
+        "codedeploy:GetDeployment",
+        "codedeploy:GetDeploymentGroup",
+        "codedeploy:ListApplications",
+        "codedeploy:ListDeploymentGroups",
+        "codedeploy:ListDeployments",
+        "codedeploy:StopDeployment",
+        "codedeploy:GetDeploymentTarget",
+        "codedeploy:ListDeploymentTargets",
+        "codedeploy:GetDeploymentConfig",
+        "codedeploy:GetApplicationRevision",
+        "codedeploy:RegisterApplicationRevision",
+        "codedeploy:BatchGetApplicationRevisions",
+        "codedeploy:BatchGetDeploymentGroups",
+        "codedeploy:BatchGetDeployments",
+        "codedeploy:BatchGetApplications",
+        "codedeploy:ListApplicationRevisions",
+        "codedeploy:ListDeploymentConfigs",
+        "codedeploy:ContinueDeployment",
+        "sns:ListTopics",
+        "lambda:ListFunctions",
+        "ec2:AssociateRouteTable",
+        "ec2:AttachInternetGateway",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:CancelSpotFleetRequests",
+        "ec2:CreateInternetGateway",
+        "ec2:CreateLaunchTemplate",
+        "ec2:CreateRoute",
+        "ec2:CreateRouteTable",
+        "ec2:CreateSecurityGroup",
+        "ec2:CreateSubnet",
+        "ec2:CreateVpc",
+        "ec2:DeleteLaunchTemplate",
+        "ec2:DeleteSubnet",
+        "ec2:DeleteVpc",
+        "ec2:Describe*",
+        "ec2:DetachInternetGateway",
+        "ec2:DisassociateRouteTable",
+        "ec2:ModifySubnetAttribute",
+        "ec2:ModifyVpcAttribute",
+        "ec2:RunInstances",
+        "ec2:RequestSpotFleet",
+        "elasticfilesystem:DescribeFileSystems",
+        "elasticfilesystem:DescribeAccessPoints",
+        "elasticloadbalancing:CreateListener",
+        "elasticloadbalancing:CreateLoadBalancer",
+        "elasticloadbalancing:CreateRule",
+        "elasticloadbalancing:CreateTargetGroup",
+        "elasticloadbalancing:DeleteListener",
+        "elasticloadbalancing:DeleteLoadBalancer",
+        "elasticloadbalancing:DeleteRule",
+        "elasticloadbalancing:DeleteTargetGroup",
+        "elasticloadbalancing:DescribeListeners",
+        "elasticloadbalancing:DescribeLoadBalancers",
+        "elasticloadbalancing:DescribeRules",
+        "elasticloadbalancing:DescribeTargetGroups",
+        "ecs:*",
+        "events:DescribeRule",
+        "events:DeleteRule",
+        "events:ListRuleNamesByTarget",
+        "events:ListTargetsByRule",
+        "events:PutRule",
+        "events:PutTargets",
+        "events:RemoveTargets",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListInstanceProfiles",
+        "iam:ListRoles",
+        "logs:CreateLogGroup",
+        "logs:DescribeLogGroups",
+        "logs:FilterLogEvents",
+        "route53:GetHostedZone",
+        "route53:ListHostedZonesByName",
+        "route53:CreateHostedZone",
+        "route53:DeleteHostedZone",
+        "route53:GetHealthCheck",
+        "servicediscovery:CreatePrivateDnsNamespace",
+        "servicediscovery:CreateService",
+        "servicediscovery:GetNamespace",
+        "servicediscovery:GetOperation",
+        "servicediscovery:GetService",
+        "servicediscovery:ListNamespaces",
+        "servicediscovery:ListServices",
+        "servicediscovery:UpdateService",
+        "servicediscovery:DeleteService"
+      ],
+      "Resource": [
+        "*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParametersByPath",
+        "ssm:GetParameters",
+        "ssm:GetParameter"
+      ],
+      "Resource": "arn:aws:ssm:*:*:parameter/aws/service/ecs*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DeleteInternetGateway",
+        "ec2:DeleteRoute",
+        "ec2:DeleteRouteTable",
+        "ec2:DeleteSecurityGroup"
+      ],
+      "Resource": [
+        "*"
+      ],
+      "Condition": {
+        "StringLike": {
+          "ec2:ResourceTag/aws:cloudformation:stack-name": "EC2ContainerService-*"
+        }
+      }
+    },
+    {
+      "Action": "iam:PassRole",
+      "Effect": "Allow",
+      "Resource": [
+        "*"
+      ],
+      "Condition": {
+        "StringLike": {
+          "iam:PassedToService": "ecs-tasks.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Action": "iam:PassRole",
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:iam::*:role/ecsInstanceRole*"
+      ],
+      "Condition": {
+        "StringLike": {
+          "iam:PassedToService": [
+            "ec2.amazonaws.com",
+            "ec2.amazonaws.com.cn"
+          ]
+        }
+      }
+    },
+    {
+      "Action": "iam:PassRole",
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:iam::*:role/ecsAutoscaleRole*"
+      ],
+      "Condition": {
+        "StringLike": {
+          "iam:PassedToService": [
+            "application-autoscaling.amazonaws.com",
+            "application-autoscaling.amazonaws.com.cn"
+          ]
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iam:CreateServiceLinkedRole",
+      "Resource": "*",
+      "Condition": {
+        "StringLike": {
+          "iam:AWSServiceName": [
+            "ecs.amazonaws.com",
+            "spot.amazonaws.com",
+            "spotfleet.amazonaws.com",
+            "ecs.application-autoscaling.amazonaws.com",
+            "autoscaling.amazonaws.com"
+          ]
+        }
+      }
+    }
+  ]
+}
+```
+
+</details>
+
+- CodeBuild Role Policy: `policies/codebuild-role-policy.json`
+
+<details>
+ <summary>codebuild-role-policy.json</summary>
+
+```hcl:codebuild-role-policy.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "*"
+      ],
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "*"
+      ],
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:GetBucketAcl",
+        "s3:GetBucketLocation"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "codebuild:CreateReportGroup",
+        "codebuild:CreateReport",
+        "codebuild:UpdateReport",
+        "codebuild:BatchPutTestCases"
+      ],
+      "Resource": [
+        "*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateNetworkInterface",
+        "ec2:DescribeDhcpOptions",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DeleteNetworkInterface",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeVpcs"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateNetworkInterfacePermission"
+      ],
+      "Resource": "arn:aws:ec2:${region}:${account_id}:network-interface/*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:AuthorizedService": "codebuild.amazonaws.com"
+        },
+        "ArnEquals": {
+          "ec2:Subnet": [
+            "arn:aws:ec2:${region}:${account_id}:subnet/${subnet_id_1}",
+            "arn:aws:ec2:${region}:${account_id}:subnet/${subnet_id_2}"
+          ]
+        }
+      }
+    }
+  ]
+}
+```
+
+</details>
+
+- ColdeBuild Role `policies/codebuild-role.json`
+
+<details>
+ <summary>codebuild-role.json</summary>
+
+```json:codebuild-role.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+</details>
+
+### CodeDeploy `./modules/codedeploy`
+
+우선 블루-그린 배포와 관련해서 [Terraform 블로그](https://www.hashicorp.com/blog/terraform-feature-toggles-blue-green-deployments-canary-test)부터 숙지해야한다. 그리고 가장 도움을 많이 받았던 내용은 AWS CLI문서 예제였다. [CLI를 사용해서 Blue-Green CodeDeploy 앱을 만드는 과정](https://docs.aws.amazon.com/ko_kr/AmazonECS/latest/developerguide/create-blue-green.html)에서 많은 힌트를 얻어서 오류 수정이 가능했다.
+
+- 변수: `variables.tf`
+
+<details>
+ <summary>variables.tf</summary>
+
+```hcl:variables.tf
+variable "region" {
+  description = "AWS Region"
+}
+variable "random_id_prefix" {
+  description = "random prefix"
+}
+variable "ecs_cluster_name" {
+  description = "ecs cluster name"
+}
+variable "api_service_name" {
+  description = "api_service_name"
+}
+variable "aws_target_group_blue_name" {
+  description = "API AWS Target Group Blue name"
+}
+variable "aws_target_group_green_name" {
+  description = "API AWS Target Group Green name"
+}
+variable "api_alb_listener_arn" {
+  description = "API AWS Load Balancer Listener arn"
+}
+variable "api_alb_test_listener_arn" {
+  description = "API AWS Load Balancer Test Listener arn"
+}
+variable "ecs_execution_role_arn" {
+  description = "ecs_execution_role_arn"
+}
+```
+
+</details>
+
+- 메인: `main.tf`
+
+일반적인 `CodeDeploy` best practice에서 `load_balancer`에 `prod_traffic_route`을 설정하는데 삽질을 많이 했다. Blue 로드밸런서를 붙여주면 CodeDeploy는 배포과정에서 Blue에서 자동으로 Green으로 변경해주며, ALB 설정도 Green으로 변경해준다. 이 사실을 모르고 두개를 붙여보기도 하고, ALB에 여러 타겟을 붙여보기도 하였다.
+
+<details>
+ <summary>main.tf</summary>
+
+```hcl:main.tf
+data "aws_iam_policy_document" "assume_by_codedeploy" {
+  statement {
+    sid     = ""
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["codedeploy.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "codedeploy" {
+  name               = "${var.api_service_name}-codedeploy-${var.random_id_prefix}"
+  assume_role_policy = data.aws_iam_policy_document.assume_by_codedeploy.json
+}
+
+data "aws_iam_policy_document" "codedeploy" {
+  statement {
+    sid    = "AllowLoadBalancingAndECSModifications"
+    effect = "Allow"
+
+    actions = [
+      "ecs:CreateTaskSet",
+      "ecs:DeleteTaskSet",
+      "ecs:DescribeServices",
+      "ecs:UpdateServicePrimaryTaskSet",
+      "elasticloadbalancing:DescribeListeners",
+      "elasticloadbalancing:DescribeRules",
+      "elasticloadbalancing:DescribeTargetGroups",
+      "elasticloadbalancing:ModifyListener",
+      "elasticloadbalancing:ModifyRule",
+      "lambda:InvokeFunction",
+      "cloudwatch:DescribeAlarms",
+      "sns:Publish",
+      "s3:GetObject",
+      "s3:GetObjectMetadata",
+      "s3:GetObjectVersion"
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowPassRole"
+    effect = "Allow"
+
+    actions = ["iam:PassRole"]
+
+    resources = [
+      "${var.ecs_execution_role_arn}"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "codedeploy" {
+  role   = aws_iam_role.codedeploy.name
+  policy = data.aws_iam_policy_document.codedeploy.json
+}
+
+resource "aws_codedeploy_app" "this" {
+  compute_platform = "ECS"
+  name             = "${var.api_service_name}-service-deploy"
+}
+
+resource "aws_codedeploy_deployment_group" "api_service" {
+  app_name               = aws_codedeploy_app.this.name
+  deployment_group_name  = "${var.api_service_name}-service-deploy-group"
+  deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
+  service_role_arn       = aws_iam_role.codedeploy.arn
+
+  auto_rollback_configuration {
+    enabled = true
+    events  = ["DEPLOYMENT_FAILURE"]
+  }
+  blue_green_deployment_config {
+    deployment_ready_option {
+      action_on_timeout = "CONTINUE_DEPLOYMENT"
+    }
+
+    terminate_blue_instances_on_deployment_success {
+      action                           = "TERMINATE"
+      termination_wait_time_in_minutes = 1
+    }
+  }
+
+  ecs_service {
+    cluster_name = var.ecs_cluster_name
+    service_name = var.api_service_name
+  }
+
+  deployment_style {
+    deployment_option = "WITH_TRAFFIC_CONTROL"
+    deployment_type   = "BLUE_GREEN"
+  }
+
+  load_balancer_info {
+    target_group_pair_info {
+      prod_traffic_route {
+        listener_arns = [var.api_alb_listener_arn]
+      }
+
+      target_group {
+        name = var.aws_target_group_blue_name
+      }
+
+      target_group {
+        name = var.aws_target_group_green_name
+      }
+
+      # test_traffic_route {
+      #   listener_arns = [var.api_alb_test_listener_arn]
+      # }
+
+    }
+  }
+}
+```
+
+</details>
+
+### Terraform main
+
+최종 Terraform의 메인은 다음과 같다. 이로써 97개의 인프라를 설정하게 된다. 각 워크스페이스 마다 배포를 시도하고 CodeDeploy로 Blue Green 배포하는 과정까지 확인해보았다.
+
+- 변수: `variables.tf`
+
+<details>
+ <summary>variables.tf</summary>
+
+```hcl:variables.tf
+variable "application_name" {
+  description = "Application name"
+  type        = string
+  default     = "mystack"
+}
+
+variable "region" {
+  description = "The region Terraform deploys these stacks"
+  type        = string
+  default     = "ap-northeast-2"
+}
+
+## Networks: VPC, Subnet, NAT, Route
+variable "vpc_cidr" {
+  description = "CIDR block for VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "public_subnets_cidr" {
+  description = "Available CIDR blocks for public subnets"
+  type        = list(string)
+  default = [
+    "10.0.1.0/24",
+    "10.0.2.0/24",
+    # "10.0.3.0/24",
+    # "10.0.4.0/24",
+    # "10.0.5.0/24",
+    # "10.0.6.0/24",
+    # "10.0.7.0/24",
+    # "10.0.8.0/24",
+  ]
+}
+
+variable "private_subnets_cidr" {
+  description = "Available cidr blocks for private subnets"
+  type        = list(string)
+  default = [
+    "10.0.101.0/24",
+    "10.0.102.0/24",
+    # "10.0.103.0/24",
+    # "10.0.104.0/24",
+    # "10.0.105.0/24",
+    # "10.0.106.0/24",
+    # "10.0.107.0/24",
+    # "10.0.108.0/24",
+  ]
+}
+
+## API ECS: Fargate
+
+variable "ecr_api_repository_name" {
+  description = "The name of API repository"
+  type        = string
+  default     = "mystack-api"
+}
+
+variable "ecr_auth_repository_name" {
+  description = "The name of Auth repository"
+  type        = string
+  default     = "mystack-auth"
+}
+
+variable "aws_cloudwatch_log_group" {
+  description = "aws_cloudwatch_log_group"
+  type        = string
+  default     = "ecs/mystack/log"
+}
+
+variable "scan_on_push" {
+  description = "ECR scan on push"
+  type        = bool
+  default     = true
+}
+
+variable "api_container_memory" {
+  description = "API container memory"
+  type        = number
+  default     = 512
+}
+
+variable "api_container_port" {
+  description = "API container port"
+  type        = number
+  default     = 8000
+}
+
+variable "root_domain" {
+  description = "Root domain of this application (API)"
+  type        = string
+  default     = "platform.mystack.io"
+}
+
+## RDS
+
+variable "replication_source_identifier" {
+  description = "replication source identifier"
+  type        = string
+  default     = "source_identifier"
+}
+
+variable "engine" {
+  description = "engine"
+  type        = string
+  default     = "aurora-postgresql"
+}
+
+variable "engine_mode" {
+  description = "engine mode"
+  type        = string
+  default     = "serverless"
+}
+
+variable "database_name" {
+  description = "database name"
+  type        = string
+  default     = "authdb"
+}
+
+variable "master_username" {
+  description = "master username"
+  type        = string
+  default     = "postgres"
+}
+
+variable "db_cluster_parameter_group_name" {
+  description = "db cluster parameter group name"
+  type        = string
+  default     = "cluster_parameter"
+}
+
+variable "final_snapshot_identifier" {
+  description = "final snapshot identifier"
+  type        = string
+  default     = "finalsnapshot"
+}
+
+variable "backup_retention_period" {
+  description = "backup retention period"
+  type        = number
+  default     = 14
+}
+
+variable "preferred_backup_window" {
+  description = "preferred backup window"
+  type        = string
+  default     = "02:00-03:00"
+}
+
+variable "preferred_maintenance_window" {
+  description = "preferred maintenance window"
+  type        = string
+  default     = "sun:05:00-sun:06:00"
+}
+
+variable "skip_final_snapshot" {
+  description = "skip final snapshot"
+  type        = bool
+  default     = false
+}
+
+variable "storage_encrypted" {
+  description = "storage encrypted"
+  type        = bool
+  default     = true
+}
+
+variable "apply_immediately" {
+  description = "apply immediately"
+  type        = bool
+  default     = true
+}
+
+variable "iam_database_authentication_enabled" {
+  description = "iam database authentication enabled"
+  type        = bool
+  default     = false
+}
+
+variable "backtrack_window" {
+  description = "backtrack window"
+  type        = number
+  default     = 0
+}
+
+variable "copy_tags_to_snapshot" {
+  description = "copy tags to snapshot"
+  type        = bool
+  default     = false
+}
+
+variable "deletion_protection" {
+  description = "deletion protection"
+  type        = bool
+  default     = true
+}
+
+variable "auto_pause" {
+  description = "auto pause"
+  type        = bool
+  default     = true
+}
+
+variable "max_capacity" {
+  description = "max capacity"
+  type        = number
+  default     = 4
+}
+
+variable "min_capacity" {
+  description = "min capacity"
+  type        = number
+  default     = 2
+}
+
+variable "seconds_until_auto_pause" {
+  description = "seconds until auto pause"
+  type        = number
+  default     = 300
+}
+
+## CodeBuild
+variable "buildproject_name" {
+  description = "Build project name"
+  type        = string
+  default     = "mystack-api"
+}
+
+## API: CodePipeline
+variable "api_pipeline_name" {
+  description = "Code pipeline project name"
+  type        = string
+  default     = "mystack-api-pipeline"
+}
+
+variable "api_repository_name" {
+  description = "API Repository Name"
+  type        = string
+  default     = "mystack-api"
+}
+
+
+# AWS SSM Parameter store
+
+variable "APOLLO_KEY" {
+  description = "Apollo secret key of Apollo Studio for API container"
+  type        = string
+  sensitive   = true
+}
+
+variable "APOLLO_GRAPH_REF" {
+  description = "Apollo Graph Ref value of Apollo Studio for API container"
+  type        = string
+  sensitive   = false
+}
+
+variable "S3_ACCESS_KEY_ID" {
+  description = "AWS S3 Access Key ID"
+  type        = string
+  sensitive   = true
+}
+variable "S3_ACCESS_SECRET_ID" {
+  description = "AWS S3 Access Secret ID"
+  type        = string
+  sensitive   = true
+}
+variable "IAMPORT_KEY" {
+  description = "IAMPORT Access Key"
+  type        = string
+  sensitive   = true
+}
+variable "IAMPORT_SECRET_KEY" {
+  description = "IAMPORT Access Secret Key"
+  type        = string
+  sensitive   = true
+}
+variable "API_SECRET" {
+  description = "API Secret Key"
+  type        = string
+  sensitive   = true
+}
+```
+
+</details>
+
+- 메인: `main.tf`
+
+```hcl:main.tf
+provider "aws" {
+  region = var.region
+}
+
+data "aws_availability_zones" "available" {}
+
+resource "random_id" "random_id_prefix" {
+  byte_length = 2
+}
+
+# Terraform state management
+# https://blog.gruntwork.io/how-to-manage-terraform-state-28f5697e68fa
+terraform {
+  backend "s3" {
+    bucket = "mystack-terraform-running-state"
+    key    = "global/s3/terraform.tfstate"
+    region = "ap-northeast-2"
+
+    dynamodb_table = "mystack-terraform-running-locks"
+    encrypt        = true
+  }
+}
+
+// Only use very first `default` workspace state creation
+# data "terraform_remote_state" "network" {
+#   backend = "s3"
+#   config = {
+#     bucket = "mystack-terraform-running-state"
+#     key    = "global/s3/terraform.tfstate"
+#     region = "ap-northeast-2"
+#   }
+# }
+
+# module "terraform_state" {
+#   source                               = "./modules/terraform-state"
+#   s3_terraform_state_bucket_name       = "mystack-terraform-running-state"
+#   s3_terraform_state_key               = "global/s3/terraform.tfstate"
+#   dynamodb_terraform_state_locks_table = "mystack-terraform-running-locks"
+# }
+
+# AWS SSM Paremeter
+
+module "ssm-parameter" {
+  source = "./modules/ssm"
+
+  application_name    = var.application_name
+  random_id_prefix    = random_id.random_id_prefix.hex
+  rds_depend_on       = module.database
+  APOLLO_KEY          = var.APOLLO_KEY
+  APOLLO_GRAPH_REF    = "${var.APOLLO_GRAPH_REF}${terraform.workspace}"
+  S3_ACCESS_KEY_ID    = var.S3_ACCESS_KEY_ID
+  S3_ACCESS_SECRET_ID = var.S3_ACCESS_SECRET_ID
+  IAMPORT_KEY         = var.IAMPORT_KEY
+  IAMPORT_SECRET_KEY  = var.IAMPORT_SECRET_KEY
+  API_SECRET          = var.API_SECRET
+}
+
+module "networks" {
+  source               = "./modules/networks"
+  application_name     = var.application_name
+  region               = var.region
+  vpc_cidr             = var.vpc_cidr
+  public_subnets_cidr  = var.public_subnets_cidr
+  private_subnets_cidr = var.private_subnets_cidr
+  availability_zones   = data.aws_availability_zones.available.names
+  namespace_name       = "${var.application_name}.${terraform.workspace}"
+}
+
+module "storage" {
+  source                = "./modules/storage"
+  application_name      = var.application_name
+  uploads_bucket_prefix = "${random_id.random_id_prefix.hex}-assets"
+}
+
+module "codebuild" {
+  source = "./modules/codebuild"
+
+  region                         = var.region
+  application_name               = var.application_name
+  random_id_prefix               = random_id.random_id_prefix.hex
+  buildproject_name              = var.buildproject_name
+  ecr_api_repository_url         = module.api-ecs.api_repository_url
+  api_repository_name            = module.api-ecs.api_repository_name
+  api_container_memory           = var.api_container_memory
+  vpc_id                         = module.networks.vpc_id
+  security_groups_ids            = module.networks.security_groups_ids
+  ecs_security_group_id          = module.api-sg.ecs_security_group.id
+  rds_access_security_group_id   = module.database.aws_rds_access_security_group_ids
+  rds_db_security_group_id       = module.database.aws_rds_db_security_group_ids
+  subnets_id_1                   = module.networks.private_subnet_1
+  public_subnet_id_1             = module.networks.public_subnet_1
+  subnets_id_2                   = module.networks.private_subnet_2
+  public_subnet_id_2             = module.networks.public_subnet_2
+  ecs_api_task_defination_family = module.api-ecs.ecs_api_task_defination_family
+  DATABASE_URL                   = module.ssm-parameter.DATABASE_URL
+  APOLLO_KEY                     = module.ssm-parameter.APOLLO_KEY
+  APOLLO_GRAPH_REF               = module.ssm-parameter.APOLLO_GRAPH_REF
+  api_endpoint_url               = "https://${module.api-alb.route53.fqdn}"
+  ssm_depends_on                 = module.ssm-parameter
+  rds_depend_on                  = module.database
+}
+
+module "codedeploy" {
+  source = "./modules/codedeploy"
+
+  region                      = var.region
+  random_id_prefix            = random_id.random_id_prefix.hex
+  ecs_execution_role_arn      = module.api-iam.ecs_execution_role.arn
+  ecs_cluster_name            = module.api-ecs.cluster_name
+  api_service_name            = module.api-ecs.api_service_name
+  aws_target_group_blue_name  = module.api-alb.aws_target_group_blue.name
+  aws_target_group_green_name = module.api-alb.aws_target_group_green.name
+  api_alb_listener_arn        = module.api-alb.aws_alb_blue_green.arn
+  api_alb_test_listener_arn   = module.api-alb.aws_alb_test_blue_green.arn
+}
+
+module "codepipeline" {
+  source = "./modules/codepipeline"
+
+  region              = var.region
+  random_id_prefix    = random_id.random_id_prefix.hex
+  api_pipeline_name   = var.api_pipeline_name
+  buildproject_name   = module.codebuild.build_project_name
+  api_repository_name = var.api_repository_name
+  cluster_name        = module.api-ecs.cluster_name
+  api_service_name    = module.api-ecs.api_service_name
+}
+
+module "api-iam" {
+  source = "./modules/api-iam"
+
+  application_name = var.application_name
+  region           = var.region
+  random_id_prefix = random_id.random_id_prefix.hex
+}
+
+module "api-alb" {
+  source = "./modules/api-alb"
+
+  application_name    = var.application_name
+  region              = var.region
+  random_id_prefix    = random_id.random_id_prefix.hex
+  vpc_id              = module.networks.vpc_id
+  public_subnet_ids   = ["${module.networks.public_subnets_id}"]
+  security_groups_ids = module.networks.security_groups_ids
+  ecs_security_group  = module.api-sg.ecs_security_group
+  alb_security_group  = module.api-sg.alb_security_group
+  root_domain         = var.root_domain
+}
+
+module "api-ecs" {
+  source = "./modules/api-ecs"
+
+  application_name        = var.application_name
+  region                  = var.region
+  vpc_id                  = module.networks.vpc_id
+  random_id_prefix        = random_id.random_id_prefix.hex
+  ecr_api_repository_name = "${var.ecr_api_repository_name}-${terraform.workspace}-${random_id.random_id_prefix.hex}"
+  aws_target_group_blue   = module.api-alb.aws_target_group_blue
+  aws_target_group_green  = module.api-alb.aws_target_group_green
+  ecs_execution_role      = module.api-iam.ecs_execution_role
+  security_groups_ids     = module.networks.security_groups_ids
+  ecs_security_group      = module.api-sg.ecs_security_group
+  private_subnets_ids     = ["${module.networks.private_subnets_id}"]
+  container_port          = var.api_container_port
+  scan_on_push            = var.scan_on_push
+  api_container_memory    = var.api_container_memory
+  DATABASE_URL            = module.ssm-parameter.DATABASE_URL
+  APOLLO_KEY              = module.ssm-parameter.APOLLO_KEY
+  APOLLO_GRAPH_REF        = module.ssm-parameter.APOLLO_GRAPH_REF
+  S3_ACCESS_KEY_ID        = module.ssm-parameter.S3_ACCESS_KEY_ID
+  S3_ACCESS_SECRET_ID     = module.ssm-parameter.S3_ACCESS_SECRET_ID
+  IAMPORT_KEY             = module.ssm-parameter.IAMPORT_KEY
+  IAMPORT_SECRET_KEY      = module.ssm-parameter.IAMPORT_SECRET_KEY
+  API_SECRET              = module.ssm-parameter.API_SECRET
+  ssm_depends_on          = module.ssm-parameter
+}
+
+module "api-autoscaling" {
+  source = "./modules/api-autoscaling"
+
+  application_name   = var.application_name
+  region             = var.region
+  random_id_prefix   = random_id.random_id_prefix.hex
+  ecs_autoscale_role = module.api-iam.ecs_execution_role
+  ecs_cluster_name   = module.api-ecs.cluster_name
+  ecs_service_name   = module.api-ecs.api_service_name
+}
+
+module "api-sg" {
+  source = "./modules/api-sg"
+
+  application_name = var.application_name
+  region           = var.region
+  random_id_prefix = random_id.random_id_prefix.hex
+  vpc_id           = module.networks.vpc_id
+  container_port   = var.api_container_port
+}
+module "database" {
+  source = "./modules/database"
+
+  application_name                    = var.application_name
+  random_id_prefix                    = random_id.random_id_prefix.hex
+  global_cluster_identifier           = "${var.application_name}-${terraform.workspace}-${random_id.random_id_prefix.hex}"
+  cluster_identifier                  = "${var.application_name}-${terraform.workspace}-${random_id.random_id_prefix.hex}"
+  replication_source_identifier       = var.replication_source_identifier
+  source_region                       = var.region
+  engine                              = var.engine
+  engine_mode                         = var.engine_mode
+  database_name                       = var.database_name
+  master_username                     = var.master_username
+  vpc_security_group_ids              = module.networks.default_sg_id
+  db_cluster_parameter_group_name     = var.db_cluster_parameter_group_name
+  subnet_ids                          = ["${module.networks.private_subnets_id}"]
+  final_snapshot_identifier           = "${terraform.workspace}-snapshot-${random_id.random_id_prefix.dec}"
+  backup_retention_period             = var.backup_retention_period
+  preferred_backup_window             = var.preferred_backup_window
+  preferred_maintenance_window        = var.preferred_maintenance_window
+  skip_final_snapshot                 = var.skip_final_snapshot
+  storage_encrypted                   = var.storage_encrypted
+  apply_immediately                   = var.apply_immediately
+  iam_database_authentication_enabled = var.iam_database_authentication_enabled
+  backtrack_window                    = var.backtrack_window
+  copy_tags_to_snapshot               = var.copy_tags_to_snapshot
+  deletion_protection                 = var.deletion_protection
+  auto_pause                          = var.auto_pause
+  max_capacity                        = var.max_capacity
+  min_capacity                        = var.min_capacity
+  seconds_until_auto_pause            = var.seconds_until_auto_pause
+  api_server_sg                       = module.api-sg.ecs_security_group.id
+  vpc_id                              = module.networks.vpc_id
+}
+```
+
+## Conclusion
+
+여기서 코드가 너무 길어서 각 모듈에 대한 코드는 닫아놓았다.
+
+한달 반 정도 시간을 들여 AWS Copilot, AWS CDK, AWS CDK for Terraform을 시도해보고 결국 Terraform으로 선회하였다. 나에겐 Terraform을 사용함으로써 Live state를 Remote backend로 관리할 수 있다는 장점이 매우 컸다. Terraform 자체를 공부하는 데에는 많은 어려움이 없었지만 첫단추를 잘못 끼우는 실수를 여러번 하여 인프라를 여러번 지워가며 설정하게 되었다. 인프라를 최종적으로 배포하는데 오래걸린 이유는 결국 AWS자체에 대한 이해가 부족한 것이 좀 있었다. Blue-Green 배포전략부터 이해했어야 했고, 보안그룹 설정에 대한 이해도 매우 필요했다. 오류가 발생하면 그 메시지로 여러가지 검색해 가면서 Role과 Policy설정하는 것도 있었지만, 오류 메시지가 없는 경우 매우 파악하기 힘들었다. 이때는 AWS CLI에 대한 예제를 찾아보면 해결되는 일들이 많았다.
+
+이로써 AWS에 조금 더 가까워진 느낌이다. 이 후의 숙제가 더 있다. 메트릭 수집에 대한 것과 프론트엔드 인프라 배포를 진행하고, Auth 컨테이너를 붙일지 API에 모놀리식으로 직접 만들어 사용할지 더 고민해봐야겠다.
+
+본 예제에 대한 전체 코드는 [terraform-ecs-codedeploy-blue-green](https://github.com/eunchurn/terraform-ecs-codeploy-blue-green)에서 확인 가능하다. PostgreSQL을 사용하며 Prisma ORM을 사용해 만든 동작하는 API Github 리포에 연결하여 `terraform apply` 한 명령으로 동작하는 엔드포인트를 얻을 수 있다. (`buildspec.yml`의 수정은 좀 필요함)
