@@ -15,6 +15,9 @@ tags:
   - typescript
   - serverless
   - react
+  - cloudfront
+  - codepipeline
+  - codebuild
 ---
 
 ## Terraform 으로 AWS Lambda & API Gateway 배포
@@ -193,11 +196,11 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
 }
 ```
 
-이제 Lambda 인프라를 설정한다. `archive_file` 모듈로 배포된 위치(`dist`)를 `function.zip`으로 압축하고, `aws_lambda_layer_version` 모듈은 스크립트를 통해 압축한 `layers.zip`을 업로드한다. `aws_lambda_function`은 앞서 `archive_file` 모듈로 압축한 파일을 담도록 설정하고 `handler` 어트리뷰트에 해당 함수이름 `index.handler`로 설정한다. 그리고 Lambda에는 Lambda layer를 연결한다. `layers = [aws_lambda_layer_version.dependency_layer.arn]`
+이제 Lambda 인프라를 설정한다. `archive_file` 모듈로 배포된 위치(`dist`)를 `function.zip`으로 압축하고, `aws_lambda_layer_version` 모듈은 스크립트를 통해 압축한 `layers.zip`을 업로드한다. `aws_lambda_function`은 앞서 `archive_file` 모듈로 압축한 파일을 담도록 설정하고 `handler` 어트리뷰트에 해당 함수이름 `index.handler`로 설정한다. 그리고 Lambda에는 Lambda layer를 연결한다. (line 19)
 
 ### `lambda.tf`
 
-```hcl:terraform/lambda.tf
+```hcl:terraform/lambda.tf {19} showLineNumbers
 data "archive_file" "function_archive" {
   type        = "zip"
   source_dir  = "${path.module}/../lambda/dist"
