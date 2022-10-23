@@ -1105,6 +1105,8 @@ resource "aws_s3_bucket_acl" "codebuild_bucket_acl" {
 
 이렇게 React App을 배포하는 인프라 구성을 마쳤다. 빠진 부분이 있는데 `buildspec.yml`에서 마지막에 CloudFront invalidation을 추가해주어야 서울리전이 아닌 전세계 배포를 바로 해준다.
 
+[Example repository](https://github.com/eunchurn/terraform-react-s3-cloudfront-pipeline)
+
 Pipeline이 복잡한데 Github action으로 해도 되지 않냐고 질문할 수도 있겠다. 이전 회사에서 Github action을 메인으로 CI/CD를 구축했었다. Github action을 사용했을 때 문제는 인프라를 콘솔에서 수동으로 만들고 S3 버킷에 직접 빌드된 파일을 보내는 과정에 있다. 그리고 CloudFront invalidation을 시켜주었는데 지금와서 생각해보면 이 버킷이 누가 만들고 관리하는지 그리고 CloudFront 앱 또한 ID값을 Github action에 환경변수로 넣어주는데 관리 지점이 내 머리속 아님 문서일 것이다. 이 프로젝트가 Demo라면 이렇게 만들어진 인프라를 누군가가 지워야할 때가 있을텐데 Github action으로 구성했을 경우 찾아서 지워주어야 한다. IAM Role이나 Policy 만들어진 것도...
 
 이제는 Terraform으로 앱을 배포하고, 이 과정을 모듈화 하여 다른 앱도 쉽게 배포가 가능하다. 그리고 각 앱들의 유니크한 키들을 적어놓고 환경변수로 설정하지 않아도 된다. 어쩔땐 Github action에 설정된 많은 Secrets를 보면 맘이 답답해지긴 하는데 한개도 걸려있지 않은 Secrets 상태를 보니 맘이 편해졌다.
