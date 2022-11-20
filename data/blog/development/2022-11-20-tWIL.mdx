@@ -124,9 +124,11 @@ terraform force-unlock {id}
 
 SuperTokens를 적용하고 나서 코드가 매우 단순 명료해졌다. 기존에 사용하던 Redux store를 수정하다가 파일 업로드에서 Progress를 적용했었는데 이제는 GraphQL Upload로 변경해야 했다. Amplify가 없었다면 GraphQL upload를 만들어서 사용했을 텐데 처음부터 Redux에 Thunk로 만들어 사용 한 Amplify의 Storage를 사용하다보니 이걸 변경하기 여간 손이 많이 가는 일이 아니었다. `Upload`스칼라 타입으로 변경해서 Apollo Client의 `useMutation`을 필요한 곳에 사용하면 되는데 이 hook은 Redux에 담을 수 없다. 결국 Storage를 사용하는 모든 코드를 수정해야해서 깊은 빡침이 올라오고 있었다.
 
-- 1차: `graphql-request` 모듈을 사용해보자. 어찌어찌해서 만들기는 했지만, stateless 이다. Progress를 받을 수 없기에 이걸 사용하는 모든 코드를 제거해야하는데, 기획에서 쓴다고 필요하다고 하면 원래대로 모든 Redux `dispatch`를 지우고 `useMutation`으로 가야한다.
+- 1차: `graphql-request` 모듈을 사용해보자. 어찌어찌해서 만들기는 했지만, data flow는 stateless 하다. Progress를 받을 수 없기에 이걸 사용하는 모든 코드를 제거해야하는데, 기획에서 쓴다고 필요하다고 하면 원래대로 모든 Redux `dispatch`를 지우고 `useMutation`으로 가야한다.
 
-- 2차(해결): `@apollo/client`의 `client`를 사용할 수 있다.(이걸 미처 생각을 못했다.)
+- 2차(해결): `@apollo/client`의 `client`를 사용할 수 있다.(이걸 미처 생각을 못했다.) 아폴로 클라이언트는 Link를 통해 data flow를 stateful하게 유지할 수 있다.
+
+![apollo-link](/static/images/2022/11/apollo-link.svg)
 
 API는 `upload`라는 Mutation이 있고, Response는 String이다. (S3 URL) 일단 `graphql-codegen`으로 만들어진 `UploadDocument`를 사용하고, 순수 함수로 구현하면 Redux가 사용 할 함수는 다음과 같다. `progressCallback`을 받을 수 있다.
 
