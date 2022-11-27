@@ -1,0 +1,900 @@
+---
+date: "2022-11-27"
+title: "tWIL 2022.11 4주차"
+draft: false
+summary: "This week I learned"
+featured: /static/images/eunchurn/adidas.PNG
+categories:
+  - blog
+tags:
+  - development
+  - supertokens
+  - supertokens customizing
+  - naver
+  - kakao
+  - forgot password
+  -
+  - paljs
+  - prisma
+---
+
+## SuperTokens customizing
+
+본격적으로 SuperTokens의 커스터마이징을 시작했다. [`ThirdPartyEmailPassword`](https://supertokens.com/docs/thirdpartyemailpassword/introduction) 레시피를 사용한다. 기본적으로 이메일과 비밀번호를 기준으로 사용하지만 OAuth 기반 간편 로그인도 추가할 수 있다. 하지만 Naver와 Kakao는 메이저 프로바이더가 아니어서 빌트인으로는 없고 직접 만들어주어야 한다.
+
+### 간편 로그인 Naver, Kakao
+
+TL;DR
+
+- [supertokens-kakao-provider](https://github.com/eunchurn/supertokens-kakao-provider)
+- [supertokens-naver-provider](https://github.com/eunchurn/supertokens-naver-provider)
+
+ThirdParty 프로바이더는 SuperTokens의 [`TypeProvider`](https://supertokens.com/docs/nodejs/modules/recipe_thirdparty.html#TypeProvider)타입을 제공해주면 된다.
+
+#### Kakao provider
+
+ThirdParty Provider들은 `ThirdPartyEmailPassword.TypeProvider` 타입을 맞추어 메서드 객체를 만들어준다. 카카오에서 Request 토큰 응답과 Request 코드 응답을 만들어 준다. 카카오는 `accessToken`을 받는데 `secret_key`를 요구하지 않는다. 하지만 카카오 개발자 설정에서 보안 강화 옵션을 설정했을 경우엔 `secret_key`를 제공해야한다. 그리고 Redirect URL은 요청한 클라이언트의 정확한 도메인으로 전달해야한다 하지만 여러 웹 클라이언트에서 사용할 수 있으므로 여기에 Referrer URL을 받아서 사용할 수 있도록 `relativeRedirectUrl`값을 만들었다.
+
+```typescript:kakaoProvider.ts
+import { TypeProvider } from "supertokens-node/recipe/thirdpartyemailpassword";
+import axios from "axios";
+
+/**
+ * It returns an object that contains the functions that are required to use the Kakao API and get the access token and the
+ * user profile information from the Kakao API
+ * @param {TypeThirdPartyProviderKakaoConfig}  - `clientId`: The client ID you received from Kakao API when you registered,
+ * `clientSecret`: The client secret you received from Kakao API when you registered your application
+ * `redirectUrl`: The URL to redirect to after the user has logged in.
+ * `relativeRediectUrl`: The relative URL to redirect to after the user has logged in.
+ * @returns Returns the `ThirdPartyEmailPassword.TypeProvider`.
+ */
+export const Kakao = ({
+  clientId,
+  clientSecret,
+  redirectUrl,
+  relativeRedirectUrl,
+}: TypeThirdPartyProviderKakaoConfig): TypeProvider => ({
+  id: "kakao",
+  get: (redirectURI, authCodeFromRequest, userContext) => {
+    /**
+     * redirectURI가 undefined로 오는 경우가 있으며, 고정된 클라이언트 주소를 지정 사용하면, 1개의 클라이언트만 사용할 수 있으므로, Referrer URL를 Request에서 받아서 사용함
+     */
+    const refererUrl = userContext._default.request.request.get("Referer");
+    const unionRedirectUrl = relativeRedirectUrl
+      ? new URL(relativeRedirectUrl, refererUrl).href
+      : "";
+    const secret = clientSecret ? { client_secret: clientSecret } : undefined;
+    return {
+      accessTokenAPI: {
+        // https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api#request-token
+        url: "https://kauth.kakao.com/oauth/token",
+        params: {
+          client_id: clientId,
+          redirect_uri:
+            redirectURI || redirectUrl || `${unionRedirectUrl}` || "",
+          response_type: "code",
+          grant_type: "authorization_code",
+          code: authCodeFromRequest || "",
+          ...secret,
+        },
+      },
+      authorisationRedirect: {
+        // https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api#request-code
+        url: "https://kauth.kakao.com/oauth/authorize",
+        params: {
+          client_id: clientId,
+          redirect_uri:
+            redirectURI || redirectUrl || `${unionRedirectUrl}` || "",
+          scope: "account_email",
+          response_type: "code",
+        },
+      },
+      getClientId: () => {
+        return clientId;
+      },
+      getProfileInfo: async (
+        accessTokenAPIResponse: KakaoAccessTokenResponse,
+      ) => {
+        const { access_token } = accessTokenAPIResponse;
+        if (!access_token) throw new Error("Failed get AccessToken");
+        const result = await axios.get<KakaoAuthorizedResponse>(
+          "https://kapi.kakao.com/v2/user/me",
+          {
+            headers: {
+              authorization: `Bearer ${access_token}`,
+            },
+          },
+        );
+        const {
+          data: { id, kakao_account },
+        } = result;
+        if (!kakao_account) throw new Error("No Kakao account");
+        const { has_email, email, is_email_verified } = kakao_account;
+        if (!has_email) throw new Error("No email in this account");
+        if (!email) throw new Error("Not provided email");
+        return {
+          id: `${id}`,
+          email: {
+            id: email,
+            isVerified: !!is_email_verified,
+          },
+        };
+      },
+    };
+  },
+});
+```
+
+카카오 개발자 문서를 참고하여 만든 타입은 다음과 같다.
+
+```typescript:types.ts
+export interface KakaoAccessTokenResponse {
+  /**
+   * 사용자 액세스 토큰 값
+   */
+  access_token: string;
+  /**
+   * 토큰 타입, bearer로 고정
+   */
+  token_type: string | "bearer";
+  /**
+   * 사용자 리프레시 토큰 값
+   */
+  refresh_token: string;
+  /**
+   * 액세스 토큰과 ID 토큰의 만료 시간(초)
+   * 참고: 액세스 토큰과 ID 토큰의 만료 시간은 동일
+   */
+  expires_in: number;
+  /**
+   * 추가 항목 동의 받기 요청 시 사용
+   * 사용자에게 동의 요청할 동의 항목 ID 목록
+   * 동의 항목의 ID는 사용자 정보 또는 [내 애플리케이션] > [카카오 로그인] > [동의 항목]에서 확인 가능
+   * 쉼표(,)로 구분해 여러 개 전달 가능
+   * 주의: OpenID Connect를 사용하는 앱의 경우, scope 파라미터 값에 openid를 반드시 포함해야 함, 미포함 시 ID 토큰이 재발급되지 않음
+   * https://developers.kakao.com/docs/latest/ko/kakaologin/common#additional-consent-scope
+   * SuperTokens의 경우 이메일은 꼭 필요하므로 디폴트 `account_email`
+   */
+  scope: string | "account_email";
+  /**
+   * 리프레시 토큰 만료 시간(초)
+   */
+  refresh_token_expires_in: number;
+}
+
+export interface KakaoAuthorizedResponse {
+  /**
+   * 회원번호
+   */
+  id: number;
+  /**
+   * 자동 연결 설정을 비활성화한 경우만 존재
+   * 연결하기 호출의 완료 여부
+   * `false`: 연결 대기(Preregistered) 상태
+   * `true`: 연결(Registered) 상태
+   */
+  has_signed_up?: boolean;
+  /**
+   * 	서비스에 연결 완료된 시각, UTC
+   */
+  connected_at: string;
+  /**
+   * 카카오싱크 간편가입을 통해 로그인한 시각, UTC
+   */
+  synched_at?: string;
+  /**
+   * 사용자 프로퍼티(Property)
+   * https://developers.kakao.com/docs/latest/ko/kakaologin/prerequisite#user-properties
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  properties?: any;
+  /**
+   * 카카오계정 정보
+   * https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api#kakaoaccount
+   */
+  kakao_account?: {
+    has_email?: boolean;
+    email_needs_agreement?: boolean;
+    is_email_valid?: boolean;
+    is_email_verified?: boolean;
+    email?: string;
+  };
+}
+
+declare type TypeThirdPartyProviderKakaoConfig = {
+  /**
+   * The client ID you received from Kakao API when you registered. 앱 REST API 키 [내 애플리케이션] > [앱 키]에서 확인 가능
+   */
+  clientId: string;
+  /**
+   * The client secret you received from Kakao API when you registered your application.
+   */
+  clientSecret?: string;
+  /**
+   * The URL to redirect to after the user has logged in. 인가 코드를 전달받을 서비스 서버의 URI [내 애플리케이션] > [카카오 로그인] > [Redirect URI]에서 등록
+   */
+  redirectUrl?: string;
+  /**
+   * The relative URL to redirect to after the user has logged in.
+   */
+  relativeRedirectUrl?: string;
+};
+```
+
+편의를 위해 [npm package](https://www.npmjs.com/package/supertokens-kakao-provider)를 만들어 두었다. 유니온 타입등 수정할 내용은 좀 있지만, 바로 쓰려면
+
+```sh
+yarn add supertokens-kakao-provider
+```
+
+```typescript {19-23} showLineNumbers
+import { Kakao } from "supertokens-kakao-provider";
+
+superTokens.init({
+  framework: "express",
+  supertokens: {
+    connectionURI: "http://your-auth-domain.com",
+    apiKey: "your-secret-key",
+  },
+  appInfo: {
+    appName: "your-auth-app-name",
+    apiDomain: "https://your-api-domain.com",
+    websiteDomain: "https://your-web-client-domain.com",
+    apiBasePath: "/auth",
+    websiteBasePath: "/auth",
+  },
+  recipeList: [
+    ThirdPartyEmailPassword.init({
+      providers: [
+        Kakao({
+          clientId: process.env.KAKAO_ACCESS_KEY,
+          clientSecret: process.env.KAKAO_ACCESS_SECRET,
+          relativeRedirectUrl: "/auth/callback/kakao",
+        }),
+      ],
+    }),
+  ],
+});
+```
+
+#### Naver provider
+
+네이버의 경우 `secret`은 필수이다. 마찬가지로 여러 클라이언트에서 Redirect를 사용할 수 있으므로 Referrer 값을 사용할 수 있도록 `relativeRedirectUrl`을 받는다. 필요 없을 경우 `redirectUrl`값을 정의해주면 된다.
+
+```typescript:naverProvider.ts
+import { TypeProvider } from "supertokens-node/recipe/thirdpartyemailpassword";
+import axios from "axios";
+
+/**
+ * It returns an object that contains the functions that are required to use the Naver API
+ * @param {TypeThirdPartyProviderNaverConfig}  - `clientId`: The client ID you received from Naver API when you registered,
+ * `clientSecret`: The client secret you received from Naver API when you registered your application
+ * `redirectUrl`: The URL to redirect to after the user has logged in.
+ * `relativeRediectUrl`: The relative URL to redirect to after the user has logged in.
+ * @returns Returns the `ThirdPartyEmailPassword.TypeProvider`.
+ */
+export const Naver = ({
+  clientId,
+  clientSecret,
+  redirectUrl,
+  relativeRedirectUrl,
+}: TypeThirdPartyProviderNaverConfig): TypeProvider => {
+  return {
+    id: "naver",
+    get: (redirectURI, authCodeFromRequest, userContext) => {
+      const refererUrl = userContext._default.request.request.get("Referer");
+      const unionRedirectUrl = relativeRedirectUrl
+        ? new URL(relativeRedirectUrl, refererUrl).href
+        : "";
+      return {
+        accessTokenAPI: {
+          // https://developers.naver.com/docs/login/devguide/devguide.md#3-4-4-%EC%A0%91%EA%B7%BC-%ED%86%A0%ED%81%B0-%EB%B0%9C%EA%B8%89-%EC%9A%94%EC%B2%AD
+          url: "https://nid.naver.com/oauth2.0/token",
+          params: {
+            client_id: clientId,
+            client_secret: clientSecret,
+            redirect_uri:
+              redirectURI || redirectUrl || `${unionRedirectUrl}` || "",
+            response_type: "code",
+            grant_type: "authorization_code",
+            code: authCodeFromRequest || "",
+            state: "STATE_STRING",
+          },
+        },
+        authorisationRedirect: {
+          // https://developers.naver.com/docs/login/devguide/devguide.md#3-4-2-%EB%84%A4%EC%9D%B4%EB%B2%84-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EC%97%B0%EB%8F%99-url-%EC%83%9D%EC%84%B1%ED%95%98%EA%B8%B0
+          url: "https://nid.naver.com/oauth2.0/authorize",
+          params: {
+            client_id: clientId,
+            redirect_uri:
+              redirectURI || redirectUrl || `${unionRedirectUrl}` || "",
+            response_type: "code",
+            state: "STATE_STRING",
+          },
+        },
+        getClientId: () => {
+          return clientId;
+        },
+        getProfileInfo: async (
+          accessTokenAPIResponse: NaverAccessTokenResponse,
+        ) => {
+          // https://developers.naver.com/docs/login/devguide/devguide.md#3-4-5-%EC%A0%91%EA%B7%BC-%ED%86%A0%ED%81%B0%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%98%EC%97%AC-%ED%94%84%EB%A1%9C%ED%95%84-api-%ED%98%B8%EC%B6%9C%ED%95%98%EA%B8%B0
+          const { access_token } = accessTokenAPIResponse;
+          if (!access_token) throw new Error("Failed get AccessToken");
+          const result = await axios.get<NaverAuthorizedResponse>(
+            "https://openapi.naver.com/v1/nid/me",
+            {
+              headers: {
+                authorization: `Bearer ${access_token}`,
+              },
+            },
+          );
+          const {
+            data: {
+              response: { id, email },
+            },
+          } = result;
+          if (!email) throw new Error("Not provided email");
+          return {
+            id: `${id}`,
+            email: {
+              id: email,
+              isVerified: true,
+            },
+          };
+        },
+      };
+    },
+  };
+};
+```
+
+네이버 개발자 문서를 참고하여 만든 타입은 다음과 같다.
+
+```typescript:types.ts
+export interface NaverAccessTokenResponse {
+  access_token: string;
+  token_type: string | "bearer";
+  refresh_token: string;
+  expires_in: number;
+  scope: string | "account_email";
+  refresh_token_expires_in: number;
+}
+
+export interface NaverAuthorizedResponse {
+  /**
+   * API 호출 결과 코드
+   */
+  resultCode: string;
+  /**
+   * 호출 결과 메시지
+   */
+  meesage: string;
+  response: {
+    /**
+     * 동일인 식별 정보
+     * 동일인 식별 정보는 네이버 아이디마다 고유하게 발급되는 값입니다.
+     */
+    id: string;
+    /**
+     * 사용자 별명
+     */
+    nickname: string;
+    /**
+     * 사용자 이름
+     */
+    name: string;
+    /**
+     * 	사용자 메일 주소
+     */
+    email: string;
+    /**
+     * 성별
+     *- F: 여성
+     *- M: 남성
+     *- U: 확인불가
+     */
+    gender: string;
+    /**
+     * 사용자 연령대
+     */
+    age: string;
+    /**
+     * 사용자 생일(MM-DD 형식)
+     */
+    birthday: string;
+    /**
+     * 사용자 프로필 사진 URL
+     */
+    profile_image: string;
+    /**
+     * 출생연도
+     */
+    birthyear: string;
+    /**
+     * 휴대전화번호
+     */
+    mobile: string;
+  };
+}
+
+declare type TypeThirdPartyProviderNaverConfig = {
+  /**
+   * The client ID you received from Naver API when you registered.
+   */
+  clientId: string;
+  /**
+   * The client secret you received from Naver API when you registered your application.
+   */
+  clientSecret: string;
+  /**
+   * The URL to redirect to after the user has logged in.
+   */
+  redirectUrl?: string;
+  /**
+   * The relative URL to redirect to after the user has logged in.
+   */
+  relativeRedirectUrl?: string;
+};
+```
+
+마찬가지로 편의를 위해 [npm package](https://www.npmjs.com/package/supertokens-naver-provider)를 만들어 두었다.
+
+```sh
+yarn add supertokens-naver-provider
+```
+
+사용법은
+
+```typescript {21-25} showLineNumbers
+import supertokens from "supertokens-node";
+import ThirdPartyEmailPassword from "supertokens-node/recipe/thirdpartyemailpassword";
+import { Naver } from "supertokens-naver-provider";
+
+superTokens.init({
+  framework: "express",
+  supertokens: {
+    connectionURI: "http://your-auth-domain.com",
+    apiKey: "your-secret-key",
+  },
+  appInfo: {
+    appName: "your-auth-app-name",
+    apiDomain: "https://your-api-domain.com",
+    websiteDomain: "https://your-web-client-domain.com",
+    apiBasePath: "/auth",
+    websiteBasePath: "/auth",
+  },
+  recipeList: [
+    ThirdPartyEmailPassword.init({
+      providers: [
+        Naver({
+          clientId: process.env.NAVER_ACCESS_KEY,
+          clientSecret: process.env.NAVER_ACCESS_SECRET,
+          relativeRedirectUrl: "/auth/callback/naver",
+        }),
+      ],
+    }),
+  ],
+});
+```
+
+### Email check
+
+이메일 중복확인은 SuperTokens에서 기본적으로 제공해준다. [여기](https://supertokens.com/docs/thirdpartyemailpassword/advanced-customizations/apis-override/custom-response/api-override)를 참고하여 API를 Override 한다.
+
+문제는 ThirdParty 프로바이더에서 가입한 사용자는 이메일 체크에서 제외된다는 것이다. 이를 위해 `emailPasswordEmailExistsGET`함수를 오버라이드 시켜서 체크한다. Prisma를 사용해서 이메일이 있는지 모두 확인한다.
+
+```typescript:overrideApis.ts
+import prisma from "libs/prisma/client";
+import ThirdPartyEmailPassword, {
+  getUsersByEmail,
+} from "supertokens-node/recipe/thirdpartyemailpassword";
+export function overrideApis(
+  originalImplementation: ThirdPartyEmailPassword.APIInterface,
+): ThirdPartyEmailPassword.APIInterface {
+  return {
+    ...originalImplementation,
+    async emailPasswordEmailExistsGET(input) {
+      const { email } = input;
+      const signedUser = await prisma.user.findFirst({ where: { email } });
+      const [tokensUser] = await getUsersByEmail(email);
+      if (signedUser && tokensUser) {
+        const { thirdParty } = tokensUser;
+        input.options.res.setStatusCode(200);
+        input.options.res.sendJSONResponse({
+          thirdParty: thirdParty ? thirdParty.id : "email",
+          status: "OK",
+          exists: true,
+        });
+        return {
+          status: "OK",
+          exists: true,
+        };
+      }
+      input.options.res.setStatusCode(200);
+      input.options.res.sendJSONResponse({
+        thirdParty: null,
+        status: "OK",
+        exists: false,
+      });
+      return {
+        status: "OK",
+        exists: false,
+      };
+    },
+  };
+}
+```
+
+하지만 이전에 회원가입할 때 `thirdPartySignInUp` 함수를 수정해주어야 하는데, 앞선 tWIL에서 간편 가입할 경우에도 hook을 통해 Prisma로 사용자를 생성해준다. 하지만 이메일이 이미 있는 경우 여기서 에러를 만들어주어야 한다. `thirdPartyCheckSignedUser`를 만들어 에러 체크를 하였다.
+
+```typescript:thirdPartyCheckSignedUser.ts
+interface CheckSignedUser {
+  prisma: PrismaClient;
+  email: string;
+  thirdPartyId: ThirdPartyId;
+  thirdPartyUserId: string;
+}
+
+async function thirdPartyCheckSignedUser({
+  prisma,
+  email,
+  thirdPartyId,
+  thirdPartyUserId,
+}: CheckSignedUser) {
+  const foundSignedUserByEmail = await prisma.user.findUnique({
+    where: { email },
+  });
+  const foundSignedUserByThirdPartyUserId = await prisma.user.findUnique({
+    where: {
+      thirdPartyId_thirdPartyUserId: { thirdPartyId, thirdPartyUserId },
+    },
+  });
+  return {
+    thirdPartyUser: foundSignedUserByThirdPartyUserId,
+    emailUser: foundSignedUserByEmail,
+    signin: !!foundSignedUserByEmail && !!foundSignedUserByThirdPartyUserId,
+    signup: !foundSignedUserByThirdPartyUserId && !foundSignedUserByEmail,
+  };
+}
+```
+
+그리고 SuperTokens의 함수 중 `thirdPartySignInUp`을 오버라이드 한다. 여기서 우리는 SuperTokens를 수정할 수 없기 때문에 에러로 `throw`시키고 이 에러 처리를 하려고 한다. 클라이언트 측에서 받을 데이터는 `exists`와 `thirdParty`이다.
+
+```typescript:superTokens.ts
+import ThirdPartyEmailPassword from "supertokens-node/recipe/thirdpartyemailpassword";
+import prisma from "libs/prisma/client";
+import {
+  AccessType,
+  MemberStatus,
+  PrismaClient,
+  ThirdPartyId,
+} from "@prisma/client";
+
+function getSocialAliasKo(thirdParty: string) {
+  if (thirdParty === "kakao") return "카카오";
+  if (thirdParty === "naver") return "네이버";
+  if (thirdParty === "google") return "구글";
+  return "이메일 로그인";
+}
+
+function getSocialType(thirdParty: string): ThirdPartyId {
+  if (thirdParty === "kakao") return ThirdPartyId.kakao;
+  if (thirdParty === "naver") return ThirdPartyId.naver;
+  if (thirdParty === "google") return ThirdPartyId.google;
+  return ThirdPartyId.emailPassword;
+}
+
+export function overrideFunctions(
+  originalImplementation: ThirdPartyEmailPassword.RecipeInterface,
+): ThirdPartyEmailPassword.RecipeInterface {
+  return {
+    ...originalImplementation,
+    thirdPartySignInUp: async function (input) {
+      const { email, thirdPartyId, thirdPartyUserId } = input;
+      const { signup, signin, emailUser, thirdPartyUser } =
+        await thirdPartyCheckSignedUser({
+          prisma,
+          email,
+          thirdPartyUserId,
+          thirdPartyId: getSocialType(thirdPartyId),
+        });
+      if (signup) {
+        const authUsers = await originalImplementation.thirdPartySignInUp(
+          input,
+        );
+        const {
+          user: { id },
+        } = authUsers;
+        await prisma.user.create({
+          data: {
+            userId: id,
+            email,
+            emailVerified: true,
+            thirdPartyId: getSocialType(thirdPartyId),
+            thirdPartyUserId: thirdPartyUserId,
+            accessLog: {
+              create: {
+                email,
+                accessType: AccessType.SIGNUP,
+              },
+            },
+          },
+        });
+        return authUsers;
+      }
+      if (signin) {
+        const authUsers = await originalImplementation.thirdPartySignInUp(
+          input,
+        );
+        const {
+          user: { id },
+        } = authUsers;
+        await prisma.accessLog.create({
+          data: {
+            user: { connect: { userId: id } },
+            email,
+            accessType: AccessType.SIGNIN,
+          },
+        });
+        return authUsers;
+      }
+      if (emailUser) {
+        if (emailUser.thirdPartyId === ThirdPartyId.emailPassword) {
+          await prisma.accessLog.create({
+            data: {
+              user: { connect: { id: emailUser.id } },
+              accessType: AccessType.TRY,
+              email: emailUser.email,
+              message: "동일한 주소로 이미 가입되어 있습니다.",
+            },
+          });
+          throw new Error(
+            JSON.stringify({
+              status: "ALREADY_SIGNED_USER",
+              email: emailUser.email,
+              thirdPartyId: "email",
+              message:
+                "동일한 주소로 이미 가입되어 있습니다. 해당 계정으로 이동하시겠습니까?",
+            }),
+          );
+        } else {
+          const alias = getSocialAliasKo(emailUser.thirdPartyId);
+          await prisma.accessLog.create({
+            data: {
+              user: { connect: { id: emailUser.id } },
+              accessType: AccessType.TRY,
+              email: emailUser.email,
+              thirdPartyId: emailUser.thirdPartyId,
+              thirdPartyUserId: emailUser.thirdPartyUserId,
+              message: `${alias}로 이미 가입되어 있습니다. ${alias}로 로그인을 시도해주세요.`,
+            },
+          });
+          throw new Error(
+            JSON.stringify({
+              status: "ALREADY_SIGNED_USER",
+              email,
+              thirdPartyId,
+              message: `${alias}로 이미 가입되어 있습니다. ${alias}로 로그인을 시도해주세요.`,
+            }),
+          );
+        }
+      }
+      if (thirdPartyUser) {
+        const alias = getSocialAliasKo(thirdPartyUser.thirdPartyId);
+        await prisma.accessLog.create({
+          data: {
+            user: { connect: { id: thirdPartyUser.id } },
+            accessType: AccessType.TRY,
+            email: thirdPartyUser.email,
+            thirdPartyId: thirdPartyUser.thirdPartyId,
+            thirdPartyUserId: thirdPartyUser.thirdPartyUserId,
+            message: `${alias}로 이미 가입되어 있습니다. ${alias}로 로그인을 시도해주세요.`,
+          },
+        });
+        throw new Error(
+          JSON.stringify({
+            status: "ALREADY_SIGNED_USER",
+            email,
+            thirdPartyId,
+            message: `${alias}로 이미 가입되어 있습니다. ${alias}로 로그인을 시도해주세요.`,
+          }),
+        );
+      }
+      await prisma.accessLog.create({
+        data: { email, message: "알 수 없는 오류", accessType: AccessType.TRY },
+      });
+      throw new Error(
+        JSON.stringify({
+          status: "ALREADY_SIGNED_USER",
+          email,
+          thirdPartyId: "email",
+          message: "알 수 없는 오류",
+        }),
+      );
+    },
+  };
+}
+```
+
+이렇게 경우의 수가 많아 복잡하지만 적절하게 가능한 오류를 배출해준다. 그리고 기본으로 제공하는 `status`이외에 `ALREADY_SIGNED_USER`를 추가하였기 때문에 클라이언트 타입도 수정해주어야 한다. 이전에 Express `app`에 에러 핸들러 미들웨어를 만들어준다. 우리가 만든 에러 메시지는 `JSON.parse()`가 가능하도록 만들었고, 여기서 에러가 발생하면 원래대로 에러를 배출 해준다. 하지만 `JSON.parse()`가 된다면 200에러를 보내고 해당 메시지를 보내준다.
+
+```typescript:app.ts
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    if (err) {
+      try {
+        JSON.parse(err.message);
+        return res.status(200).send(err.message);
+      } catch (e) {
+        return res.status(500).send(err.message);
+      }
+    }
+    return next();
+  },
+);
+```
+
+클라이언트에서는 `doesEmailExist` API를 사용한다. 하지만 Redux toolkit을 써서 Thunk를 만드는데 여기의 값은 API에서 에러가 발생했어도 미들웨어에서 우린 200을 보내주었다. 따라서 `response`를 받아서 `fetchResponse.json()`값을 변환해서 반환하도록 하였다. 여기서 Redux의 state는 `exists`와 `thirdParty`값을 받아서 중복되었다고 사용자에게 알려줄 수 있게된다.
+
+```typescript
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { doesEmailExist } from "supertokens-web-js/recipe/thirdpartyemailpassword";
+
+export const emailCheck = createAsyncThunk("auth/emailCheck", (email: string) =>
+  doesEmailExist({
+    email,
+  }).then((response) => {
+    return response.fetchResponse.json();
+  })
+);
+```
+
+이제 thunk를 사용하여 dispatch를 할텐데 앞서 API에서 지정한 타입을 사용해야한다.
+
+```typescript:useAuthCallback.tsx
+import {
+  thirdPartySignInAndUp,
+  RecipeFunctionOptions,
+  ThirdPartyUserType,
+} from "supertokens-web-js/recipe/thirdpartyemailpassword";
+
+type CustomThirdPartySignInAndUp = (input?: {
+  userContext?: any;
+  options?: RecipeFunctionOptions;
+}) => Promise<
+  | {
+      status: "OK";
+      user: ThirdPartyUserType;
+      createdNewUser: boolean;
+      fetchResponse: Response;
+    }
+  | {
+      status: "NO_EMAIL_GIVEN_BY_PROVIDER";
+      fetchResponse: Response;
+    }
+  | {
+      status: "ALREADY_SIGNED_USER";
+      email: string;
+      thirdPartyId: string;
+      message: string;
+    }
+>;
+
+const customThirdPartySignInAndUp =
+  thirdPartySignInAndUp as CustomThirdPartySignInAndUp;
+```
+
+이렇게 타입을 추가해주고, `ALREADY_SIGNED_USER`일 경우 팝업 메시지를 띄우도록 작업한다. 나머지는 간편 로그인에서 이메일값을 받지 못했을 경우 `NO_EMAIL_GIVEN_BY_PROVIDER`로 조건처리 해준다.
+
+```typescript:useAuthCallback.tsx
+function useAuthCallback() {
+  React.useEffect(() => {
+    customThirdPartySignInAndUp()
+      .then((response) => {
+        if (response.status === "ALREADY_SIGNED_USER") {
+          const { message, email } = response;
+          dispatch(setEmail(email));
+          setOpen(true);
+          setMessage(message);
+        } else if (response.status === "OK") {
+          const {
+            createdNewUser,
+            user: { email, id },
+          } = response;
+          dispatch(thirdpartySignInUp({ email, id, createdNewUser }));
+          if (createdNewUser) {
+            window.location.assign("/completeSignup");
+          } else {
+            window.location.assign("/");
+          }
+        } else {
+          setOpen(true);
+          setMessage(
+            "소셜로그인 동의항목에 이메일 항목이 없습니다. 다른 형태로 로그인 혹은 회원가입 해주세요.",
+          );
+        }
+      })
+      .catch((error) => {
+        console.log({ error });
+      });
+    return () => void 0;
+  }, [dispatch]);
+}
+```
+
+나머지는 클라이언트 측에서 state를 확인해서 회원가입할 수 없음을 알려주거나 email로 가입한 사용자의 경우 간편 로그인 계정과 연결해주면 되겠다.
+
+### Forgot password flow
+
+[](https://supertokens.com/docs/thirdpartyemailpassword/custom-ui/forgot-password)
+
+이 부분도 Customizing이 필요했다. Mailchimp는 알 수 없는 이유로 계정 정지를 당했고, Mailjet을 사용하여 [이메일 보내기](https://supertokens.com/docs/thirdpartyemailpassword/email-delivery/about) 작업을 진행했다.
+
+여기서도 마찬가지로 여러 웹 클라이언트에서 처리를 해야하기 때문에 SuperTokens의 웹도메인을 얻기가 힘들다. 결국 여기도 Referrer URL을 사용해야 하고 기존 Reset 이메일 링크로 대체시켜야 한다. 하지만 String의 replace 메서드로 하기엔 방법이 좀 휴리스틱하여 찾아보니 [Web API의 URL 인터페이스](https://developer.mozilla.org/ko/docs/Web/API/URL)가 있었다.
+
+Web API에서 URL 인터페이스의 생성자에 `relativePath`와 `referrerUrl`(도메인)을 붙여 resetLink를 치환하도록 하였다. 마치 Nodejs `path.resolve()`처럼 끝에 trailing `/`로 인해 문제를 일으킬 이유도 사라질 것 같다.
+
+```typescript
+const referrerUrl = userContext._default.request.request.get("Referer");
+const relativePath = passwordResetLink.replace(websiteDomain, "");
+const replacedResetLink = new URL(relativePath, referrerUrl).href;
+```
+
+```js
+new URL("/one", "http://example.com/").href; // 'http://example.com/one'
+new URL("/two", "http://example.com/one").href; // 'http://example.com/two'
+```
+
+이제 SuperTokens의 `emailDelivery` API를 수정한다. `type`이 `PASSWORD_RESET`이 아닌 경우 `originalImplementation`을 수행하면 되고, `PASSWORD_RESET`의 경우에 우리의 이메일 전송을 사용할 수 있다.
+
+```typescript:emailDelivery.ts
+import { sendPasswordResetEmail } from "libs/mailjet";
+import { TypeInput } from "supertokens-node/recipe/thirdpartyemailpassword/types";
+import { websiteDomain } from ".";
+
+export const emailDelivery: TypeInput["emailDelivery"] = {
+  override: (originalImplementation) => {
+    return {
+      ...originalImplementation,
+      sendEmail: async function (input) {
+        const {
+          type,
+          userContext,
+          user: { email },
+          passwordResetLink,
+        } = input;
+        const refererUrl = userContext._default.request.request.get("Referer");
+        if (type !== "PASSWORD_RESET")
+          return originalImplementation.sendEmail(input);
+        const relativePath = passwordResetLink.replace(websiteDomain, "");
+        const replacedResetLink = new URL(relativePath, refererUrl).href;
+        await sendPasswordResetEmail(email, replacedResetLink);
+        return void 0;
+      },
+    };
+  },
+};
+```
+
+## Paljs update
+
+Palsjs의 [prisma-tools](https://github.com/paljs/prisma-tools/releases/tag/v5.0.0)가 업데이트 되었다. 비로소 Prisma 4와 Paljs 어드민을 사용할 수 있게 되었다.
+
+- PrismaSelect 플러그인에 `graphql-parse-resolve-info`패키지를 사용
+- Prisma 4 지원
+- `Jest` 프레임워크 테스트 추가
+
+BREAKING CHANGE로는 `nexus`플러그인의 몇가지 옵션이 제거되고, `pal.js` => `pal.config.js`로 바뀐점과 `pal.config.js`에
+
+```typescript
+excludeInputFields?: string[];
+filterInputs?: (input: DMMF.InputType) => DMMF.SchemaArg[];
+```
+
+이 추가되었다. BREAKING CHANGES에 걸리는 점이 없어 `config`파일 이름 수정하고 진행중인 프로젝트를 Prisma 4로 본격 업그레이드를 진행했다. 아무 문제 없어 동작하여 이제 4의 신규기능을 사용할 수 있게 되었다.
