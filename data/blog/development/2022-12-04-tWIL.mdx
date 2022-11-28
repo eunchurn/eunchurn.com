@@ -1,0 +1,32 @@
+---
+date: "2022-12-04"
+title: "tWIL 2022.12 1주차"
+draft: true
+summary: "This week I learned"
+featured: /static/images/eunchurn/adidas.PNG
+categories:
+  - blog
+tags:
+  - development
+  - supertokens
+  - supertokens customizing
+  - naver
+  - kakao
+  - forgot password
+  - paljs
+  - prisma
+---
+
+## Apollo Rover vs Apollo Server
+
+Apollo server v4 업그레이드 이후 `rover graph introspect`가 오류를 내고 있었다.
+
+> `variables` in a POST body must be an object if provided
+
+이로 인해 클라이언트의 GraphQL generator가 동작할 수 없게 되었는데 원인은 [rover dev not working with Apollo Server 4 subgraph](https://github.com/apollographql/rover/issues/1433#issuecomment-1326862152)에서 처럼 `variables`에 `null`값을 보내고 있었다. [`@apollo/server@4.2.0`](https://github.com/apollographql/apollo-server/releases/tag/%40apollo%2Fserver%404.2.0)부터는
+
+> If a POST body contains a non-string `operationName` or a non-object `variables` or `extensions`, fail with status code 400 instead of ignoring the field.
+
+이라고 되어있었다. `@apollo/server`는 `4.2.0`으로 11월23일에 업데이트를 단행했고, `@apollo/rover`는 11월14일 `0.10.0`을 배포하고 변동이 없었다. 이슈가 있으니 언젠간 업데이트가 되겠지만, 테스트도 없이 `@apollo/server`를 업그레이드 하면서 다른 제품을 체크하지 않는다는 부분이 좀 거슬린다.
+
+우리 개발자들은 뜬금없는 오류에 맞닥뜨리는 상황이 되어 반나절을 이 오류를 잡고 있었다.
