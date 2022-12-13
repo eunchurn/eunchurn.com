@@ -1,0 +1,117 @@
+---
+date: "2022-12-18"
+title: "tWIL 2022.12 3주차"
+draft: true
+summary: "This week I learned"
+featured: /static/images/eunchurn/grafiti.PNG
+categories:
+  - blog
+tags:
+  - ansi escape codes
+  - development
+  - apollo rover
+  - apollo server
+---
+
+## Lambda Middleware
+
+[middy](https://middy.js.org/)로 Lambda middleware 설정을 하였다. 예를들어 아래와 같이 Lambda의 메타 정보까지 CloudWatch에 로깅을 시도할 수 있다.
+
+```json
+{
+  "cold_start": true,
+  "function_arn": "arn:aws:lambda:ap-northeast-2:xxxxxx:function:myapp-email",
+  "function_memory_size": 128,
+  "function_name": "myapp-email",
+  "function_request_id": "1d582c51-bfaf-40d3-83c2-efcafc5c67fa",
+  "level": "INFO",
+  "message": "안녕하세요.",
+  "service": "myapp-email",
+  "timestamp": "2022-12-12T07:56:36.982Z",
+  "xray_trace_id": "1-6396deaf-4086fd870b5939ad31ae32b1",
+  "mailType": "resetPassword",
+  "email": "eunchurn@myapp.io",
+  "name": "박은천",
+  "link": "https://app.myapp.io/share?token=1234",
+  "subject": "비밀번호 재설정 등록 안내",
+  "messageId": "<010c01850555f238-xxxxxx-xxxx-xxxx-xxxx-334efba1f618-xxxx@ap-northeast-2.amazonses.com>"
+}
+```
+
+설치방법은
+
+```
+yarn add middy
+```
+
+```typescript:index.ts
+import middy from "@middy/core";
+import { Logger, injectLambdaContext } from "@aws-lambda-powertools/logger";
+
+const logger = new Logger({
+  logLevel: "INFO",
+  serviceName: "myapp-email",
+});
+
+const lambdaHandler = async (event: MyEvent) => {
+  // ...omitted
+}
+
+export const handler = middy(lambdaHandler).use(injectLambdaContext(logger));
+
+```
+
+기본적인 예제는 이렇다. `middy`에서 제공하는 [미들웨어](https://middy.js.org/docs/category/middlewares)들이 꽤 많다. 하지만 역시나 커스텀 미들웨어가 필요했다. TypeScript를 활용한 커스텀 미들웨어는 [참고](https://middy.js.org/docs/writing-middlewares/with-typescript)
+
+```typescript
+import middy from "@middy/core";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+
+const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+  const before: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
+    request
+  ): Promise<void> => {
+    // Your middleware logic
+  };
+
+  const after: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
+    request
+  ): Promise<void> => {
+    // Your middleware logic
+  };
+
+  return {
+    before,
+    after,
+  };
+};
+
+export default middleware;
+```
+
+## ChatGPT
+
+## Potree
+
+[포인트 클라우드(Point Cloud)란?](https://23min.tistory.com/8)
+
+[3D 인공지능 데이터 Point Cloud](https://blog.testworks.co.kr/3d-ai-data-point-cloud/)
+
+[Point Cloud Library](https://pointclouds.org/)
+
+https://github.com/potree/potree
+
+[weiss ag](https://weiss-ag.com/)
+
+## Zustand
+
+[Zustand](https://hanch-dev.tistory.com/21)
+
+## GPG Key
+
+[gpg failed to sign the data fatal: failed to write commit object [Git 2.10.0]](https://stackoverflow.com/questions/39494631/gpg-failed-to-sign-the-data-fatal-failed-to-write-commit-object-git-2-10-0)
+
+```
+echo "pinentry-program /opt/homebrew/bin/pinentry-mac" >> ~/.gnupg/gpg-agent.conf
+killall gpg-agent
+```
