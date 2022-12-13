@@ -353,6 +353,36 @@ NC='\033[0m' # No Color
 echo -e "I ${RED}love${NC} Stack Overflow"
 ```
 
+그리고 NodeJS 환경에서 `process.stdout.write`을 쓸 경우나 `console.log`의 경우
+
+```
+Reset = "\x1b[0m"
+Bright = "\x1b[1m"
+Dim = "\x1b[2m"
+Underscore = "\x1b[4m"
+Blink = "\x1b[5m"
+Reverse = "\x1b[7m"
+Hidden = "\x1b[8m"
+
+FgBlack = "\x1b[30m"
+FgRed = "\x1b[31m"
+FgGreen = "\x1b[32m"
+FgYellow = "\x1b[33m"
+FgBlue = "\x1b[34m"
+FgMagenta = "\x1b[35m"
+FgCyan = "\x1b[36m"
+FgWhite = "\x1b[37m"
+
+BgBlack = "\x1b[40m"
+BgRed = "\x1b[41m"
+BgGreen = "\x1b[42m"
+BgYellow = "\x1b[43m"
+BgBlue = "\x1b[44m"
+BgMagenta = "\x1b[45m"
+BgCyan = "\x1b[46m"
+BgWhite = "\x1b[47m"
+```
+
 ## 3D WebGL Viewer
 
 이제 프로젝트는 뷰어의 고도화 작업에 임박해있다. 이번주는 3D 세상을 위해 glTF 모델을 연구하는 시간이 많았다. 관련된 내용은 사실 Three.js를 사용하면서 테스트가 되었지만, glTF의 스키마를 정확히 알아본적이 없었다. 추후 glTF 모델은 DB화가 이루어져야 했기에 스키마를 탐색하였다.
