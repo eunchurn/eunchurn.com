@@ -65,7 +65,7 @@
     "globby": "13.1.2",
     "husky": "8.0.2",
     "inquirer": "9.1.4",
-    "lint-staged": "13.0.4",
+    "lint-staged": "13.1.0",
     "next-compose-plugins": "2.2.1",
     "next-remote-watch": "2.0.0",
     "prettier": "2.8.0",
