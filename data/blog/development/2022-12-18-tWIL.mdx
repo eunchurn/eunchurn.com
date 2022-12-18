@@ -115,3 +115,76 @@ https://github.com/potree/potree
 echo "pinentry-program /opt/homebrew/bin/pinentry-mac" >> ~/.gnupg/gpg-agent.conf
 killall gpg-agent
 ```
+
+## Github action
+
+### `save-state`, `set-output`
+
+[Deprecating `save-state` and `set-output` commands](https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/)
+
+### CodeCoverage Summary
+
+[CodeCoverageSummary](https://github.com/irongut/CodeCoverageSummary)
+
+[Jest Test](https://gist.github.com/rishitells/3c4536131819cff4eba2c8ab5bbb4570)
+
+`coverageReporters`
+
+```javascript:jest.config.js
+module.exports = {
+  "collectCoverageFrom": ["src/**/*.js", "!**/node_modules/**"],
+  "coverageReporters": ["html", "text", "text-summary", "cobertura"],
+  "testMatch": ["**/*.test.js"]
+}
+```
+
+```typescript:jest.config.ts
+import { pathsToModuleNameMapper, JestConfigWithTsJest } from "ts-jest";
+import ts from "typescript";
+
+const compilerOptionsPaths = (() => {
+  const configFileName = ts.findConfigFile(
+    "../",
+    ts.sys.fileExists,
+    "tsconfig.json",
+  );
+  if (configFileName) {
+    const configFile = ts.readConfigFile(configFileName, ts.sys.readFile);
+    const option = ts.parseJsonConfigFileContent(
+      configFile.config,
+      ts.sys,
+      "./",
+    );
+    return option.raw.compilerOptions.paths;
+  }
+  return {};
+})();
+
+
+const moduleNameMapper = pathsToModuleNameMapper(compilerOptionsPaths, {
+  prefix: "<rootDir>",
+});
+
+const jestSetting: JestConfigWithTsJest = {
+  setupFiles: ["<rootDir>/.jest/setupEnv.js"],
+  moduleFileExtensions: ["ts", "tsx", "js", "json"],
+  rootDir: ".",
+  roots: ["<rootDir>"],
+  modulePaths: ["<rootDir>"],
+  moduleNameMapper,
+  modulePathIgnorePatterns: ["dist"],
+  testRegex: ".spec|.test.ts$",
+  transform: {
+    "^.+.ts$": [
+      "ts-jest",
+      {
+        tsconfig: "tsconfig.json",
+        compiler: "typescript",
+      },
+    ],
+  },
+  coverageReporters: ["html", "text", "text-summary", "cobertura"],
+};
+
+export default jestSetting;
+```
