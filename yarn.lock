@@ -5397,10 +5397,10 @@ mdn-data@2.0.14:
   resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.0.14.tgz#7113fc4281917d63ce29b43446f701e68c25ba50"
   integrity sha512-dn6wd0uw5GsdswPFfsgMp5NSB0/aDe6fK94YJV/AJDYXL6HVLWBsxeq7js7Ad+mU2K9LAlwpk6kN2D5mwCPVow==
 
-mdx-bundler@9.0.1:
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/mdx-bundler/-/mdx-bundler-9.0.1.tgz#0ccb8ba0aaa1c4a22fbb64225b2d7f7e9c483552"
-  integrity sha512-/ktO4WTwrZszPOISh9qU0Ud/WXlTZHqA9grErUZGc7WGd7mooJiCCxejkkzHy7TQf1PS83jGECLrTeSVUkqEkQ==
+mdx-bundler@9.2.1:
+  version "9.2.1"
+  resolved "https://registry.yarnpkg.com/mdx-bundler/-/mdx-bundler-9.2.1.tgz#917dbd986ac3e7f7f14ac635c2dfc224eafdd42d"
+  integrity sha512-hWEEip1KU9MCNqeH2rqwzAZ1pdqPPbfkx9OTJjADqGPQz4t9BO85fhI7AP9gVYrpmfArf9/xJZUN0yBErg/G/Q==
   dependencies:
     "@babel/runtime" "^7.16.3"
     "@esbuild-plugins/node-resolve" "^0.1.4"
@@ -5410,6 +5410,7 @@ mdx-bundler@9.0.1:
     remark-frontmatter "^4.0.1"
     remark-mdx-frontmatter "^1.1.1"
     uuid "^8.3.2"
+    vfile "^5.3.2"
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -8517,7 +8518,7 @@ vfile-message@^3.0.0:
     "@types/unist" "^2.0.0"
     unist-util-stringify-position "^3.0.0"
 
-vfile@^5.0.0:
+vfile@^5.0.0, vfile@^5.3.2:
   version "5.3.6"
   resolved "https://registry.yarnpkg.com/vfile/-/vfile-5.3.6.tgz#61b2e70690cc835a5d0d0fd135beae74e5a39546"
   integrity sha512-ADBsmerdGBs2WYckrLBEmuETSPyTD4TuLxTrw0DvjirxW1ra4ZwkbzG8ndsv3Q57smvHxo677MHaQrY9yxH8cA==
