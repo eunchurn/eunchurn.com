@@ -84,6 +84,7 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
                           className="h-10 w-10 rounded-full"
                           placeholder="blur"
                           blurDataURL={blurDataUrl}
+                          unoptimized
                         />
                       )}
                       <dl className="whitespace-nowrap text-sm font-medium leading-5">

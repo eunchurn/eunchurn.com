@@ -58,6 +58,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                               className="rounded-full"
                               placeholder="blur"
                               blurDataURL={blurDataUrl}
+                              unoptimized
                             />
                           </Link>
                         )}
@@ -107,6 +108,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                               className="rounded-full"
                               placeholder="blur"
                               blurDataURL={blurDataUrl}
+                              unoptimized
                             />
                           </Link>
                         </div>

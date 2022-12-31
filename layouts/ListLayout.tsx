@@ -81,6 +81,7 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
                             className="rounded-full"
                             placeholder="blur"
                             blurDataURL={blurDataUrl}
+                            unoptimized
                           />
                         </Link>
                       )}
@@ -113,6 +114,7 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
                           height={100}
                           objectFit="cover"
                           className="rounded-full"
+                          unoptimized
                         />
                       </div>
                     )}

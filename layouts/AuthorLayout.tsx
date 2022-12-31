@@ -29,6 +29,7 @@ export default function AuthorLayout({ children, frontMatter }: Props) {
               width="192px"
               height="192px"
               className="h-48 w-48 rounded-full"
+              unoptimized
             />
             <h3
               className="pt-4 pb-2 text-2xl leading-8 tracking-tight"
