@@ -9,7 +9,7 @@ import ScrollTopAndComment from "@/components/ScrollTopAndComment";
 import { ReactNode } from "react";
 import { PostFrontMatter } from "types/PostFrontMatter";
 
-interface Props {
+export interface Props {
   frontMatter: PostFrontMatter;
   children: ReactNode;
   next?: { slug: string; title: string };

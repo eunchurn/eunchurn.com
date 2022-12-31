@@ -51,10 +51,10 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                           <Link href={`/blog/${slug}`}>
                             <Image
                               src={featured}
-                              alt="slug"
+                              alt={title}
                               width={100}
                               height={100}
-                              objectFit="cover"
+                              style={{ objectFit: "cover", height: 100 }}
                               className="rounded-full"
                               placeholder="blur"
                               blurDataURL={blurDataUrl}
@@ -97,14 +97,14 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                         </div>
                       </div>
                       {featured && (
-                        <div className="aspect-w-1 min-w-1/4 pt-8 pl-8 xl:invisible xl:w-0">
+                        <div className="aspect-w-1 h-100px relative min-w-1/4 pt-8 pl-8 xl:invisible xl:w-0">
                           <Link href={`/blog/${slug}`}>
                             <Image
                               src={featured}
-                              alt="slug"
+                              alt={title}
                               width={100}
                               height={100}
-                              objectFit="cover"
+                              style={{ objectFit: "cover", height: 100 }}
                               className="rounded-full"
                               placeholder="blur"
                               blurDataURL={blurDataUrl}

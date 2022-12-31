@@ -4,7 +4,7 @@ import { PageSEO } from "@/components/SEO";
 import { ReactNode } from "react";
 import { AuthorFrontMatter } from "types/AuthorFrontMatter";
 
-interface Props {
+export interface Props {
   children: ReactNode;
   frontMatter: AuthorFrontMatter;
 }
@@ -26,8 +26,8 @@ export default function AuthorLayout({ children, frontMatter }: Props) {
             <Image
               src={avatar}
               alt="avatar"
-              width="192px"
-              height="192px"
+              width={192}
+              height={192}
               className="h-48 w-48 rounded-full"
               unoptimized
             />

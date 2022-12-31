@@ -1,25 +1,39 @@
 /* eslint-disable react/display-name */
 import React, { useMemo } from "react";
-import { ComponentMap, getMDXComponent } from "mdx-bundler/client";
+import { getMDXComponent } from "mdx-bundler/client";
 import Image from "./Image";
 import CustomLink from "./Link";
 import TOCInline from "./TOCInline";
 import Pre from "./Pre";
 import { BlogNewsletterForm } from "./NewsletterForm";
+import AuthorLayout, { Props as AuthorLayoutProps } from "../layouts/AuthorLayout";
+import ListLayout, { Props as ListLayoutProps } from "../layouts/ListLayout";
+import PostLayout, { Props as PostLayoutProps } from "../layouts/PostLayout";
+import PostSimple, { Props as PostSimpleProps } from "../layouts/PostSimple";
 
 const Wrapper: React.ComponentType<{ layout: string }> = ({ layout, ...rest }) => {
-  const Layout = require(`../layouts/${layout}`).default;
-  return <Layout {...rest} />;
+  switch (layout) {
+    case "AuthorLayout":
+      return <AuthorLayout {...(rest as AuthorLayoutProps)} />;
+    case "ListLayout":
+      return <ListLayout {...(rest as ListLayoutProps)} />;
+    case "PostLayout":
+      return <PostLayout {...(rest as PostLayoutProps)} />;
+    case "PostSimple":
+      return <PostSimple {...(rest as PostSimpleProps)} />;
+    default:
+      return <></>;
+  }
+  // const Layout = require(`../layouts/${layout}`).default;
+  // return <Layout {...rest} />;
 };
 
-export const MDXComponents: ComponentMap = {
+export const MDXComponents = {
   Image,
-  //@ts-ignore
   TOCInline,
   a: CustomLink,
   pre: Pre,
   wrapper: Wrapper,
-  //@ts-ignore
   BlogNewsletterForm,
 };
 
