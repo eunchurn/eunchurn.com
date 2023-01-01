@@ -71,10 +71,10 @@ const nextConfig = {
     // loader: "cloudinary",
     // path: "https://res.cloudinary.com/dspxl7nqq/image/upload/",
   },
-  i18n: {
-    locales: ["ko"],
-    defaultLocale: "ko",
-  },
+  // i18n: {
+  //   locales: ["ko"],
+  //   defaultLocale: "ko",
+  // },
   async headers() {
     return [
       {
