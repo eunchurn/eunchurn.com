@@ -28,9 +28,7 @@
     "**/*.ts",
     "**/*.tsx",
     "data/siteMetadata.js",
-    "scripts/generate-sitemap.js",
-    "scripts/generate-sitemap.js",
-    "next.config.mjs"
+    "scripts/generate-sitemap.js"
   ],
   "exclude": ["node_modules"]
 }
