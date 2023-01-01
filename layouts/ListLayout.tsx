@@ -106,13 +106,13 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
                       </div>
                     </div>
                     {featured && (
-                      <div className="min-w-1/4 pt-8 pl-8 xl:invisible xl:w-0">
+                      <div className="min-w-1/4 pt-8 xl:invisible xl:w-0">
                         <Image
                           src={featured}
                           alt={title}
-                          width={100}
-                          height={100}
-                          style={{ objectFit: "cover", height: 100 }}
+                          width={80}
+                          height={80}
+                          style={{ objectFit: "cover", height: 80 }}
                           className="rounded-full"
                           unoptimized
                         />
