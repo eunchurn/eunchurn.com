@@ -54,11 +54,8 @@ const securityHeaders = [
   },
 ];
 
-// module.exports = withPWA(bundleAnalyzer);
-/**
- * @type {import('next/dist/next-server/server/config').NextConfig}
- **/
-module.exports = withPlugins([
+/** @type {import('next').NextConfig} */
+const nextConfig = withPlugins([
   [withBundleAnalyzer],
   [withPWA],
   {
@@ -120,3 +117,5 @@ module.exports = withPlugins([
     },
   },
 ]);
+
+module.exports = nextConfig;
