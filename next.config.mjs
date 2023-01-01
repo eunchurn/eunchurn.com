@@ -1,8 +1,12 @@
-const withPWA = require("next-pwa")({ dest: "public" });
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
+import pwa from "next-pwa";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withPWA = pwa({ dest: "public", register: true, skipWaiting: true });
+
+const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
-const withPlugins = require("next-compose-plugins");
+// const withPlugins = require("next-compose-plugins");
 
 // You might need to insert additional domains in script-src if you are using external services
 // style-src 'self' 'unsafe-inline';
@@ -56,22 +60,20 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  dest: "public",
   productionBrowserSourceMaps: true,
   reactStrictMode: true,
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
   eslint: {
     dirs: ["pages", "components", "lib", "layouts", "scripts"],
   },
-  pwa: {
-    dest: "public",
-    register: true,
-    skipWaiting: true,
-  },
   images: {
     unoptimized: true,
     // loader: "cloudinary",
     // path: "https://res.cloudinary.com/dspxl7nqq/image/upload/",
+  },
+  i18n: {
+    locales: ["ko"],
+    defaultLocale: "ko",
   },
   async headers() {
     return [
@@ -114,4 +116,13 @@ const nextConfig = {
   },
 };
 
-module.exports = withPlugins([[withBundleAnalyzer], [withPWA], nextConfig]);
+const buildConfig = (phase, { defaultConfig }) => {
+  const plugins = [withBundleAnalyzer, withPWA];
+  /**
+   * @type {import('next').NextConfig}
+   */
+  const config = plugins.reduce((acc, plugin) => plugin(acc), { ...nextConfig });
+  return config;
+};
+
+export default buildConfig;
