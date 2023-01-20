@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@fontsource/inter": "4.5.14",
+    "@fontsource/inter": "4.5.15",
     "@mailchimp/mailchimp_marketing": "3.0.80",
     "@remark-embedder/core": "3.0.1",
     "@remark-embedder/transformer-oembed": "3.0.0",
