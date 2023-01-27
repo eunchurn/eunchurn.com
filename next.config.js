@@ -142,7 +142,7 @@ const KEYS_TO_OMIT = [
 // }
 
 // asset prefix
-if (process.env.EXPORT !== "true") {
+if (process.env.EXPORT === "true") {
   nextConfig.assetPrefix = isProd ? "/eunchurn.com/" : "";
 }
 
