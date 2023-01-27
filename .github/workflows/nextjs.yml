@@ -74,16 +74,13 @@ jobs:
             ${{ runner.os }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock', '**/pnpm-lock.yaml') }}-
       - name: Use variables
         run: |
-          echo "Environment variables"
-          echo "BUTTONDOWN_API_URL : ${{ vars.BUTTONDOWN_API_URL }}"
-          echo "NEXT_PUBLIC_GISCUS_CATEGORY : ${{ vars.NEXT_PUBLIC_GISCUS_CATEGORY }}"
-          echo "NEXT_PUBLIC_GISCUS_REPO : ${{ vars.NEXT_PUBLIC_GISCUS_REPO }}"
-          echo "Environment"
-          echo "BUTTONDOWN_API_URL : ${{ env.BUTTONDOWN_API_URL }}"
-          echo "NEXT_PUBLIC_GISCUS_CATEGORY : ${{ env.NEXT_PUBLIC_GISCUS_CATEGORY }}"
-          echo "NEXT_PUBLIC_GISCUS_REPO : ${{ env.NEXT_PUBLIC_GISCUS_REPO }}"
-          echo "Environment secrets"
-          echo "BUTTONDOWN_API_KEY : ${{ secrets.BUTTONDOWN_API_KEY }}"
+          >.env.production
+          echo "BUTTONDOWN_API_URL=${{ vars.BUTTONDOWN_API_URL }}" >> .env.production
+          echo "NEXT_PUBLIC_GISCUS_CATEGORY=${{ vars.NEXT_PUBLIC_GISCUS_CATEGORY }}" >> .env.production
+          echo "NEXT_PUBLIC_GISCUS_REPO=${{ vars.NEXT_PUBLIC_GISCUS_REPO }}" >> .env.production
+          echo "BUTTONDOWN_API_KEY=${{ secrets.BUTTONDOWN_API_KEY }}" >> .env.production
+          echo "NEXT_PUBLIC_GISCUS_CATEGORY_ID=${{ secrets.NEXT_PUBLIC_GISCUS_CATEGORY_ID }}" >> .env.production
+          echo "NEXT_PUBLIC_GISCUS_REPOSITORY_ID=${{ secrets.NEXT_PUBLIC_GISCUS_REPOSITORY_ID }}" >> .env.production
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Type Check
