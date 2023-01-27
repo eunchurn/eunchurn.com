@@ -5,6 +5,11 @@ import { ComponentProps, useState } from "react";
 import Pagination from "@/components/Pagination";
 import formatDate from "@/lib/utils/formatDate";
 import { PostFrontMatter } from "types/PostFrontMatter";
+import getConfig from "next/config";
+
+const {
+  publicRuntimeConfig: { staticFolder },
+} = getConfig();
 export interface Props {
   posts: PostFrontMatter[];
   title: string;
@@ -73,7 +78,7 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
                       {featured && (
                         <Link href={`/blog/${slug}`}>
                           <Image
-                            src={featured}
+                            src={`${staticFolder}${featured}`}
                             alt={title}
                             width={100}
                             height={100}
@@ -108,7 +113,7 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
                     {featured && (
                       <div className="min-w-1/4 pt-8 xl:invisible xl:w-0">
                         <Image
-                          src={featured}
+                          src={`${staticFolder}${featured}`}
                           alt={title}
                           width={80}
                           height={80}

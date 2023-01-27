@@ -8,8 +8,13 @@ import formatDate from "@/lib/utils/formatDate";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { PostFrontMatter } from "types/PostFrontMatter";
 import NewsletterForm from "@/components/NewsletterForm";
+import getConfig from "next/config";
 
 const MAX_DISPLAY = 5;
+
+const {
+  publicRuntimeConfig: { staticFolder },
+} = getConfig();
 
 export const getStaticProps: GetStaticProps<{ posts: PostFrontMatter[] }> = async () => {
   const posts = await getAllFilesFrontMatter("blog");
@@ -50,7 +55,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                         {featured && (
                           <Link href={`/blog/${slug}`}>
                             <Image
-                              src={featured}
+                              src={`${staticFolder}${featured}`}
                               alt={title}
                               width={100}
                               height={100}
@@ -100,7 +105,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                         <div className="aspect-w-1 relative min-w-1/4 pt-8 xl:invisible xl:w-0">
                           <Link href={`/blog/${slug}`}>
                             <Image
-                              src={featured}
+                              src={`${staticFolder}${featured}`}
                               alt={title}
                               width={80}
                               height={80}
