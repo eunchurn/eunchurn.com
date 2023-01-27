@@ -65,5 +65,6 @@
   "explorer.fileNesting.enabled": true,
   "[svg]": {
     "editor.defaultFormatter": "jock.svg"
-  }
+  },
+  "cSpell.words": ["unist", "vfile"]
 }

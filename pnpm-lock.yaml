@@ -9,9 +9,11 @@ specifiers:
   '@svgr/webpack': 6.5.1
   '@tailwindcss/forms': 0.5.3
   '@tailwindcss/typography': 0.5.9
+  '@types/js-yaml': ^4.0.5
   '@types/next-pwa': ^5.6.0
   '@types/react': 18.0.26
   '@types/tailwindcss': 3.0.11
+  '@types/unist': ^2.0.6
   '@typescript-eslint/eslint-plugin': 5.49.0
   '@typescript-eslint/parser': 5.49.0
   autoprefixer: 10.4.13
@@ -29,6 +31,7 @@ specifiers:
   husky: 8.0.3
   image-size: 1.0.2
   inquirer: 9.1.4
+  js-yaml: ^4.1.0
   lint-staged: 13.1.0
   mdx-bundler: 9.2.1
   next: 13.1.5
@@ -60,7 +63,9 @@ specifiers:
   tailwindcss: 3.2.4
   ts-node: 10.9.1
   typescript: 4.9.4
+  unist: ^8.0.11
   unist-util-visit: 4.1.1
+  vfile: ^5.3.6
 
 dependencies:
   '@fontsource/inter': 4.5.15
@@ -74,6 +79,7 @@ dependencies:
   github-slugger: 2.0.0
   gray-matter: 4.0.3
   image-size: 1.0.2
+  js-yaml: 4.1.0
   mdx-bundler: 9.2.1_esbuild@0.17.4
   next: 13.1.5_pjwopsidmaokadturxaafygjp4
   next-pwa: 5.6.0_f3tzsunkeztgj47ip3kmrzmoju
@@ -95,14 +101,18 @@ dependencies:
   sharp: 0.31.3
   smoothscroll-polyfill: 0.4.4
   tailwindcss: 3.2.4_aesdjsunmf4wiehhujt67my7tu
+  unist: 8.0.11
   unist-util-visit: 4.1.1
+  vfile: 5.3.6
 
 devDependencies:
   '@next/bundle-analyzer': 13.1.5
   '@svgr/webpack': 6.5.1
+  '@types/js-yaml': 4.0.5
   '@types/next-pwa': 5.6.1_pjwopsidmaokadturxaafygjp4
   '@types/react': 18.0.26
   '@types/tailwindcss': 3.0.11
+  '@types/unist': 2.0.6
   '@typescript-eslint/eslint-plugin': 5.49.0_iu322prlnwsygkcra5kbpy22si
   '@typescript-eslint/parser': 5.49.0_7uibuqfxkfaozanbtbziikiqje
   cross-env: 7.0.3
@@ -2317,12 +2327,12 @@ packages:
     resolution: {integrity: sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==}
     dependencies:
       '@types/eslint': 8.4.10
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
 
   /@types/eslint/8.4.10:
     resolution: {integrity: sha512-Sl/HOqN8NKPmhWo2VBEPm0nvHnu2LL3v9vKo8MEq0EtbJ4eVzGPl41VNPvn5E1i5poMk4/XD8UriLHpJvEP/Nw==}
     dependencies:
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
       '@types/json-schema': 7.0.11
 
   /@types/estree-jsx/1.0.0:
@@ -2339,7 +2349,6 @@ packages:
 
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
-    dev: false
 
   /@types/glob/7.2.0:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
@@ -2353,6 +2362,10 @@ packages:
     dependencies:
       '@types/unist': 2.0.6
     dev: false
+
+  /@types/js-yaml/4.0.5:
+    resolution: {integrity: sha512-FhpRzf927MNQdRZP0J5DLIdTXhjLYzeUTmLAu69mnVksLH9CJY3IuSeEgbKUki7GQZm0WqDkGzyxju2EZGD2wA==}
+    dev: true
 
   /@types/json-schema/7.0.11:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
@@ -2479,7 +2492,6 @@ packages:
 
   /@types/unist/2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
-    dev: false
 
   /@typescript-eslint/eslint-plugin/5.49.0_iu322prlnwsygkcra5kbpy22si:
     resolution: {integrity: sha512-IhxabIpcf++TBaBa1h7jtOWyon80SXPRLDq0dVz5SLFC/eW6tofkw/O7Ar3lkx5z5U6wzbKDrl2larprp5kk5Q==}
@@ -9235,6 +9247,10 @@ packages:
       '@types/unist': 2.0.6
       unist-util-is: 5.2.0
       unist-util-visit-parents: 5.1.3
+    dev: false
+
+  /unist/8.0.11:
+    resolution: {integrity: sha512-qnWJT2X2zv8UVrAFAxz83rRek9NBdzNLEM5+EKSP0kbZeEGVWuxwKbVwoi2GvgBoIrQLsZ0xLok6+q7VEv4ERw==}
     dev: false
 
   /universalify/2.0.0:
