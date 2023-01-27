@@ -131,7 +131,7 @@ const KEYS_TO_OMIT = [
   "analyticsId",
   "webpack5",
   "amp",
-  "assetPrefix",
+  // "assetPrefix",
 ];
 
 // manage i18n
