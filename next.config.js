@@ -144,6 +144,7 @@ const KEYS_TO_OMIT = [
 // asset prefix
 if (process.env.EXPORT === "true") {
   nextConfig.assetPrefix = isProd ? "/eunchurn.com/" : "";
+  nextConfig.basePath = isProd ? "/eunchurn.com/" : "";
 }
 
 module.exports = (_phase, { defaultConfig }) => {
