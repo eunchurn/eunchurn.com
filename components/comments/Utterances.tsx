@@ -43,14 +43,14 @@ const Utterances = ({ issueTerm }: Props) => {
     if (!iframe) return;
     LoadComments();
   }, [LoadComments]);
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  // const [mounted, setMounted] = React.useState(false);
+  // React.useEffect(() => {
+  //   setMounted(true);
+  // }, []);
 
-  if (!mounted) {
-    return null;
-  }
+  // if (!mounted) {
+  //   return null;
+  // }
   // Added `relative` to fix a weird bug with `utterances-frame` position
   return (
     <div className="pt-6 pb-6 text-center text-gray-700 dark:text-gray-300">

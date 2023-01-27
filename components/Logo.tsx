@@ -4,14 +4,14 @@ import { useTheme } from "@wits/next-themes";
 
 const EunchurnLogo = (props: SVGProps<SVGSVGElement>) => {
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  // const [mounted, setMounted] = React.useState(false);
+  // React.useEffect(() => {
+  //   setMounted(true);
+  // }, []);
 
-  if (!mounted) {
-    return null;
-  }
+  // if (!mounted) {
+  //   return null;
+  // }
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
