@@ -78,6 +78,7 @@ const nextConfig = {
     // path: "https://res.cloudinary.com/dspxl7nqq/image/upload/",
   },
   experimental: {},
+  assetPrefix: "",
   // i18n: {
   //   locales: ["ko"],
   //   defaultLocale: "ko",
@@ -130,21 +131,18 @@ const KEYS_TO_OMIT = [
   "analyticsId",
   "webpack5",
   "amp",
-  // "assetPrefix",
+  "assetPrefix",
 ];
 
 // manage i18n
-// if (process.env.EXPORT !== "true") {
-//   nextConfig.i18n = {
-//     locales: ["en", "kr"],
-//     defaultLocale: "en",
-//   };
+// if (process.env.EXPORT === "true") {
+//   nextConfig.i18n = {};
 // }
 
 // asset prefix
-if (process.env.EXPORT === "true") {
+if (process.env.GITHUB === "true") {
   nextConfig.assetPrefix = isProd ? "/eunchurn.com/" : "";
-  nextConfig.basePath = isProd ? "/eunchurn.com/" : "";
+  nextConfig.basePath = isProd ? "/eunchurn.com" : "";
 }
 
 module.exports = (_phase, { defaultConfig }) => {

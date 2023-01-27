@@ -77,9 +77,9 @@ jobs:
       - name: Type Check
         run: ${{ steps.detect-package-manager.outputs.manager }} typecheck
       - name: Build with Next.js
-        run: ${{ steps.detect-package-manager.outputs.runner }} next build
+        run: ${{ steps.detect-package-manager.outputs.runner }} build:github
       - name: Static HTML export with Next.js
-        run: ${{ steps.detect-package-manager.outputs.runner }} next export
+        run: ${{ steps.detect-package-manager.outputs.runner }} export
       - name: No jekyll build
         run: touch out/.nojekyll
       - name: Upload artifact

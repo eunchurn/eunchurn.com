@@ -8,6 +8,8 @@
     "build": "next build && npm run -s build:sitemap",
     "build:sitemap": "node ./scripts/generate-sitemap",
     "serve": "next start",
+    "export": "cross-env EXPORT=true next export",
+    "build:github": "cross-env GITHUB=true next build && npm run -s build:sitemap",
     "analyze": "cross-env ANALYZE=true next build",
     "lint": "next lint --fix --dir pages --dir components --dir lib --dir layouts --dir scripts",
     "prepare": "husky install",
