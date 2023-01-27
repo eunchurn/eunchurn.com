@@ -66,5 +66,5 @@
   "[svg]": {
     "editor.defaultFormatter": "jock.svg"
   },
-  "cSpell.words": ["unist", "vfile"]
+  "cSpell.words": ["eunchurn", "unist", "unoptimized", "vfile"]
 }
