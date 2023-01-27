@@ -66,5 +66,8 @@
   "[svg]": {
     "editor.defaultFormatter": "jock.svg"
   },
-  "cSpell.words": ["eunchurn", "unist", "unoptimized", "vfile"]
+  "cSpell.words": ["eunchurn", "unist", "unoptimized", "vfile"],
+  "[dotenv]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  }
 }
