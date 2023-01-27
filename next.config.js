@@ -77,7 +77,6 @@ const nextConfig = {
     // loader: "cloudinary",
     // path: "https://res.cloudinary.com/dspxl7nqq/image/upload/",
   },
-  assetPrefix: isProd ? "/eunchurn.com/" : "",
   experimental: {},
   // i18n: {
   //   locales: ["ko"],
@@ -141,6 +140,11 @@ const KEYS_TO_OMIT = [
 //     defaultLocale: "en",
 //   };
 // }
+
+// asset prefix
+if (process.env.EXPORT !== "true") {
+  nextConfig.assetPrefix = isProd ? "/eunchurn.com/" : "";
+}
 
 module.exports = (_phase, { defaultConfig }) => {
   const plugins = [[withPWA], [withBundleAnalyzer, {}]];
