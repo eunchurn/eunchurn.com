@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import siteMetadata from "@/data/siteMetadata";
 import { AuthorFrontMatter } from "types/AuthorFrontMatter";
 import { PostFrontMatter } from "types/PostFrontMatter";
+import getConfig from "next/config";
 
 interface CommonSEOProps {
   title: string;
@@ -18,6 +19,10 @@ interface CommonSEOProps {
   canonicalUrl?: string;
 }
 
+const {
+  publicRuntimeConfig: { staticFolder },
+} = getConfig();
+
 const CommonSEO = ({
   title,
   description,
@@ -32,7 +37,7 @@ const CommonSEO = ({
       <title>{title}</title>
       <meta name="robots" content="follow, index" />
       <meta name="description" content={description} />
-      <meta property="og:url" content={`${siteMetadata.siteUrl}${router.asPath}`} />
+      <meta property="og:url" content={`${siteMetadata.siteUrl}${staticFolder}${router.asPath}`} />
       <meta property="og:type" content={ogType} />
       <meta property="og:site_name" content={siteMetadata.title} />
       <meta property="og:description" content={description} />
@@ -49,7 +54,9 @@ const CommonSEO = ({
       <meta name="twitter:image" content={twImage} />
       <link
         rel="canonical"
-        href={canonicalUrl ? canonicalUrl : `${siteMetadata.siteUrl}${router.asPath}`}
+        href={
+          canonicalUrl ? canonicalUrl : `${siteMetadata.siteUrl}${staticFolder}${router.asPath}`
+        }
       />
     </Head>
   );
@@ -61,8 +68,8 @@ interface PageSEOProps {
 }
 
 export const PageSEO = ({ title, description }: PageSEOProps) => {
-  const ogImageUrl = siteMetadata.siteUrl + siteMetadata.socialBanner;
-  const twImageUrl = siteMetadata.siteUrl + siteMetadata.socialBanner;
+  const ogImageUrl = `${siteMetadata.siteUrl}${staticFolder}${siteMetadata.socialBanner}`;
+  const twImageUrl = `${siteMetadata.siteUrl}${staticFolder}${siteMetadata.socialBanner}`;
   return (
     <CommonSEO
       title={title}
@@ -75,8 +82,8 @@ export const PageSEO = ({ title, description }: PageSEOProps) => {
 };
 
 export const TagSEO = ({ title, description }: PageSEOProps) => {
-  const ogImageUrl = siteMetadata.siteUrl + siteMetadata.socialBanner;
-  const twImageUrl = siteMetadata.siteUrl + siteMetadata.socialBanner;
+  const ogImageUrl = `${siteMetadata.siteUrl}${staticFolder}${siteMetadata.socialBanner}`;
+  const twImageUrl = `${siteMetadata.siteUrl}${staticFolder}${siteMetadata.socialBanner}`;
   const router = useRouter();
   return (
     <>
@@ -92,7 +99,7 @@ export const TagSEO = ({ title, description }: PageSEOProps) => {
           rel="alternate"
           type="application/rss+xml"
           title={`${description} - RSS feed`}
-          href={`${siteMetadata.siteUrl}${router.asPath}/feed.xml`}
+          href={`${siteMetadata.siteUrl}${staticFolder}${router.asPath}/feed.xml`}
         />
       </Head>
     </>
@@ -127,7 +134,7 @@ export const BlogSEO = ({
   const featuredImages = imagesArr.map((img) => {
     return {
       "@type": "ImageObject",
-      url: `${siteMetadata.siteUrl}${img}`,
+      url: `${siteMetadata.siteUrl}${staticFolder}${img}`,
     };
   });
 
@@ -163,7 +170,7 @@ export const BlogSEO = ({
       name: siteMetadata.author,
       logo: {
         "@type": "ImageObject",
-        url: `${siteMetadata.siteUrl}${siteMetadata.siteLogo}`,
+        url: `${siteMetadata.siteUrl}${staticFolder}${siteMetadata.siteLogo}`,
       },
     },
     description: summary,
@@ -178,9 +185,9 @@ export const BlogSEO = ({
         description={summary}
         ogType="article"
         // ogImage={featuredImages}
-        ogImage={`${siteMetadata.siteUrl}${featured}`}
+        ogImage={`${siteMetadata.siteUrl}${staticFolder}${featured}`}
         // twImage={twImageUrl}
-        twImage={`${siteMetadata.siteUrl}${featured}`}
+        twImage={`${siteMetadata.siteUrl}${staticFolder}${featured}`}
         canonicalUrl={canonicalUrl}
       />
       <Head>

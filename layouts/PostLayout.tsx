@@ -10,12 +10,17 @@ import ScrollTopAndComment from "@/components/ScrollTopAndComment";
 import { ReactNode } from "react";
 import { PostFrontMatter } from "types/PostFrontMatter";
 import { AuthorFrontMatter } from "types/AuthorFrontMatter";
+import getConfig from "next/config";
 
 const editUrl = (fileName) => `${siteMetadata.siteRepo}/blob/master/data/blog/${fileName}`;
 const discussUrl = (slug) =>
   `https://mobile.twitter.com/search?q=${encodeURIComponent(
     `${siteMetadata.siteUrl}/blog/${slug}`
   )}`;
+
+const {
+  publicRuntimeConfig: { staticFolder },
+} = getConfig();
 
 const postDateTemplate: Intl.DateTimeFormatOptions = {
   weekday: "long",
@@ -77,7 +82,7 @@ export default function PostLayout({ frontMatter, authorDetails, next, prev, chi
                     <li className="flex items-center space-x-2" key={author.name}>
                       {author.avatar && (
                         <Image
-                          src={author.avatar}
+                          src={`${staticFolder}${author.avatar}`}
                           width={38}
                           height={38}
                           alt="avatar"

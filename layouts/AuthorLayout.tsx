@@ -3,11 +3,16 @@ import Image from "@/components/Image";
 import { PageSEO } from "@/components/SEO";
 import { ReactNode } from "react";
 import { AuthorFrontMatter } from "types/AuthorFrontMatter";
+import getConfig from "next/config";
 
 export interface Props {
   children: ReactNode;
   frontMatter: AuthorFrontMatter;
 }
+
+const {
+  publicRuntimeConfig: { staticFolder },
+} = getConfig();
 
 export default function AuthorLayout({ children, frontMatter }: Props) {
   const { name, avatar, occupation, company, email, twitter, linkedin, github } = frontMatter;
@@ -24,7 +29,7 @@ export default function AuthorLayout({ children, frontMatter }: Props) {
         <div className="items-start space-y-2 xl:grid xl:grid-cols-3 xl:gap-x-8 xl:space-y-0">
           <div className="flex flex-col items-center space-x-2 pt-8">
             <Image
-              src={avatar}
+              src={`${staticFolder}${avatar}`}
               alt="avatar"
               width={192}
               height={192}
