@@ -38,7 +38,7 @@ specifiers:
   next-compose-plugins: 2.2.1
   next-pwa: 5.6.0
   next-remote-watch: 2.0.0
-  next-themes: 0.2.1
+  next-themes: npm:@wits/next-themes@0.2.16
   postcss: 8.4.21
   preact: 10.11.3
   prettier: 2.8.3
@@ -83,7 +83,7 @@ dependencies:
   mdx-bundler: 9.2.1_esbuild@0.17.4
   next: 13.1.5_pjwopsidmaokadturxaafygjp4
   next-pwa: 5.6.0_f3tzsunkeztgj47ip3kmrzmoju
-  next-themes: 0.2.1_s6zlkfvllybxhmcq5pkr2zsuza
+  next-themes: /@wits/next-themes/0.2.16_s6zlkfvllybxhmcq5pkr2zsuza
   postcss: 8.4.21
   preact: 10.11.3
   react: 18.2.0
@@ -2712,6 +2712,18 @@ packages:
     dependencies:
       '@webassemblyjs/ast': 1.11.1
       '@xtuc/long': 4.2.2
+
+  /@wits/next-themes/0.2.16_s6zlkfvllybxhmcq5pkr2zsuza:
+    resolution: {integrity: sha512-tf2C7fE28JSOdE5fi4cUV3V5HT7viBahG6sh6G2V/VdzPinaXX5J5hTWuOhmfUnWuitU1JU7N1wIQe1q17SLUA==}
+    peerDependencies:
+      next: '*'
+      react: '*'
+      react-dom: '*'
+    dependencies:
+      next: 13.1.5_pjwopsidmaokadturxaafygjp4
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
 
   /@xtuc/ieee754/1.2.0:
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -6825,18 +6837,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /next-themes/0.2.1_s6zlkfvllybxhmcq5pkr2zsuza:
-    resolution: {integrity: sha512-B+AKNfYNIzh0vqQQKqQItTS8evEouKD7H5Hj3kmuPERwddR2TxvDSFZuTj6T7Jfn1oyeUyJMydPl1Bkxkh0W7A==}
-    peerDependencies:
-      next: '*'
-      react: '*'
-      react-dom: '*'
-    dependencies:
-      next: 13.1.5_pjwopsidmaokadturxaafygjp4
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-    dev: false
 
   /next/12.3.4_pjwopsidmaokadturxaafygjp4:
     resolution: {integrity: sha512-VcyMJUtLZBGzLKo3oMxrEF0stxh8HwuW976pAzlHhI3t8qJ4SROjCrSh1T24bhrbjw55wfZXAbXPGwPt5FLRfQ==}
