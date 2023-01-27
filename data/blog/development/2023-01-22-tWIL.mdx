@@ -1,0 +1,83 @@
+---
+date: "2023-01-22"
+title: "tWIL 2023.01 3주차"
+draft: true
+summary: "Local state management with @apollo/client"
+featured: /static/images/eunchurn/sticker.PNG
+categories:
+  - blog
+tags:
+  - development
+  - apollo client
+  - graphql
+  - graphql codegen
+  - papaparse
+  - xstate
+  - gatsby.js
+  - react-table
+  - webSQL
+  - indexedDB
+---
+
+## npm, yarn 문제
+
+요즘 `pnpm`으로 패키지 매니저를 옮겼음에도 불구하고 VPN없이 패키지 설치에 계속 timeout이 발생한다.
+
+조치사항
+
+```
+yarn config delete https-proxy
+yarn config delete proxy
+```
+
+그래도 해결되지 않음
+
+```
+yarn cache clean
+```
+
+오래걸린다.
+
+```
+npm cache verify
+```
+
+```
+npm cache clean --force
+```
+
+그래도 안되더라...
+
+`idealTree:function-test: sill idealTree buildDeps`
+
+```
+npm set registry http://registry.npmjs.org/
+```
+
+안된다.
+
+```
+npm config set strict-ssl false
+```
+
+```
+npm config set registry https://registry.npmjs.org/ --localtion=global
+```
+
+```
+npm config delete proxy
+npm config delete http-proxy
+npm config delete https-proxy
+```
+
+[npm issue#17228](https://github.com/npm/npm/issues/17228#issuecomment-333857122)
+
+여기도 마찬자기 동작하지 않았다.
+
+[npm cli issue#4309](https://github.com/npm/cli/issues/4309#issuecomment-1062201447)
+
+모두 동작하지 않았다. 문제는 `ts-jest`패키지라고 생각이 드는데 VPN을 연결하면 설치가 잘 되었다. 그리고 2023-01-25 부터 무슨일이 있었냐는 듯 설치가 잘 되었다. 오늘 면접을 보러온 백엔드 개발자도 같은 이슈로 `nestjs/cli`에 이슈를 올렸다고 하더란 얘기를 듣고 동일하게 `ts-jest`에서 문제를 일으키는 것을 알았다.
+
+## Dockerize API via PNPM
+
+[query-engine-node-api issue](https://github.com/prisma/prisma/issues/13717#issuecomment-1216991082)
