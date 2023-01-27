@@ -1,7 +1,7 @@
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
-
+const _ = require("lodash");
 // const withPWA = pwa({ dest: "public", register: true, skipWaiting: true });
 const isProd = process.env.NODE_ENV === "production";
 
@@ -81,7 +81,7 @@ const nextConfig = {
     staticFolder: "",
   },
   // i18n: {
-  //   locales: ["ko"],
+  //   locales: ["ko" ,"en"],
   //   defaultLocale: "ko",
   // },
   async headers() {
@@ -137,7 +137,7 @@ const KEYS_TO_OMIT = [
 
 // manage i18n
 // if (process.env.EXPORT === "true") {
-//   nextConfig.i18n = {};
+//   delete nextConfig.i18n;
 // }
 
 // asset prefix

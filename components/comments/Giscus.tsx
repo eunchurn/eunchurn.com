@@ -10,6 +10,7 @@ interface Props {
 const Giscus = ({ mapping }: Props) => {
   const [enableLoadComments, setEnabledLoadComments] = useState(true);
   const { theme, resolvedTheme } = useTheme();
+
   const commentsTheme =
     siteMetadata.comment.giscusConfig.themeURL === ""
       ? theme === "dark" || resolvedTheme === "dark"
@@ -49,7 +50,14 @@ const Giscus = ({ mapping }: Props) => {
     if (!iframe) return;
     LoadComments();
   }, [LoadComments]);
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
+  if (!mounted) {
+    return null;
+  }
   return (
     <div className="pt-6 pb-6 text-center text-gray-700 dark:text-gray-300">
       {enableLoadComments && <button onClick={LoadComments}>Load Comments</button>}
