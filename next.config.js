@@ -1,5 +1,3 @@
-// const pwa = require("pwa");
-// const bundleAnalyzer = require("@next/bundle-analyzer");
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
@@ -79,6 +77,9 @@ const nextConfig = {
   },
   experimental: {},
   assetPrefix: "",
+  publicRuntimeConfig: {
+    staticFolder: "",
+  },
   // i18n: {
   //   locales: ["ko"],
   //   defaultLocale: "ko",
@@ -143,6 +144,7 @@ const KEYS_TO_OMIT = [
 if (process.env.GITHUB === "true") {
   nextConfig.assetPrefix = isProd ? "/eunchurn.com/" : "";
   nextConfig.basePath = isProd ? "/eunchurn.com" : "";
+  nextConfig.publicRuntimeConfig.staticFolder = isProd ? "/eunchurn.com" : "";
 }
 
 module.exports = (_phase, { defaultConfig }) => {

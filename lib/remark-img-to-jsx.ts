@@ -2,6 +2,7 @@ import { Parent, Node, Literal } from "unist";
 import { visit } from "unist-util-visit";
 import sizeOf from "image-size";
 import fs from "fs";
+import getConfig from "next/config";
 
 type ImageNode = Parent & {
   url: string;
@@ -13,6 +14,8 @@ type ImageNode = Parent & {
 const blurDataUrl =
   "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==";
 
+const nextConfig = getConfig();
+
 export default function remarkImgToJsx() {
   return (tree: Node) => {
     visit(
@@ -22,17 +25,16 @@ export default function remarkImgToJsx() {
         node.type === "paragraph" && node.children.some((n) => n.type === "image"),
       (node: Parent) => {
         const imageNode = node.children.find((n) => n.type === "image") as ImageNode;
-
+        const { staticFolder } = nextConfig.publicRuntimeConfig;
         // only local files
         if (fs.existsSync(`${process.cwd()}/public${imageNode.url}`)) {
           const dimensions = sizeOf(`${process.cwd()}/public${imageNode.url}`);
-
           // Convert original node to next/image
           (imageNode.type = "mdxJsxFlowElement"),
             (imageNode.name = "Image"),
             (imageNode.attributes = [
               { type: "mdxJsxAttribute", name: "alt", value: imageNode.alt },
-              { type: "mdxJsxAttribute", name: "src", value: imageNode.url },
+              { type: "mdxJsxAttribute", name: "src", value: `${staticFolder}${imageNode.url}` },
               { type: "mdxJsxAttribute", name: "width", value: dimensions.width },
               { type: "mdxJsxAttribute", name: "height", value: dimensions.height },
               { type: "mdxJsxAttribute", name: "placeholder", value: "blur" },
