@@ -16,6 +16,7 @@ specifiers:
   '@types/unist': ^2.0.6
   '@typescript-eslint/eslint-plugin': 5.49.0
   '@typescript-eslint/parser': 5.49.0
+  '@wits/next-themes': ^0.2.16
   autoprefixer: 10.4.13
   cross-env: 7.0.3
   dedent: 0.7.0
@@ -38,7 +39,6 @@ specifiers:
   next-compose-plugins: 2.2.1
   next-pwa: 5.6.0
   next-remote-watch: 2.0.0
-  next-themes: npm:@wits/next-themes@0.2.16
   postcss: 8.4.21
   preact: 10.11.3
   prettier: 2.8.3
@@ -74,6 +74,7 @@ dependencies:
   '@remark-embedder/transformer-oembed': 3.0.0_yhneqbv5zrw6o3zwc7kzmjvkei
   '@tailwindcss/forms': 0.5.3_tailwindcss@3.2.4
   '@tailwindcss/typography': 0.5.9_tailwindcss@3.2.4
+  '@wits/next-themes': 0.2.16_s6zlkfvllybxhmcq5pkr2zsuza
   autoprefixer: 10.4.13_postcss@8.4.21
   esbuild: 0.17.4
   github-slugger: 2.0.0
@@ -83,7 +84,6 @@ dependencies:
   mdx-bundler: 9.2.1_esbuild@0.17.4
   next: 13.1.5_pjwopsidmaokadturxaafygjp4
   next-pwa: 5.6.0_f3tzsunkeztgj47ip3kmrzmoju
-  next-themes: /@wits/next-themes/0.2.16_s6zlkfvllybxhmcq5pkr2zsuza
   postcss: 8.4.21
   preact: 10.11.3
   react: 18.2.0

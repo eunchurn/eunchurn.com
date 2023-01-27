@@ -9,7 +9,6 @@ import ThemeSwitch from "./ThemeSwitch";
 import { ReactNode } from "react";
 // import Image from "@/components/Image";
 import EunchurnLogo from "@/components/Logo";
-// import { useTheme } from "next-themes";
 
 {
   /* <Image src="/static/images/eunchurnlogo.png" alt="eunchurn" width={150} height={37} />; */
