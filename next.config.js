@@ -135,12 +135,12 @@ const KEYS_TO_OMIT = [
 ];
 
 // manage i18n
-if (process.env.EXPORT !== "true") {
-  nextConfig.i18n = {
-    locales: ["en", "kr"],
-    defaultLocale: "en",
-  };
-}
+// if (process.env.EXPORT !== "true") {
+//   nextConfig.i18n = {
+//     locales: ["en", "kr"],
+//     defaultLocale: "en",
+//   };
+// }
 
 module.exports = (_phase, { defaultConfig }) => {
   const plugins = [[withPWA], [withBundleAnalyzer, {}]];
