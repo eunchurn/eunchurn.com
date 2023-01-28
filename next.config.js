@@ -9,7 +9,6 @@ const withPWA = require("next-pwa")({
 
 const ContentSecurityPolicy = `
   script-src 'self' 'unsafe-eval' 'unsafe-inline' data: giscus.app youtube.com soundcloud.com googletagmanager.com;
-  script-src-elem https://giscus.app https://youtube.com https://soundcloud.com https://www.googletagmanager.com;
   img-src * blob: data:;
   media-src 'none';
   connect-src *;
