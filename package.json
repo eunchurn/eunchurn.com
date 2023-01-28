@@ -53,8 +53,8 @@
     "vfile": "^5.3.6"
   },
   "devDependencies": {
-    "@eunchurn/eslint-config": "^0.1.12",
-    "@eunchurn/prettier-config": "^0.0.5",
+    "@eunchurn/eslint-config": "^0.1.13",
+    "@eunchurn/prettier-config": "^0.0.6",
     "@next/bundle-analyzer": "13.1.6",
     "@svgr/webpack": "6.5.1",
     "@types/js-yaml": "^4.0.5",
