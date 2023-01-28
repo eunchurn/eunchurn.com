@@ -1,5 +1,5 @@
 import React from "react";
-import { useTheme } from "@wits/next-themes";
+import { useTheme } from "next-themes";
 
 const ThemeSwitch = () => {
   const { theme, setTheme, resolvedTheme } = useTheme();

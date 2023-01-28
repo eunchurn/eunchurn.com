@@ -1,22 +1,14 @@
+const isProd = process.env.NODE_ENV === "production";
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
-// const withPWA = pwa({ dest: "public", register: true, skipWaiting: true });
-const isProd = process.env.NODE_ENV === "production";
-
 const withPWA = require("next-pwa")({
   dest: "public",
   disable: !isProd,
 });
 
-// const withPlugins = require("next-compose-plugins");
-
-// You might need to insert additional domains in script-src if you are using external services
-// style-src 'self' 'unsafe-inline';
-// font-src 'self';
-// default-src 'self';
 const ContentSecurityPolicy = `
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' data: giscus.app youtube.com soundcloud.com;
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' data: giscus.app youtube.com soundcloud.com googletagmanager.com;
   img-src * blob: data:;
   media-src 'none';
   connect-src *;
@@ -71,8 +63,6 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-    // loader: "cloudinary",
-    // path: "https://res.cloudinary.com/dspxl7nqq/image/upload/",
   },
   experimental: {},
   assetPrefix: "",
@@ -110,16 +100,6 @@ const nextConfig = {
       use: ["@svgr/webpack"],
     });
 
-    // if (!dev && !isServer) {
-    //   // Replace React with Preact only in client production build
-    //   Object.assign(config.resolve.alias, {
-    //     "react/jsx-runtime.js": "preact/compat/jsx-runtime",
-    //     react: "preact/compat",
-    //     "react-dom/test-utils": "preact/test-utils",
-    //     "react-dom": "preact/compat",
-    //   });
-    // }
-
     return config;
   },
 };
@@ -133,11 +113,6 @@ const KEYS_TO_OMIT = [
   "amp",
   "assetPrefix",
 ];
-
-// manage i18n
-// if (process.env.EXPORT === "true") {
-//   delete nextConfig.i18n;
-// }
 
 // asset prefix
 if (process.env.GITHUB === "true") {
@@ -163,12 +138,3 @@ module.exports = (_phase, { defaultConfig }) => {
 
   return finalConfig;
 };
-
-// const buildConfig = (phase, { defaultConfig }) => {
-//   const plugins = [withBundleAnalyzer, withPWA];
-//   /**
-//    * @type {import('next').NextConfig}
-//    */
-//   const config = plugins.reduce((acc, plugin) => plugin(acc), { ...nextConfig });
-//   return config;
-// };

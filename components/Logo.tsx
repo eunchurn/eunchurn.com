@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SVGProps } from "react";
-import { useTheme } from "@wits/next-themes";
+import { useTheme } from "next-themes";
 
 const EunchurnLogo = (props: SVGProps<SVGSVGElement>) => {
   const { resolvedTheme } = useTheme();
