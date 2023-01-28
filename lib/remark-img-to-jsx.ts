@@ -22,9 +22,12 @@ export default function remarkImgToJsx() {
       tree,
       // only visit p tags that contain an img element
       (node: Parent): node is Parent =>
-        node.type === "paragraph" && node.children.some((n) => n.type === "image"),
+        node.type === "paragraph" &&
+        node.children.some((n) => n.type === "image"),
       (node: Parent) => {
-        const imageNode = node.children.find((n) => n.type === "image") as ImageNode;
+        const imageNode = node.children.find(
+          (n) => n.type === "image",
+        ) as ImageNode;
         const { staticFolder } = nextConfig.publicRuntimeConfig;
         // only local files
         if (fs.existsSync(`${process.cwd()}/public${imageNode.url}`)) {
@@ -34,18 +37,34 @@ export default function remarkImgToJsx() {
             (imageNode.name = "Image"),
             (imageNode.attributes = [
               { type: "mdxJsxAttribute", name: "alt", value: imageNode.alt },
-              { type: "mdxJsxAttribute", name: "src", value: `${staticFolder}${imageNode.url}` },
-              { type: "mdxJsxAttribute", name: "width", value: dimensions.width },
-              { type: "mdxJsxAttribute", name: "height", value: dimensions.height },
+              {
+                type: "mdxJsxAttribute",
+                name: "src",
+                value: `${staticFolder}${imageNode.url}`,
+              },
+              {
+                type: "mdxJsxAttribute",
+                name: "width",
+                value: dimensions.width,
+              },
+              {
+                type: "mdxJsxAttribute",
+                name: "height",
+                value: dimensions.height,
+              },
               { type: "mdxJsxAttribute", name: "placeholder", value: "blur" },
-              { type: "mdxJsxAttribute", name: "blurDataURL", value: blurDataUrl },
+              {
+                type: "mdxJsxAttribute",
+                name: "blurDataURL",
+                value: blurDataUrl,
+              },
             ]);
 
           // Change node type from p to div to avoid nesting error
           node.type = "div";
           node.children = [imageNode];
         }
-      }
+      },
     );
   };
 }

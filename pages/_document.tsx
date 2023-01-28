@@ -27,7 +27,10 @@ class MyDocument extends Document {
             sizes="16x16"
             href={`${staticFolder}/static/favicons/favicon-16x16.png`}
           />
-          <link rel="manifest" href={`${staticFolder}/static/favicons/site.webmanifest`} />
+          <link
+            rel="manifest"
+            href={`${staticFolder}/static/favicons/site.webmanifest`}
+          />
           <link
             rel="mask-icon"
             href={`${staticFolder}/static/favicons/safari-pinned-tab.svg`}
@@ -47,7 +50,11 @@ class MyDocument extends Document {
             href="https://cdn.rawgit.com/innks/NanumSquareRound/master/nanumsquareround.min.css"
           ></link>
           <link rel="preconnect" href="https://fonts.googleapis.com"></link>
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous"></link>
+          <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossOrigin="anonymous"
+          ></link>
           <link
             href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap"
             rel="stylesheet"

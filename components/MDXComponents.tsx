@@ -6,12 +6,17 @@ import CustomLink from "./Link";
 import TOCInline from "./TOCInline";
 import Pre from "./Pre";
 import { BlogNewsletterForm } from "./NewsletterForm";
-import AuthorLayout, { Props as AuthorLayoutProps } from "../layouts/AuthorLayout";
+import AuthorLayout, {
+  Props as AuthorLayoutProps,
+} from "../layouts/AuthorLayout";
 import ListLayout, { Props as ListLayoutProps } from "../layouts/ListLayout";
 import PostLayout, { Props as PostLayoutProps } from "../layouts/PostLayout";
 import PostSimple, { Props as PostSimpleProps } from "../layouts/PostSimple";
 
-const Wrapper: React.ComponentType<{ layout: string }> = ({ layout, ...rest }) => {
+const Wrapper: React.ComponentType<{ layout: string }> = ({
+  layout,
+  ...rest
+}) => {
   switch (layout) {
     case "AuthorLayout":
       return <AuthorLayout {...(rest as AuthorLayoutProps)} />;

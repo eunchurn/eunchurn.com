@@ -15,7 +15,16 @@ const {
 } = getConfig();
 
 export default function AuthorLayout({ children, frontMatter }: Props) {
-  const { name, avatar, occupation, company, email, twitter, linkedin, github } = frontMatter;
+  const {
+    name,
+    avatar,
+    occupation,
+    company,
+    email,
+    twitter,
+    linkedin,
+    github,
+  } = frontMatter;
 
   return (
     <>
@@ -54,7 +63,9 @@ export default function AuthorLayout({ children, frontMatter }: Props) {
               <SocialIcon kind="twitter" href={twitter} />
             </div>
           </div>
-          <div className="prose max-w-none pt-8 pb-8 dark:prose-dark xl:col-span-2">{children}</div>
+          <div className="prose max-w-none pt-8 pb-8 dark:prose-dark xl:col-span-2">
+            {children}
+          </div>
         </div>
       </div>
     </>

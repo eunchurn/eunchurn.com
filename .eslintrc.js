@@ -9,11 +9,8 @@ module.exports = {
   },
   plugins: ["@typescript-eslint"],
   extends: [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
+    "@eunchurn/eslint-config",
     "plugin:jsx-a11y/recommended",
-    "plugin:prettier/recommended",
     "next",
     "next/core-web-vitals",
   ],

@@ -23,7 +23,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         body: JSON.stringify({
           profiles: [{ email: email }],
         }),
-      }
+      },
     );
     if (response.status >= 400) {
       return res.status(400).json({

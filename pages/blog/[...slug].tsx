@@ -2,7 +2,12 @@ import fs from "fs";
 import PageTitle from "@/components/PageTitle";
 import generateRss from "@/lib/generate-rss";
 import { MDXLayoutRenderer } from "@/components/MDXComponents";
-import { formatSlug, getAllFilesFrontMatter, getFileBySlug, getFiles } from "@/lib/mdx";
+import {
+  formatSlug,
+  getAllFilesFrontMatter,
+  getFileBySlug,
+  getFiles,
+} from "@/lib/mdx";
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { AuthorFrontMatter } from "types/AuthorFrontMatter";
 import { PostFrontMatter } from "types/PostFrontMatter";
@@ -31,7 +36,9 @@ export const getStaticProps: GetStaticProps<{
 }> = async ({ params }) => {
   const slug = (params.slug as string[]).join("/");
   const allPosts = await getAllFilesFrontMatter("blog");
-  const postIndex = allPosts.findIndex((post) => formatSlug(post.slug) === slug);
+  const postIndex = allPosts.findIndex(
+    (post) => formatSlug(post.slug) === slug,
+  );
   const prev: { slug: string; title: string } = allPosts[postIndex + 1] || null;
   const next: { slug: string; title: string } = allPosts[postIndex - 1] || null;
   const post = await getFileBySlug("blog", slug);

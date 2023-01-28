@@ -32,7 +32,9 @@ export const getStaticProps: GetStaticProps<{
   const category = context.params.category as string;
   const allPosts = await getAllFilesFrontMatter("blog");
   const filteredPosts = allPosts.filter(
-    (post) => post.draft !== true && post.categories.map((t) => kebabCase(t)).includes(category)
+    (post) =>
+      post.draft !== true &&
+      post.categories.map((t) => kebabCase(t)).includes(category),
   );
 
   // rss
@@ -51,7 +53,8 @@ export default function Category({
   category,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   // Capitalize first letter and convert space to dash
-  const title = category[0].toUpperCase() + category.split(" ").join("-").slice(1);
+  const title =
+    category[0].toUpperCase() + category.split(" ").join("-").slice(1);
   return (
     <>
       <TagSEO

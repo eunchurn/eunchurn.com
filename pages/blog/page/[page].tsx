@@ -31,7 +31,7 @@ export const getStaticProps: GetStaticProps<{
   const pageNumber = parseInt(page as string);
   const initialDisplayPosts = posts.slice(
     POSTS_PER_PAGE * (pageNumber - 1),
-    POSTS_PER_PAGE * pageNumber
+    POSTS_PER_PAGE * pageNumber,
   );
   const pagination = {
     currentPage: pageNumber,
@@ -54,7 +54,10 @@ export default function PostPage({
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <>
-      <PageSEO title={siteMetadata.title} description={siteMetadata.description} />
+      <PageSEO
+        title={siteMetadata.title}
+        description={siteMetadata.description}
+      />
       <ListLayout
         posts={posts}
         initialDisplayPosts={initialDisplayPosts}
