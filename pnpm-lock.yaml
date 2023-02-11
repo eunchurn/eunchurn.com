@@ -13,7 +13,7 @@ specifiers:
   '@tailwindcss/typography': 0.5.9
   '@types/js-yaml': ^4.0.5
   '@types/next-pwa': ^5.6.2
-  '@types/react': 18.0.27
+  '@types/react': 18.0.28
   '@types/tailwindcss': 3.0.11
   '@types/unist': ^2.0.6
   '@typescript-eslint/eslint-plugin': 5.49.0
@@ -108,7 +108,7 @@ devDependencies:
   '@svgr/webpack': 6.5.1
   '@types/js-yaml': 4.0.5
   '@types/next-pwa': 5.6.2_biqbaboplfbrettd7655fr4n2y
-  '@types/react': 18.0.27
+  '@types/react': 18.0.28
   '@types/tailwindcss': 3.0.11
   '@types/unist': 2.0.6
   '@typescript-eslint/eslint-plugin': 5.49.0_twzrzipc5g2dtkl5gx62wtsxkq
@@ -2309,7 +2309,7 @@ packages:
   /@types/next-pwa/5.6.2_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-K5zLZSzrJCOQBay5E7abGp7gQ0q1Pv58dE3RuBo5LQXYQFaCO4JPju0XYdzgLoQ20yhBVZ43AwIcSgCzx9KvqA==}
     dependencies:
-      '@types/react': 18.0.27
+      '@types/react': 18.0.28
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       workbox-build: 6.5.4
     transitivePeerDependencies:
@@ -2346,8 +2346,8 @@ packages:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
     dev: true
 
-  /@types/react/18.0.27:
-    resolution: {integrity: sha512-3vtRKHgVxu3Jp9t718R9BuzoD4NcQ8YJ5XRzsSKxNDiDonD2MXIT1TmSkenxuCycZJoQT5d2vE8LwWJxBC1gmA==}
+  /@types/react/18.0.28:
+    resolution: {integrity: sha512-RD0ivG1kEztNBdoAK7lekI9M+azSnitIn85h4iOiaLjaTrMjzslhaqCGaI4IyCJ1RljWiLCEu4jyrLLgqxBTew==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
