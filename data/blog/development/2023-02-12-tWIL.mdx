@@ -1,0 +1,186 @@
+---
+date: "2023-02-12"
+title: "tWIL 2023.02 2주차"
+draft: false
+summary: "한 달 만에 tMIL"
+featured: /static/images/eunchurn/mist.png
+categories:
+  - blog
+tags:
+  - First Love 初恋
+  - Byul.org
+  - development
+  - apollo client
+  - graphql
+  - redux
+  - xstate
+---
+
+오랫동안 tWIL을 쓰지 못했다. 주말에 휴식을 충분히 취하기 위해 개발 관련 생각에 좀 멀어져 있었다. 마감도 다가오며 업무시간에 충분히 몰입하지 못하는 것이 아닌가 싶기도 하다.
+
+신규 백엔드 개발자가 입사하며 급격한 성장이라고 봐야할지 높은 개발 지능을 가지고 있다고 해야할 지 슈퍼 주니어 개발자를 목격했다. 빠르게 적응하고 빠르게 다음을 진행하면서 너무 완벽한 인물이 아닌가 싶을 정도로 빠르게 우리 개발을 팔로업 해왔다. 그래서 지난 주는 나의 일을 덜어줄 수 있는 개발자가 늘어나서 심적으로 안정적이다.
+
+그리고 수요일 저녁에 집안 일을 좀 빡세게 하다가 허리를 다쳐버렸다. 걸을 수도 없고 의자에 앉으면 일어나는 일이 고통이었다. 다행이 회사에서는 편의를 봐줘서 재택근무 전환해줬고, 금요일은 아내일을 돕기 위해 연차를 쓴지라 이번 주말을 기점으로 빠르게 회복하지 않으면 일에 지장이 생길 것 같았다. 그래서 목요일 오전 정형외과 진료를 보고 물리치료를 시작했다. 특수물리치료 이후 다음날 많이 호전되나 싶었는데 저녁이 되자 원상복귀 되었다. 토요일 오전에 다시 진료를 받았고, 주사치료를 받게 되었는데 신경전달차단술이라는 무시무시한 주사였던 것이다. 한방 맞으면 끝날 줄 알았던 것이 잘못이고 전문의가 엑스레이를 포인트마다 찍어가며 척추 여러군데 주사를 하였다. 이 신경을 찌르는 고통은 말로 표현을 못하겠더라 말이 안나오고 식은 땀이 계속 흘렀다. 그리고 주사치료 직후는 고통이 가시질 않았고 허리도 더 아팠다. 이제 집에서는 휴식만 취하기로 결정하고 침대에서 움직이지 않았고 저녁이 되자 무슨일이 있었냐는 듯이 허리가 멀쩡해졌다. 하아.. 역시 현대 의료기술은 엄청나구나라는 걸 새삼 느꼈다. 하지만 주사는 다시는 못맞을 것 같다. 다음부터는 물리치료로 회복되길 바라지 감히 주사에 도전은 못하겠다.
+
+그나저나 겨울이라 라이딩도 하지 못하고 와후키커도 먼지만 쌓여가고 있어서 반성한다. 운동을 자주 했더라면 이렇게 허리가 나가는 일은 없었을텐데, 심지어 자차로 출근하면서 점심도 시켜먹거나 회사 주변에서 하기 때문에 운동량이 엄청나게 떨어져 있었기 때문이라고 생각한다. 보충제로 내과적 문제들은 많이 개선이 되었지만 외과적 문제를 좀 더 신경써야겠다. 곧 봄이 돌아오고 날씨도 따뜻하니 슬슬 정비하고 라이닝 나가야겠다.
+
+그리하여 집에 머무는 동안 본격 넷플릭스를 보기 시작했다. 정이를 보고 오래전에 부산국제영화제 애프터파티에서 잠깐 눈마주쳤던 강수연 배우님을 보니 울컥했다. 평안하게 쉬고 계시길 빈다. 그리고 볼까말까 미뤄두었던 First Love 初恋(하츠코이) 시리즈를 봤다.
+
+<div className="aspect-ratio container flex justify-center">
+  <iframe
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/7U7rb3OXo3c"
+    frameBorder="0"
+    allow="autoplay; encrypted-media"
+    allowFullScreen
+  ></iframe>
+</div>
+
+우타다 히카루의 First Love는 나의 20대를 지배하지 않았다고 생각했었다. 90년대 후반부터는 본격 락돌이에 테크노를 파고 있던 시기라 RNB나 세미힙합이라고 부르는 장르는 거들떠도 보지 않았던 시기였다. 하지만 이곡은 당시 모르는 곡은 아니었고 그 시대의 감성을 지배하고 있었던 것 같다. 일본 문화가 개방되기 이전이라 공감할 수 있는 우리 또래들이 있을지는 모르겠다. 나의 90년대 중반은 고등학교를 다니며 아무로 나미에를 좋아했었고, 졸업한 이후 일본 싱글 시디들은 엄마에 의해 처분당해버렸다. 뭐 다른곳에 판것도 아니고 나 없는 사이에 고등학교 기숙사에서 나온 물건들 중 요상하게 생긴 사진이 담긴 일본 싱글들을 다 버리셨다. 결국 타의에 의해 일본 음악까지 졸업하여 잊고지낸 세월이 참 길었다. 심지어 드라마속에 나오는 파나소닉 CDP는 내가 쓰던 기종과 완전 같았다. 그리고 곰곰히 생각해보면 First Love 많이 들었던 것 같다. 그리고 우타다 히카루가 부르는 오자키 유타카의 I Love you는 정말 많이 들었던 것 같다. 중간에 가사 실수를 하며 짜증내며 우는 장면도 너무 귀여웠고 20대 초반을 지배한 곡은 사실 이곡일 수도...
+
+<div className="aspect-ratio container flex justify-center">
+  <iframe
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/b4HTxphV6Wo"
+    frameBorder="0"
+    allow="autoplay; encrypted-media"
+    allowFullScreen
+  ></iframe>
+</div>
+
+아 그렇지만 솔직하게 20대 초반을 완벽히 지배했던 음악은 모임별의 "2"라는 것은 부정할 수 없다. 불후의 명곡이며 내가 First Love 初恋 같은 드라마를 연출한다면 바로 이곡일 것이다.
+
+<div className="aspect-ratio container flex justify-center">
+  <iframe
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/JSXjwXJzPP0"
+    frameBorder="0"
+    allow="autoplay; encrypted-media"
+    allowFullScreen
+  ></iframe>
+</div>
+
+하지만 나는 20대 초반으로는 다시는 돌아가고 싶지 않다. 나는 무례하고 멍청했으며, 감성이 제대로 자라지 않은 상태에서 공포와 불안감만 지배했던 시기였다. 그래서 비단뱀클럽(모임별 웹사이트)을 자주 들락 거리며 나의 내면 속 불안함을 마주하지 않으려고 했다.
+
+~~뜬금없이 모임별~~
+
+드라마 보는 내내 눈물이 글썽했지만 아이가 엄마에게 딸기를 입에 넣어주는 장면과 CDP에서 흘러나오는 First love를 듣고 기억이 돌아오는 장면에서 왈칵 쏟아버렸다. 국내외 드라마와 영화를 많이 오마주를 했지만 드라마 연출은 꽤 멋졌다. 야에의 파란만장한 삶은 기존 일본식 드라마 연출처럼 참 모질기도 했다. 그에비해 나미키의 삶은 그저 여자 문제인 걸 보면 일본의 남성중심 연출 거슬리는 부분도 있다. 츠네미의 입장에선 나미키의 첫사랑은 지옥과도 같을텐데 그걸 앵무새에게 잘 이겨냈어 라는 한마디로 넘기는 것도 거슬리고, 야에를 짝사랑한 그분의 지하철 고백은 사실 난 너가 그사람을 그리워하는 모습도 앞으로 사랑할꺼야 하는데 내가 야에라면 무서웠을 것 같다. 그래도 이 드라마가 멋진 부분이 많았다. 운명과 기억에 대한 집중력을 놓지 않고 끝까지 몰고 간 것인데 어찌보면 왜곡되는 첫사랑의 기억이 사실상 기억상실이라는 사건과 연관 시키게 되면 우리에게도 보여지는 것이 많았다고 생각한다. 나미키가 택시에서 First love를 듣고 차를 돌리는 것도 비슷한 맥락이면서 우리에게도 기억을 되짚어보게 만든다. 이 드라마의 여운은 오래갈 것 같다. 우타다 히라쿠 2018년 발매된 하츠코이란 곡도 발매된 줄도 몰랐다.
+
+갑자기 드라마 리뷰를 해버렸다.
+
+## 상태 관리
+
+지난 주에는 Autodesk Platform Service(구 Forge)기능을 붙여 많은 기능들을 붙였다. 여기서 시행착오를 나열해 보려고 한다.
+
+수많은 모델 메쉬와 이를 제어하는 특성 데이터(csv 형태)를 가지고 UI를 제어하는 일이 목표였다. 그래서 앞선 tWIL에서 썼던 상태관리 방법인 Redux와 Apollo Client를 조합하였다. 특성 데이터는 Aggregation 가능하도록 GraphQL 스키마로 만들었고, Redux는 UI를 제어하기 위해 상태를 만들었다. 초반에는 Apollo Client에서 특성 데이터의 Local 상태에서 SSR문제를 조금 겪었지만 해결하였다.
+
+문제는 Redux 저장소의 유일성에 위배되는 사항이었다. 기존에는 `store`객체를 만들어 `export`했지만, Next.js에서는 `next-redux-wrapper`로 `createWrapper`를 사용해 `wrapper`를 만들어주어야 한다. 당연히 저장소가 브라우저에서 생성되어야 하기 때문에 필요한 부분이다. 여기서 문제는 Apollo Client의 Resolvers 함수가 이 생성된 `store`를 사용하지 못함에 있었다. Redux 는 아래와 같이 구성하고,
+
+```typescript
+import { configureStore, Middleware } from "@reduxjs/toolkit";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import { forgeSlice, curationSlice } from "./features";
+import logger from "redux-logger";
+import { createWrapper } from "next-redux-wrapper";
+
+export * from "./features";
+
+const middlewares = (): Middleware[] => {
+  if (process.env.NODE_ENV !== "production") {
+    return [logger];
+  } else {
+    return [];
+  }
+};
+
+const makeStore = () => {
+  const store = configureStore({
+    reducer: {
+      forge: forgeSlice.reducer,
+      curation: curationSlice.reducer,
+    },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({ serializableCheck: false }).concat(middlewares()),
+    devTools: process.env.NODE_ENV !== "production",
+  });
+  return store;
+};
+
+export const wrapper = createWrapper(makeStore);
+export type RootState = ReturnType<ReturnType<typeof makeStore>["getState"]>;
+
+export type AppDispatch = ReturnType<typeof makeStore>["dispatch"];
+
+export type AppStore = ReturnType<typeof makeStore>;
+
+/* Exporting the useDispatch hook from react-redux and giving it a type. */
+export const useAppDispatch: () => AppDispatch = useDispatch;
+/* Exporting the useSelector hook from react-redux and giving it a type. */
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+```
+
+결국 해결한 방법은 동작해야할 이벤트 헨들러에 `dispatch`와 Apollo Hook으로 받은 함수를 인자로 내려주어 핸들러를 동작시키도록 하였다.
+
+```tsx:useEvent.tsx
+export function useEvent() {
+  const dispatch = useAppDispatch();
+  const [setDbIdGlTFFetch] = useSetDbIdGlTfMutation();
+  React.useEffect(() => {
+    const onGeometryLoaded = getHandlerOnGeometryLoaded(
+      dispatch,
+      setDbIdGlTFFetch
+    );
+    viewer.addEventListener(
+      Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
+      onGeometryLoaded
+    );
+    return () => {
+      viewer.removeEventListener(
+        Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
+        onGeometryLoaded
+      );
+    }
+  , [dispatch, setDbIdGlTFFetch]});
+```
+
+```typescript:eventHandler.ts
+export const getHandlerOnGeometryLoaded =
+  (dispatch: AppDispatch, setDbIdGlTFFetch: SetDbIdGlTfMutationFn) =>
+  async (event: any) => {
+    const { model } = event;
+    if (!model) return;
+    dispatch(setModel(model));
+    const data = model.getData();
+    if (!data) return;
+    const { gltf, nodeToDbId } = data;
+    if (!gltf) return;
+    const { nodes } = gltf;
+    await setDbIdGlTFFetch({
+      variables: { glTFNodes: nodes, nodeToDbId },
+    });
+  };
+```
+
+이러면서 복잡도가 조금 더 올라가게 되었는데 이건 좀 고민을 해봐야겠다.
+
+그리고 슬슬 Redux 리듀서 함수들을 만들면서 골치가 아파지기 시작했다. 예를들어 A라는 UI를 제어하는 상태가 `boolean`이라고 하면, 우린 상태변경에서 편하게 `setState((prev) => !prev)` 이런 방식의 제어를 자주 사용한다. Draw 버튼으로 다른 UI를 Open 하거나, Backdrop 형태의 UI를 띄운다고 하면 그렇다. Redux에서 UI를 제어하도록 하면, 다양한 문제가 발생한다. 제어를 할 UI마다 Reducer 함수들을 만들어주어야 하는 것은 기본이고, 한 Reducer가 여러 상태를 변경할 때 그렇다. 여러 상태를 변경하도록 두는 건 다른 UI 제어에서 간섭이 발생한다. 그래서 기존 상태의 역치의 값을 주어선 안되고, `true` 혹은 `false`값을 지정해 주는 트릭을 써야 한다. 결국 상태가 많아지면 이 복잡도는 생각보다 많이 커지게 되고, 의도하지 않은 제어가 어디서 발생하는지 판단하기도 어려워진다.
+
+UI를 제어하는 단 하나의 이벤트로 다음 상태로의 전환을 할 수 있도록 해야했다. 이에 대한 상태관리 라이브러리는 [XState](https://xstate.js.org/)이다. 현재 올라가 있는 리덕스를 대체하기에는 학습시간이 많이 필요할 것으로 보인다. 하지만 나중을 생각한다면 XState도입은 필요하다고 생각한다.
+
+## Terraform template
+
+신입 백엔드 개발자에게 Terraform을 가이드하니 바로 학습하여 바로 배포까지도 가능한 상태가 되었다. 뿌듯. 하지만 M1 프로세서로 인한 arm64 버전의 `hashicorp/template` 프로바이더가 없기 때문에 여러 트릭을 써야했는데 이번엔 내 맥북의 로컬에서 아래와 같이 Initialize가 되지 않았다. 아마도 Remote로 관리되는 lock 파일이 arm64로 빌드된 프로바이더로 배포하지 않아서 checksums에서 오류가 나는 것 같았다.
+
+```
+│ Error: Could not retrieve providers for locking
+│
+│ Terraform failed to fetch the requested providers for darwin_arm64 in order to calculate their checksums: some providers could not be installed:
+│ - registry.terraform.io/hashicorp/template: provider registry.terraform.io/hashicorp/template 2.2.0 is not available for darwin_arm64.
+```
+
+[M1 바이너리가 제공되지 않는 테라폼 프로바이더 빌드해서 쓰기 (hashicorp/template)](https://www.binaryflavor.com/m1-baineoriga-jegongdoeji-anhneun/)의 블로그를 보니 go 1.6버전이 나왔기 때문에 빌드해서 쓰는 방법이 있을 수 도 있겠지만, [hashicorp/template](https://github.com/hashicorp/terraform-provider-template/issues/85)이슈에서 여기 리포가 Archive되었다는 걸 알았다. 기존 `hashicorp/template`을 `templatefile`같은 `hashicorpt/core`에서 제공하는 함수로 마이그레이션 해야한다는 걸 알았다.
+
+[terraform 에서 aws IAM policy 깔끔하게 templatefile로 말아넣기!](https://www.binaryflavor.com/terraform-eseo-aws-iam-policy-ggalggeumhage-templatefilero-malaneohgi/) 방법을 사용하여 `data template_file`로 시작하는 구문들을 `templatefile`로 변경해야 한다.
