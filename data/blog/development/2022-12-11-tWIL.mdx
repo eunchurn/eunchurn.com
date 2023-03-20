@@ -6,6 +6,7 @@ summary: "This week I learned"
 featured: /static/images/eunchurn/grafiti.PNG
 categories:
   - blog
+  - development
 tags:
   - development
   - ansi escape codes
@@ -179,7 +180,7 @@ export type EmailSend = (
   name: string,
   link: string,
   subject: string,
-  message: string
+  message: string,
 ) => {
   [key in EmailSendEventType]: () => Promise<SentMessageInfo>;
 };

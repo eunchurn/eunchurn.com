@@ -6,6 +6,7 @@ summary: "This week I learned"
 featured: /static/images/eunchurn/adidas.PNG
 categories:
   - blog
+  - development
 tags:
   - development
   - supertokens
@@ -750,7 +751,7 @@ export const emailCheck = createAsyncThunk("auth/emailCheck", (email: string) =>
     email,
   }).then((response) => {
     return response.fetchResponse.json();
-  })
+  }),
 );
 ```
 

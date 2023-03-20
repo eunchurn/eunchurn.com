@@ -6,6 +6,7 @@ summary: "This week I learned"
 featured: /static/images/eunchurn/chrismas_present.png
 categories:
   - blog
+  - development
 tags:
   - ansi escape codes
   - development
@@ -67,16 +68,21 @@ export const handler = middy(lambdaHandler).use(injectLambdaContext(logger));
 import middy from "@middy/core";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
-const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxyResult> => {
-  const before: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
-    request
-  ): Promise<void> => {
+const middleware = (): middy.MiddlewareObj<
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult
+> => {
+  const before: middy.MiddlewareFn<
+    APIGatewayProxyEvent,
+    APIGatewayProxyResult
+  > = async (request): Promise<void> => {
     // Your middleware logic
   };
 
-  const after: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
-    request
-  ): Promise<void> => {
+  const after: middy.MiddlewareFn<
+    APIGatewayProxyEvent,
+    APIGatewayProxyResult
+  > = async (request): Promise<void> => {
     // Your middleware logic
   };
 
