@@ -8,5 +8,22 @@
     "schedule": "after 10pm on saturday"
   },
   "rebaseWhen": "conflicted",
-  "reviewers": ["@eunchurn"]
+  "reviewers": ["@eunchurn"],
+  "packageRules": [
+    {
+      "groupName": "devDependencies (non-major)",
+      "automerge": "true",
+      "depTypeList": ["devDependencies"],
+      "updateTypes": ["patch", "minor"],
+      "excludePackageNames": [],
+      "schedule": ["after 10pm on Saturday"]
+    },
+    {
+      "groupName": "definitelyTyped",
+      "automerge": "true",
+      "packagePatterns": ["^@types/"],
+      "updateTypes": ["patch", "minor"],
+      "schedule": ["after 10pm on Saturday"]
+    }
+  ]
 }
