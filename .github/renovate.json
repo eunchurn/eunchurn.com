@@ -22,7 +22,7 @@
       "groupName": "definitelyTyped",
       "automerge": "true",
       "packagePatterns": ["^@types/"],
-      "updateTypes": ["patch", "minor"],
+      "updateTypes": ["major", "patch", "minor"],
       "schedule": ["after 10pm on Saturday"]
     }
   ]
