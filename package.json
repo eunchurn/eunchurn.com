@@ -56,7 +56,7 @@
     "@eunchurn/eslint-config": "^0.1.13",
     "@eunchurn/prettier-config": "^0.0.6",
     "@next/bundle-analyzer": "13.4.1",
-    "@svgr/webpack": "7.0.0",
+    "@svgr/webpack": "8.0.1",
     "@types/js-yaml": "^4.0.5",
     "@types/next-pwa": "^5.6.2",
     "@types/react": "18.2.12",
