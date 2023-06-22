@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import React, { useMemo } from "react";
-import { getMDXComponent } from "mdx-bundler/client";
+import { getMDXComponent, MDXContentProps } from "mdx-bundler/client";
 import Image from "./Image";
 import CustomLink from "./Link";
 import TOCInline from "./TOCInline";
@@ -50,6 +50,6 @@ interface Props {
 
 export const MDXLayoutRenderer = ({ layout, mdxSource, ...rest }: Props) => {
   const MDXLayout = useMemo(() => getMDXComponent(mdxSource), [mdxSource]);
-
+  // @ts-ignore
   return <MDXLayout layout={layout} components={MDXComponents} {...rest} />;
 };
