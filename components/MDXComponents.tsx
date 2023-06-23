@@ -50,6 +50,6 @@ interface Props {
 
 export const MDXLayoutRenderer = ({ layout, mdxSource, ...rest }: Props) => {
   const MDXLayout = useMemo(() => getMDXComponent(mdxSource), [mdxSource]);
-
+  // @ts-ignore
   return <MDXLayout layout={layout} components={MDXComponents} {...rest} />;
 };
