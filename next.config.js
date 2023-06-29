@@ -124,10 +124,13 @@ if (process.env.GITHUB === "true") {
 module.exports = (_phase, { defaultConfig }) => {
   const plugins = [[withPWA], [withBundleAnalyzer, {}]];
 
-  const wConfig = plugins.reduce((acc, [plugin, config]) => plugin({ ...acc, ...config }), {
-    ...defaultConfig,
-    ...nextConfig,
-  });
+  const wConfig = plugins.reduce(
+    (acc, [plugin, config]) => plugin({ ...acc, ...config }),
+    {
+      ...defaultConfig,
+      ...nextConfig,
+    },
+  );
 
   const finalConfig = {};
   Object.keys(wConfig).forEach((key) => {

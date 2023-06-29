@@ -6,6 +6,7 @@ import Pagination from "@/components/Pagination";
 import formatDate from "@/lib/utils/formatDate";
 import { PostFrontMatter } from "types/PostFrontMatter";
 import getConfig from "next/config";
+import { PostList } from "@/components/PostList";
 
 const {
   publicRuntimeConfig: { staticFolder },
@@ -16,9 +17,6 @@ export interface Props {
   initialDisplayPosts?: PostFrontMatter[];
   pagination?: ComponentProps<typeof Pagination>;
 }
-
-const blurDataUrl =
-  "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==";
 
 export default function ListLayout({
   posts,
@@ -73,71 +71,78 @@ export default function ListLayout({
         <ul>
           {!filteredBlogPosts.length && "No posts found."}
           {displayPosts.map((frontMatter) => {
-            const { slug, date, title, summary, tags, featured } = frontMatter;
+            const { slug } = frontMatter;
             return (
-              <li key={slug} className="py-4">
-                <article className="space-y-2 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
-                  <dl>
-                    <dt className="sr-only">Published on</dt>
-                    <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
-                      <time dateTime={date}>{formatDate(date)}</time>
-                    </dd>
-                    <dd className="min-w-100 pl-8 pt-8 -xl:invisible -xl:h-0 -xl:pt-0">
-                      {featured && (
-                        <Link href={`/blog/${slug}`}>
-                          <Image
-                            src={`${staticFolder}${featured}`}
-                            alt={title}
-                            width={100}
-                            height={100}
-                            style={{ objectFit: "cover", height: 100 }}
-                            className="rounded-full"
-                            placeholder="blur"
-                            blurDataURL={blurDataUrl}
-                            unoptimized
-                          />
-                        </Link>
-                      )}
-                    </dd>
-                  </dl>
-                  <div className="container flex justify-between xl:col-span-3">
-                    <div className="space-y-3 xl:col-span-3">
-                      <div>
-                        <h3 className="text-2xl font-bold leading-8 tracking-tight">
-                          <Link
-                            href={`/blog/${slug}`}
-                            className="text-gray-900 dark:text-gray-100"
-                          >
-                            {title}
-                          </Link>
-                        </h3>
-                        <div className="flex flex-wrap">
-                          {tags.map((tag) => (
-                            <Tag key={tag} text={tag} />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="prose max-w-none text-gray-500 dark:text-gray-400">
-                        {summary}
-                      </div>
-                    </div>
-                    {featured && (
-                      <div className="min-w-1/4 pt-8 xl:invisible xl:w-0">
-                        <Image
-                          src={`${staticFolder}${featured}`}
-                          alt={title}
-                          width={80}
-                          height={80}
-                          style={{ objectFit: "cover", height: 80 }}
-                          className="rounded-full"
-                          unoptimized
-                        />
-                      </div>
-                    )}
-                  </div>
-                </article>
-              </li>
+              <PostList
+                key={slug}
+                frontMatter={frontMatter}
+                staticFolder={staticFolder}
+              />
             );
+            // return (
+            //   <li key={slug} className="py-4">
+            //     <article className="space-y-2 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
+            //       <dl>
+            //         <dt className="sr-only">Published on</dt>
+            //         <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
+            //           <time dateTime={date}>{formatDate(date)}</time>
+            //         </dd>
+            //         <dd className="min-w-100 pl-8 pt-8 -xl:invisible -xl:h-0 -xl:pt-0">
+            //           {featured && (
+            //             <Link href={`/blog/${slug}`}>
+            //               <Image
+            //                 src={`${staticFolder}${featured}`}
+            //                 alt={title}
+            //                 width={100}
+            //                 height={100}
+            //                 style={{ objectFit: "cover", height: 100 }}
+            //                 className="rounded-full"
+            //                 placeholder="blur"
+            //                 blurDataURL={blurDataUrl}
+            //                 unoptimized
+            //               />
+            //             </Link>
+            //           )}
+            //         </dd>
+            //       </dl>
+            //       <div className="container flex justify-between xl:col-span-3">
+            //         <div className="space-y-3 xl:col-span-3">
+            //           <div>
+            //             <h3 className="text-2xl font-bold leading-8 tracking-tight">
+            //               <Link
+            //                 href={`/blog/${slug}`}
+            //                 className="text-gray-900 dark:text-gray-100"
+            //               >
+            //                 {title}
+            //               </Link>
+            //             </h3>
+            //             <div className="flex flex-wrap">
+            //               {tags.map((tag) => (
+            //                 <Tag key={tag} text={tag} />
+            //               ))}
+            //             </div>
+            //           </div>
+            //           <div className="prose max-w-none text-gray-500 dark:text-gray-400">
+            //             {summary}
+            //           </div>
+            //         </div>
+            //         {featured && (
+            //           <div className="min-w-1/4 pt-8 xl:invisible xl:w-0">
+            //             <Image
+            //               src={`${staticFolder}${featured}`}
+            //               alt={title}
+            //               width={80}
+            //               height={80}
+            //               style={{ objectFit: "cover", height: 80 }}
+            //               className="rounded-full"
+            //               unoptimized
+            //             />
+            //           </div>
+            //         )}
+            //       </div>
+            //     </article>
+            //   </li>
+            // );
           })}
         </ul>
       </div>

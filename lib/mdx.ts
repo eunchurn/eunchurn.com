@@ -49,6 +49,13 @@ export function dateSortDesc(a: string, b: string) {
   return 0;
 }
 
+export async function getTitle(title: string) {
+  const { code } = await bundleMDX({
+    source: title,
+  });
+  return code;
+}
+
 export async function getFileBySlug(
   type: "authors" | "blog",
   slug: string | string[],
@@ -58,7 +65,6 @@ export async function getFileBySlug(
   const source = fs.existsSync(mdxPath)
     ? fs.readFileSync(mdxPath, "utf8")
     : fs.readFileSync(mdPath, "utf8");
-
   // https://github.com/kentcdodds/mdx-bundler#nextjs-esbuild-enoent
   if (process.platform === "win32") {
     process.env.ESBUILD_BINARY_PATH = path.join(
@@ -117,7 +123,7 @@ export async function getFileBySlug(
       return options;
     },
   });
-
+  const titleCode = frontmatter.title ? await getTitle(frontmatter.title) : "";
   return {
     mdxSource: code,
     toc,
@@ -126,10 +132,13 @@ export async function getFileBySlug(
       slug: slug || null,
       fileName: fs.existsSync(mdxPath) ? `${slug}.mdx` : `${slug}.md`,
       ...frontmatter,
+      titleCode,
       date: frontmatter.date ? new Date(frontmatter.date).toISOString() : null,
     },
   };
 }
+
+const isDevelopment = process.env.NODE_ENV === "development";
 
 export async function getAllFilesFrontMatter(folder: "blog") {
   const prefixPaths = path.join(root, "data", folder);
@@ -138,7 +147,8 @@ export async function getAllFilesFrontMatter(folder: "blog") {
 
   const allFrontMatter: PostFrontMatter[] = [];
 
-  files.forEach((file: string) => {
+  for await (const file of files) {
+    // files.forEach(async (file: string) => {
     // Replace is needed to work on Windows
     const fileName = file.slice(prefixPaths.length + 1).replace(/\\/g, "/");
     // Remove Unexpected File
@@ -148,16 +158,22 @@ export async function getAllFilesFrontMatter(folder: "blog") {
     const source = fs.readFileSync(file, "utf8");
     const matterFile = matter(source);
     const frontmatter = matterFile.data as AuthorFrontMatter | PostFrontMatter;
-    if ("draft" in frontmatter && frontmatter.draft !== true) {
+    if (
+      "draft" in frontmatter &&
+      (frontmatter.draft !== true ||
+        (frontmatter.draft === true && isDevelopment))
+    ) {
+      const titleCode = await getTitle(frontmatter.title);
       allFrontMatter.push({
         ...frontmatter,
+        titleCode,
         slug: formatSlug(fileName),
         date: frontmatter.date
           ? new Date(frontmatter.date).toISOString()
           : null,
       });
     }
-  });
+  }
 
   return allFrontMatter.sort((a, b) => dateSortDesc(a.date, b.date));
 }

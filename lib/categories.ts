@@ -7,6 +7,8 @@ import kebabCase from "./utils/kebabCase";
 
 const root = process.cwd();
 
+const isDevelopment = process.env.NODE_ENV === "development";
+
 export async function getAllCategories(type: "blog" | "authors") {
   const files = getFiles(type);
 
@@ -17,7 +19,10 @@ export async function getAllCategories(type: "blog" | "authors") {
     const matterFile = matter(source);
     const data = matterFile.data as PostFrontMatter;
 
-    if (data.categories && data.draft !== true) {
+    if (
+      (data.categories && data.draft !== true) ||
+      (data.categories && data.draft === true && isDevelopment)
+    ) {
       data.categories.forEach((category) => {
         const formattedcategory = kebabCase(category);
         if (formattedcategory in categoryCount) {

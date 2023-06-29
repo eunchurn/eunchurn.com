@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import React, { useMemo } from "react";
-import { getMDXComponent, MDXContentProps } from "mdx-bundler/client";
+import { getMDXComponent } from "mdx-bundler/client";
 import Image from "./Image";
 import CustomLink from "./Link";
 import TOCInline from "./TOCInline";

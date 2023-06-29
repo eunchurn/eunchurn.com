@@ -7,10 +7,11 @@ import Tag from "@/components/Tag";
 import siteMetadata from "@/data/siteMetadata";
 import Comments from "@/components/comments";
 import ScrollTopAndComment from "@/components/ScrollTopAndComment";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { PostFrontMatter } from "types/PostFrontMatter";
 import { AuthorFrontMatter } from "types/AuthorFrontMatter";
 import getConfig from "next/config";
+import { getMDXComponent } from "mdx-bundler/client";
 
 const editUrl = (fileName) =>
   `${siteMetadata.siteRepo}/blob/master/data/blog/${fileName}`;
@@ -48,8 +49,11 @@ export default function PostLayout({
   prev,
   children,
 }: Props) {
-  const { slug, fileName, date, title, tags } = frontMatter;
-
+  const { slug, fileName, date, title, titleCode, tags } = frontMatter;
+  const Title = React.useMemo(() => {
+    if (!title) return null;
+    return getMDXComponent(titleCode);
+  }, [title, titleCode]);
   return (
     <SectionContainer>
       <BlogSEO
@@ -76,7 +80,9 @@ export default function PostLayout({
                 </div>
               </dl>
               <div>
-                <PageTitle>{title}</PageTitle>
+                <PageTitle>
+                  <Title />
+                </PageTitle>
               </div>
             </div>
           </header>

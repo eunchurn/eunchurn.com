@@ -12,6 +12,8 @@ import { PostFrontMatter } from "types/PostFrontMatter";
 
 const root = process.cwd();
 
+const isDevelopment = process.env.NODE_ENV === "development";
+
 export async function getStaticPaths() {
   const categories = await getAllCategories("blog");
 
@@ -33,7 +35,7 @@ export const getStaticProps: GetStaticProps<{
   const allPosts = await getAllFilesFrontMatter("blog");
   const filteredPosts = allPosts.filter(
     (post) =>
-      post.draft !== true &&
+      (post.draft !== true || (post.draft === true && isDevelopment)) &&
       post.categories.map((t) => kebabCase(t)).includes(category),
   );
 

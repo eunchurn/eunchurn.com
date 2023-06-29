@@ -12,6 +12,8 @@ import { PostFrontMatter } from "types/PostFrontMatter";
 
 const root = process.cwd();
 
+const isDevelopment = process.env.NODE_ENV === "development";
+
 export async function getStaticPaths() {
   const tags = await getAllTags("blog");
 
@@ -33,7 +35,8 @@ export const getStaticProps: GetStaticProps<{
   const allPosts = await getAllFilesFrontMatter("blog");
   const filteredPosts = allPosts.filter(
     (post) =>
-      post.draft !== true && post.tags.map((t) => kebabCase(t)).includes(tag),
+      (post.draft !== true || (post.draft === true && isDevelopment)) &&
+      post.tags.map((t) => kebabCase(t)).includes(tag),
   );
 
   // rss
