@@ -19,7 +19,7 @@
   "dependencies": {
     "@fontsource/inter": "5.0.3",
     "@mailchimp/mailchimp_marketing": "3.0.80",
-    "@remark-embedder/core": "3.0.1",
+    "@remark-embedder/core": "3.0.2",
     "@remark-embedder/transformer-oembed": "3.0.0",
     "@tailwindcss/forms": "0.5.3",
     "@tailwindcss/typography": "0.5.9",

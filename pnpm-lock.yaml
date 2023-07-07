@@ -12,11 +12,11 @@ dependencies:
     specifier: 3.0.80
     version: 3.0.80
   '@remark-embedder/core':
-    specifier: 3.0.1
-    version: 3.0.1
+    specifier: 3.0.2
+    version: 3.0.2
   '@remark-embedder/transformer-oembed':
     specifier: 3.0.0
-    version: 3.0.0(@remark-embedder/core@3.0.1)
+    version: 3.0.0(@remark-embedder/core@3.0.2)
   '@tailwindcss/forms':
     specifier: 0.5.3
     version: 0.5.3(tailwindcss@3.3.2)
@@ -2018,8 +2018,8 @@ packages:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
     dev: true
 
-  /@remark-embedder/core@3.0.1:
-    resolution: {integrity: sha512-Ls7ttcZltOIIPwbss04GV1PZFOWM4892MllffXr1YWOH7zsCexX2stj/bznApMQWuqlWgB0G5i7FMPWZPzwztg==}
+  /@remark-embedder/core@3.0.2:
+    resolution: {integrity: sha512-E+nmYJHh5yRptPH6MFzxyzKoeAuG12rjAl+x0sIcyDxy8L9Dymec8QZoX75J1aaigKyStURhtW7trZwFtHoN0Q==}
     engines: {node: '>=12', npm: '>=6'}
     dependencies:
       '@babel/runtime': 7.22.5
@@ -2031,14 +2031,14 @@ packages:
       unist-util-visit: 4.1.2
     dev: false
 
-  /@remark-embedder/transformer-oembed@3.0.0(@remark-embedder/core@3.0.1):
+  /@remark-embedder/transformer-oembed@3.0.0(@remark-embedder/core@3.0.2):
     resolution: {integrity: sha512-s/IUdAuJCvu9a1SvU44kh8PLYSDizlPY4s75ucm6h24eSClZPpCmh16YtfdcGTABtvAk8AHhT6ZLyZktxt83kA==}
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@remark-embedder/core': ^3.0.0
     dependencies:
       '@babel/runtime': 7.22.5
-      '@remark-embedder/core': 3.0.1
+      '@remark-embedder/core': 3.0.2
       '@types/make-fetch-happen': 10.0.1
       make-fetch-happen: 10.2.1
     transitivePeerDependencies:
