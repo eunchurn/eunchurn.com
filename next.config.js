@@ -12,7 +12,7 @@ const ContentSecurityPolicy = `
   img-src * blob: data:;
   media-src 'none';
   connect-src *;
-  frame-src giscus.app *.youtube.com *.soundcloud.com *.vimeo.com;
+  frame-src giscus.app *.youtube.com *.soundcloud.com *.vimeo.com *.mixcloud.com;
 `;
 
 const securityHeaders = [
