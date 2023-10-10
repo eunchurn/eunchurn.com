@@ -69,8 +69,8 @@ dependencies:
     specifier: 6.1.1
     version: 6.1.1
   rehype-citation:
-    specifier: 1.0.1
-    version: 1.0.1
+    specifier: 1.0.3
+    version: 1.0.3
   rehype-katex:
     specifier: 6.0.3
     version: 6.0.3
@@ -7713,8 +7713,8 @@ packages:
       unist-util-visit: 4.1.2
     dev: false
 
-  /rehype-citation@1.0.1:
-    resolution: {integrity: sha512-l50kEikJQBNQNgfsIBNlxkyzsA7Ia6fZ03hKpNP8h67dH54ILMBNyrU0L3J77B2WcjXQDYpMrFYTcznI1YFtiQ==}
+  /rehype-citation@1.0.3:
+    resolution: {integrity: sha512-CRDrqGyz1N3wDSEJU6ELQWz64FGkdby8yWUdgXFprkgaKTWvgMhOO2VWWohKbbCqaOQg7HqEknVQj4CZA7aWqg==}
     dependencies:
       '@citation-js/core': 0.6.8
       '@citation-js/date': 0.5.1
