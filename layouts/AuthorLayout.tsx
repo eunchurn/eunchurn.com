@@ -44,6 +44,7 @@ export default function AuthorLayout({ children, frontMatter }: Props) {
               height={192}
               className="h-48 w-48 rounded-full"
               unoptimized
+              style={{ objectFit: "cover" }}
             />
             <h3
               className="pt-4 pb-2 text-2xl leading-8 tracking-tight"
