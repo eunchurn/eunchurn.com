@@ -2,7 +2,6 @@ import "@/css/tailwind.css";
 import "@/css/prism.css";
 import "@/css/vimeo.css";
 import "katex/dist/katex.css";
-import "styles/root.css";
 import "styles/notion.css";
 // import "@fontsource/inter/variable-full.css";
 

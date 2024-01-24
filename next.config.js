@@ -62,7 +62,14 @@ const nextConfig = {
     dirs: ["pages", "components", "lib", "layouts", "scripts"],
   },
   images: {
-    unoptimized: true,
+    // unoptimized: true,
+    unoptimized: process.env.NODE_ENV !== "production",
+    remotePatterns: [
+      { protocol: "https", hostname: "www.notion.so" },
+      { protocol: "https", hostname: "notion.so" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "pbs.twimg.com" },
+    ],
   },
   experimental: {},
   assetPrefix: "",
