@@ -21,7 +21,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[markdown]": {
-    "editor.wordBasedSuggestions": true
+    "editor.wordBasedSuggestions": "matchingDocuments"
   },
   "workbench.editor.languageDetectionHints": {
     "untitledEditors": true,
