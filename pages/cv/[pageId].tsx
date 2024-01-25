@@ -27,6 +27,7 @@ export async function getStaticPaths() {
     paths: [
       "/cv/38279f2737c944c4b7cad33d92942852", // Backend stack
       "/cv/144e260d9fef425fadfb9994016d57da", // Frontend stack
+      "/cv/1328ec013dd1462886b2c8a7382cb3c7", // 경력기술서
     ],
     fallback: true,
   };
