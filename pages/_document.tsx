@@ -39,7 +39,7 @@ class MyDocument extends Document {
           <meta name="msapplication-TileColor" content="#000000" />
           <meta name="theme-color" content="#000000" />
           <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
-          <link
+          {/* <link
             rel="stylesheet"
             type="text/css"
             href="https://cdn.jsdelivr.net/gh/eunchurn/NanumSquareNeo@0.0.2/nanumsquareneo.css"
@@ -48,7 +48,7 @@ class MyDocument extends Document {
             rel="stylesheet"
             type="text/css"
             href="https://cdn.rawgit.com/innks/NanumSquareRound/master/nanumsquareround.min.css"
-          ></link>
+          ></link> */}
           <link rel="preconnect" href="https://fonts.googleapis.com"></link>
           <link
             rel="preconnect"
