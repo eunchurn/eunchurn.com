@@ -1,8 +1,8 @@
 ---
-date: "2022-09-04"
-title: "tWIL 2022.09 1주차"
+date: '2022-09-04'
+title: 'tWIL 2022.09 1주차'
 draft: false
-summary: "This week I learned"
+summary: 'This week I learned'
 featured: /static/images/eunchurn/lookup.PNG
 categories:
   - development
@@ -16,13 +16,13 @@ tags:
 
 이번 주는 PoC 마무리가 있었고, 몸 컨디션이 좋지 않아서 라이딩을 좀 쉬었다가 토요일에 태풍이 오기전 여의도를 다녀왔다. 갈때는 역풍이 너무 심해서 체력이 고갈되는 듯 했으나, 여의도에서 넘어갈 수 밖에 없는 유혹 "한강에서 라이딩과 라면"에 넘어갔고, 돌아올 땐 순풍이여서 괜찮았다.
 
-<div className="__fl_vimeo" style={{ position: "relative", padding: "56.25% 0 0 0" }}>
+<div className="__fl_vimeo" style={{ position: 'relative', padding: '56.25% 0 0 0' }}>
   <iframe
     src="https://player.vimeo.com/video/746154535?h=7bf1ba4a44&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
     frameBorder="0"
     allow="autoplay; fullscreen; picture-in-picture"
     allowFullScreen
-    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
     title="20220824"
   ></iframe>
 </div>
@@ -32,29 +32,29 @@ tags:
 ## Paljs admin prisma
 
 ```typescript
-import low from "lowdb";
-import FileSync from "lowdb/adapters/FileSync";
+import low from 'lowdb'
+import FileSync from 'lowdb/adapters/FileSync'
 
 const adapter = new FileSync<{
-  [key: string]: { [key: string]: { [key: string]: any }[] }[];
-}>("prisma/adminSettings.json");
-const db = low(adapter);
+  [key: string]: { [key: string]: { [key: string]: any }[] }[]
+}>('prisma/adminSettings.json')
+const db = low(adapter)
 
 export default {
   Query: {
     getSchema: () => {
-      return db.value();
+      return db.value()
     },
   },
   Mutation: {
     updateModel: (_parent, { id, data }) => {
-      return db.get("models").find({ id }).assign(data).write();
+      return db.get('models').find({ id }).assign(data).write()
     },
     updateField: (_parent, { id, modelId, data }) => {
-      return db.get("models").find({ id: modelId }).get("fields").find({ id }).assign(data).write();
+      return db.get('models').find({ id: modelId }).get('fields').find({ id }).assign(data).write()
     },
   },
-};
+}
 ```
 
 GraphQL 스키마는 아래와 같이 정해져있다.
@@ -426,7 +426,7 @@ export class LowWithLodash<T> extends Low<T> {
 TypeScript에서 위의 코드는 오류가 발생한다. `Error [ERR_REQUIRE_ESM]: require() of ES Module` 그 이유는 `lowdb`가 ESM 패키지이기 때문에 발생한다. commonjs의 `require()`를 더이상 지원하지 않기 때문이다. TypeScript는 transpile한 결과를 보면, `require()`방식으로 변환하기 때문에 오류가 발생한다. TypeScript 버전이 올라가면 이런 ESM 모듈이 앞으로는 추세이기 때문에 알아서 변환해주면 좋겠지만, 아직은 안된다. 따라서 ESM 모듈을 쓰기위해 babel을 이래저래 설정하면 되겠지만, TypeScript에서는 불편하지만 `dynamicImport`와 같은 패키지를 사용해서 import해야 한다. 다음과 같이 `async` 함수에서 사용하고 promise로 반환해야한다.
 
 ```typescript
-const { Low } = (await dynamicImport("lowdb", module)) as typeof import("lowdb");
+const { Low } = (await dynamicImport('lowdb', module)) as typeof import('lowdb')
 ```
 
 그래서 수정된 코드는 아래와 같다.

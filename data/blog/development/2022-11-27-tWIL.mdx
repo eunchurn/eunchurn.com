@@ -1,8 +1,8 @@
 ---
-date: "2022-11-27"
-title: "tWIL 2022.11 4주차"
+date: '2022-11-27'
+title: 'tWIL 2022.11 4주차'
 draft: false
-summary: "This week I learned"
+summary: 'This week I learned'
 featured: /static/images/eunchurn/adidas.PNG
 categories:
   - blog
@@ -228,20 +228,20 @@ yarn add supertokens-kakao-provider
 ```
 
 ```typescript {19-23} showLineNumbers
-import { Kakao } from "supertokens-kakao-provider";
+import { Kakao } from 'supertokens-kakao-provider'
 
 superTokens.init({
-  framework: "express",
+  framework: 'express',
   supertokens: {
-    connectionURI: "http://your-auth-domain.com",
-    apiKey: "your-secret-key",
+    connectionURI: 'http://your-auth-domain.com',
+    apiKey: 'your-secret-key',
   },
   appInfo: {
-    appName: "your-auth-app-name",
-    apiDomain: "https://your-api-domain.com",
-    websiteDomain: "https://your-web-client-domain.com",
-    apiBasePath: "/auth",
-    websiteBasePath: "/auth",
+    appName: 'your-auth-app-name',
+    apiDomain: 'https://your-api-domain.com',
+    websiteDomain: 'https://your-web-client-domain.com',
+    apiBasePath: '/auth',
+    websiteBasePath: '/auth',
   },
   recipeList: [
     ThirdPartyEmailPassword.init({
@@ -249,12 +249,12 @@ superTokens.init({
         Kakao({
           clientId: process.env.KAKAO_ACCESS_KEY,
           clientSecret: process.env.KAKAO_ACCESS_SECRET,
-          relativeRedirectUrl: "/auth/callback/kakao",
+          relativeRedirectUrl: '/auth/callback/kakao',
         }),
       ],
     }),
   ],
-});
+})
 ```
 
 #### Naver provider
@@ -447,22 +447,22 @@ yarn add supertokens-naver-provider
 사용법은
 
 ```typescript {21-25} showLineNumbers
-import supertokens from "supertokens-node";
-import ThirdPartyEmailPassword from "supertokens-node/recipe/thirdpartyemailpassword";
-import { Naver } from "supertokens-naver-provider";
+import supertokens from 'supertokens-node'
+import ThirdPartyEmailPassword from 'supertokens-node/recipe/thirdpartyemailpassword'
+import { Naver } from 'supertokens-naver-provider'
 
 superTokens.init({
-  framework: "express",
+  framework: 'express',
   supertokens: {
-    connectionURI: "http://your-auth-domain.com",
-    apiKey: "your-secret-key",
+    connectionURI: 'http://your-auth-domain.com',
+    apiKey: 'your-secret-key',
   },
   appInfo: {
-    appName: "your-auth-app-name",
-    apiDomain: "https://your-api-domain.com",
-    websiteDomain: "https://your-web-client-domain.com",
-    apiBasePath: "/auth",
-    websiteBasePath: "/auth",
+    appName: 'your-auth-app-name',
+    apiDomain: 'https://your-api-domain.com',
+    websiteDomain: 'https://your-web-client-domain.com',
+    apiBasePath: '/auth',
+    websiteBasePath: '/auth',
   },
   recipeList: [
     ThirdPartyEmailPassword.init({
@@ -470,12 +470,12 @@ superTokens.init({
         Naver({
           clientId: process.env.NAVER_ACCESS_KEY,
           clientSecret: process.env.NAVER_ACCESS_SECRET,
-          relativeRedirectUrl: "/auth/callback/naver",
+          relativeRedirectUrl: '/auth/callback/naver',
         }),
       ],
     }),
   ],
-});
+})
 ```
 
 ### Email check
@@ -743,16 +743,16 @@ app.use(
 클라이언트에서는 `doesEmailExist` API를 사용한다. 하지만 Redux toolkit을 써서 Thunk를 만드는데 여기의 값은 API에서 에러가 발생했어도 미들웨어에서 우린 200을 보내주었다. 따라서 `response`를 받아서 `fetchResponse.json()`값을 변환해서 반환하도록 하였다. 여기서 Redux의 state는 `exists`와 `thirdParty`값을 받아서 중복되었다고 사용자에게 알려줄 수 있게된다.
 
 ```typescript
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import { doesEmailExist } from "supertokens-web-js/recipe/thirdpartyemailpassword";
+import { createAsyncThunk } from '@reduxjs/toolkit'
+import { doesEmailExist } from 'supertokens-web-js/recipe/thirdpartyemailpassword'
 
-export const emailCheck = createAsyncThunk("auth/emailCheck", (email: string) =>
+export const emailCheck = createAsyncThunk('auth/emailCheck', (email: string) =>
   doesEmailExist({
     email,
   }).then((response) => {
-    return response.fetchResponse.json();
-  }),
-);
+    return response.fetchResponse.json()
+  })
+)
 ```
 
 이제 thunk를 사용하여 dispatch를 할텐데 앞서 API에서 지정한 타입을 사용해야한다.
@@ -841,14 +841,14 @@ function useAuthCallback() {
 Web API에서 URL 인터페이스의 생성자에 `relativePath`와 `referrerUrl`(도메인)을 붙여 resetLink를 치환하도록 하였다. 마치 Nodejs `path.resolve()`처럼 끝에 trailing `/`로 인해 문제를 일으킬 이유도 사라질 것 같다.
 
 ```typescript
-const referrerUrl = userContext._default.request.request.get("Referer");
-const relativePath = passwordResetLink.replace(websiteDomain, "");
-const replacedResetLink = new URL(relativePath, referrerUrl).href;
+const referrerUrl = userContext._default.request.request.get('Referer')
+const relativePath = passwordResetLink.replace(websiteDomain, '')
+const replacedResetLink = new URL(relativePath, referrerUrl).href
 ```
 
 ```js
-new URL("/one", "http://example.com/").href; // 'http://example.com/one'
-new URL("/two", "http://example.com/one").href; // 'http://example.com/two'
+new URL('/one', 'http://example.com/').href // 'http://example.com/one'
+new URL('/two', 'http://example.com/one').href // 'http://example.com/two'
 ```
 
 이제 SuperTokens의 `emailDelivery` API를 수정한다. `type`이 `PASSWORD_RESET`이 아닌 경우 `originalImplementation`을 수행하면 되고, `PASSWORD_RESET`의 경우에 우리의 이메일 전송을 사용할 수 있다.

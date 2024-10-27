@@ -1,8 +1,8 @@
 ---
-date: "2022-10-02"
-title: "tWIL 2022.10 1주차"
+date: '2022-10-02'
+title: 'tWIL 2022.10 1주차'
 draft: false
-summary: "This week I learned"
+summary: 'This week I learned'
 featured: /static/images/eunchurn/coding.gif
 categories:
   - development
@@ -41,24 +41,24 @@ cdk deploy mystack-stack
 
 ```ts
 export enum Stage {
-  Development = "dev",
-  Staged = "staged",
-  Release = "release",
-  Production = "prod",
+  Development = 'dev',
+  Staged = 'staged',
+  Release = 'release',
+  Production = 'prod',
 }
 
 export interface MyStackProps extends cdk.StackProps {
-  stage: Stage;
-  vpcName: string;
-  stackAlias: string;
+  stage: Stage
+  vpcName: string
+  stackAlias: string
   /**
    * 서비스 기준 도메인: {stage}.myapp.io
    */
-  domain: string;
+  domain: string
   /**
    * 서비스 기준 도메인의 ARN 값
    */
-  certificateArn: string;
+  certificateArn: string
 }
 ```
 
@@ -447,14 +447,14 @@ Github action은 나날이 발전하고 있다. 예전에 Github page에 페이�
 name: Deploy React App
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   workflow_dispatch:
 permissions:
   contents: read
   pages: write
   id-token: write
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: true
 jobs:
   build:
@@ -482,7 +482,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: '16'
           cache: ${{ steps.detect-package-manager.outputs.manager }}
       - name: Restore cache
         uses: actions/cache@v3

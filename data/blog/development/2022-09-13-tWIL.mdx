@@ -1,8 +1,8 @@
 ---
-date: "2022-09-13"
-title: "tWIL 2022.09 2주차"
+date: '2022-09-13'
+title: 'tWIL 2022.09 2주차'
 draft: false
-summary: "This week I learned"
+summary: 'This week I learned'
 featured: /static/images/eunchurn/sky.PNG
 categories:
   - development
@@ -14,13 +14,13 @@ tags:
 
 추석연휴 첫날 40km를 다녀왔다. 이렇게 조금씩 거리를 늘리다가 하트코스를 다녀올 수 있을지... 이정도 되니 무릅이 조금 아파왔다. 자세가 안좋은것인지 다음번에도 아프면 클릿 피팅을 다시해야할 것 같기도 하다. 여튼 돌아올 땐 무릅이 조금 아파서 거의 당기는 힘을 주로 써서 라이딩을 하니 좀 편했다.
 
-<div className="__fl_vimeo" style={{ position: "relative", padding: "56.25% 0 0 0" }}>
+<div className="__fl_vimeo" style={{ position: 'relative', padding: '56.25% 0 0 0' }}>
   <iframe
     src="https://player.vimeo.com/video/748102998?h=362f7a746b&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
     frameBorder="0"
     allow="autoplay; fullscreen; picture-in-picture"
     allowFullScreen
-    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
     title="20220909"
   ></iframe>
 </div>
@@ -32,20 +32,26 @@ tags:
 - "암묵적으로 children props 가 포함된다"
 
 ```typescript
-type PropsWithChildren<P> = P & { children?: ReactNode | undefined };
+type PropsWithChildren<P> = P & { children?: ReactNode | undefined }
 ```
 
 - "제네릭 문법을 지원하지 않는다."
 
 ```typescript
 type GenericComponentProps<T> = {
-   prop: T
-   callback: (t: T) => void
+  prop: T
+  callback: (t: T) => void
 }
 
-const GenericComponent = <T>(props: GenericComponentProps<T>) => {/*...*/}
+const GenericComponent = <T>(props: GenericComponentProps<T>) => {
+  /*...*/
+}
 
-const GenericComponent: React.FC</* 제네릭을 받는 props 를 전달할 수 없다. */> = <T>(props: GenericComponentProps<T>) => {/*...*/}
+const GenericComponent: React.FC</* 제네릭을 받는 props 를 전달할 수 없다. */> = <T>(
+  props: GenericComponentProps<T>
+) => {
+  /*...*/
+}
 ```
 
 - "불필요한 속성들을 포함한다."
@@ -55,17 +61,17 @@ const GenericComponent: React.FC</* 제네릭을 받는 props 를 전달할 수 
 
 ```typescript
 export type PageFindAllPostsPaginationComp = React.FC<{
-  data?: Types.FindAllPostsPaginationQuery;
-  error?: Apollo.ApolloError;
-}>;
+  data?: Types.FindAllPostsPaginationQuery
+  error?: Apollo.ApolloError
+}>
 ```
 
 `React.Fc`만 걷어낸 타입도 생성해주면 좋을텐데 그런 옵션은 없었다. 따라서 이렇게 생성된 `React.FunctionComponent`으로 만들어진 컴포넌트 타입의 제네릭을 다시 꺼내는 조건부 타입을 만들어서 사용하였다.
 
 ```typescript
-type ExtractPropType<T> = T extends React.FunctionComponent<infer X> ? X : never;
+type ExtractPropType<T> = T extends React.FunctionComponent<infer X> ? X : never
 
-type PropType = ExtractPropType<PageFindAllPostsPaginationComp>;
+type PropType = ExtractPropType<PageFindAllPostsPaginationComp>
 ```
 
 이제 `withPage`방식을 시작하기 전에 GraphQL 오퍼레이터는 아래와 같이 만들고 제너레이션 시켜준다. `codegen.yml`설정은 지난 [2022-08-28-tWIL](/blog/development/2022-08-28-tWIL#graphql-codegen) 참고
@@ -170,39 +176,39 @@ export const ssrFindAllPostsPagination = {
 
 ```typescript
 function getPosts(data: FindAllPostsPaginationQuery | undefined) {
-  if (!data) return defaultData;
-  const { findManyPost } = data;
+  if (!data) return defaultData
+  const { findManyPost } = data
   const posts = compact(
     findManyPost.map((post) => {
-      if (!post) return null;
-      const { id, title, content, author } = post;
-      if (!author) return null;
-      const { name } = author;
-      return { id, title, content, name };
+      if (!post) return null
+      const { id, title, content, author } = post
+      if (!author) return null
+      const { name } = author
+      return { id, title, content, name }
     })
-  );
-  return posts;
+  )
+  return posts
 }
 
-const defaultData = [{ id: "", title: "", content: "", name: "" }];
+const defaultData = [{ id: '', title: '', content: '', name: '' }]
 ```
 
 이렇게 `id`, `title`, `content`, `name`을 배열로 리턴하게 한다. `withPage`는 아래와 같이, `withApollo`와 함께 사용한다.
 
 ```tsx {29-39} showLineNumbers
-import React from "react";
-import Layout from "Layouts";
-import { withApollo } from "withApollo";
-import { ssrFindAllPostsPagination, PageFindAllPostsPaginationComp } from "generated/page";
-import { FindAllPostsPaginationQuery } from "generated/types";
-import { compact } from "lodash";
+import React from 'react'
+import Layout from 'Layouts'
+import { withApollo } from 'withApollo'
+import { ssrFindAllPostsPagination, PageFindAllPostsPaginationComp } from 'generated/page'
+import { FindAllPostsPaginationQuery } from 'generated/types'
+import { compact } from 'lodash'
 
-type ExtractGeneric<Type> = Type extends React.FunctionComponent<infer X> ? X : never;
+type ExtractGeneric<Type> = Type extends React.FunctionComponent<infer X> ? X : never
 
-type PropType = ExtractGeneric<PageFindAllPostsPaginationComp>;
+type PropType = ExtractGeneric<PageFindAllPostsPaginationComp>
 
 function ListPosts(props: PropType) {
-  console.log(props);
+  console.log(props)
   return (
     <Layout title="Project List">
       {getPosts(props.data).map((item) => {
@@ -212,10 +218,10 @@ function ListPosts(props: PropType) {
               Title: {item.title}, Content: {item.content}, Author: {item.name}
             </div>
           </React.Fragment>
-        );
+        )
       })}
     </Layout>
-  );
+  )
 }
 
 export default withApollo(
@@ -228,7 +234,7 @@ export default withApollo(
           : ((arg?.query?.page as unknown as number) - 1) * 10 || 0,
     },
   }))(ListPosts)
-);
+)
 ```
 
 컴포넌트는 대충만들었기 때문에, 29-30라인을 보면 HOC로 `default export`한다.
@@ -238,18 +244,18 @@ export default withApollo(
 이제 `getServerPage`방식으로 구현해보자.
 
 ```tsx {28} showLineNumbers
-import React from "react";
-import Layout from "Layouts";
-import { ssrFindAllPostsPagination, PageFindAllPostsPaginationComp } from "generated/page";
-import { FindAllPostsPaginationQuery } from "generated/types";
-import { compact } from "lodash";
+import React from 'react'
+import Layout from 'Layouts'
+import { ssrFindAllPostsPagination, PageFindAllPostsPaginationComp } from 'generated/page'
+import { FindAllPostsPaginationQuery } from 'generated/types'
+import { compact } from 'lodash'
 
-type ExtractPropType<T> = T extends React.FunctionComponent<infer X> ? X : never;
+type ExtractPropType<T> = T extends React.FunctionComponent<infer X> ? X : never
 
-type PropType = ExtractPropType<PageFindAllPostsPaginationComp>;
+type PropType = ExtractPropType<PageFindAllPostsPaginationComp>
 
 function SSRListPost(props: PropType) {
-  console.log(props);
+  console.log(props)
   return (
     <Layout title="Project List">
       {getPosts(props.data).map((item) => {
@@ -259,15 +265,15 @@ function SSRListPost(props: PropType) {
               Title: {item.title}, Content: {item.content}, Author: {item.name}
             </div>
           </React.Fragment>
-        );
+        )
       })}
     </Layout>
-  );
+  )
 }
 
-export const getServerSideProps = ssrFindAllPostsPagination.getServerPage;
+export const getServerSideProps = ssrFindAllPostsPagination.getServerPage
 
-export default SSRListPost;
+export default SSRListPost
 ```
 
 `withPage`에 비해 상당히 간단해 보이는데, `variables`를 넣지 않았기 때문이다. 넣는다고 해도 코드가 복잡할 것 같진 않다.

@@ -1,5 +1,5 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1267.44921875 546.9375" width="1267.44921875"
-  height="546.9375">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1268 547" width="1268"
+  height="547">
 
   <defs>
     <style>
@@ -14,7 +14,7 @@
       }
     </style>
   </defs>
-  <rect x="0" y="0" width="1267.44921875" height="546.9375" fill="#ffffff"></rect>
+  <rect x="0" y="0" width="1268" height="547" fill="#ffffff"></rect>
   <g stroke-linecap="round" transform="translate(320.64453125 72.8389892578125) rotate(0 176.5390625 117.884765625)">
     <path
       d="M-0.13 -0.53 C117.2 0.76, 235.79 0.37, 353.54 0.18 M351.77 -0.21 C353.52 81.3, 354.12 166.37, 351.63 235.17 M352.59 234.55 C228.26 234.39, 105.29 232.7, 0.24 235.68 M-1.09 237.34 C0.62 156.1, -0.45 78.27, 0.28 1.02"

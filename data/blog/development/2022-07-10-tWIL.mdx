@@ -1,8 +1,8 @@
 ---
-date: "2022-07-10"
-title: "tWIL 2022.07 1주차"
+date: '2022-07-10'
+title: 'tWIL 2022.07 1주차'
 draft: false
-summary: "This week I learned"
+summary: 'This week I learned'
 featured: /static/images/eunchurn/twolight.png
 categories:
   - development
@@ -307,12 +307,12 @@ export const store = configureStore({
 
 ```typescript
 const middlewares = (): Middleware[] => {
-  if (process.env.NODE_ENV !== "production") {
-    return [logger, customMiddleware, apiSlice.middleware];
+  if (process.env.NODE_ENV !== 'production') {
+    return [logger, customMiddleware, apiSlice.middleware]
   } else {
-    return [customMiddleware, apiSlice.middleware];
+    return [customMiddleware, apiSlice.middleware]
   }
-};
+}
 ```
 
 컴포넌트에서 사용해보자.
