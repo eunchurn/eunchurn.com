@@ -5,6 +5,7 @@
       "@/*": ["src/*"],
       "@/data/*": ["data/*"],
       "contentlayer/generated": ["./.contentlayer/generated"]
-    }
+    },
+    "target": "ESNext"
   }
 }
