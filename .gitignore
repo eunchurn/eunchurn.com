@@ -28,6 +28,10 @@ public/sitemap.xml
 # search
 /public/search.json
 
+# service worker
+public/sw.js
+public/workbox-*.js
+
 # misc
 .DS_Store
 
@@ -45,3 +49,4 @@ yarn-error.log*
 
 # Contentlayer
 .contentlayer
+
