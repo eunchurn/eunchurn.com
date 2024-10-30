@@ -19,7 +19,10 @@ export default function Projects() {
         <div className="container py-12">
           <div className="-m-4 flex flex-wrap">
             {allHistories.map((d) => (
-              <div className="mx-2 my-6 flex min-h-80 w-full max-w-[333px] items-center justify-center rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:w-1/2">
+              <div
+                key={d._id}
+                className="mx-2 my-6 flex min-h-80 w-full max-w-[333px] items-center justify-center rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:w-1/2"
+              >
                 <div className="p-3 text-center">
                   <div className="mb-4 flex justify-center">
                     <svg

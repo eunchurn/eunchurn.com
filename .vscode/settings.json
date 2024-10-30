@@ -2,7 +2,9 @@
   "editor.formatOnSave": true,
   "javascript.format.enable": false,
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "typescript.tsserver.watchOptions": { "watchFile": "useFsEvents" },
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "useFsEvents"
+  },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -66,7 +68,7 @@
   "[svg]": {
     "editor.defaultFormatter": "jock.svg"
   },
-  "cSpell.words": ["eunchurn", "unist", "unoptimized", "vfile"],
+  "cSpell.words": ["Contentlayer", "eunchurn", "unist", "unoptimized", "vfile"],
   "[dotenv]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   }
