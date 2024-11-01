@@ -20,7 +20,7 @@
     "@tailwindcss/typography": "^0.5.15",
     "autoprefixer": "^10.4.20",
     "body-scroll-lock": "^4.0.0-beta.0",
-    "contentlayer2": "0.5.1",
+    "contentlayer2": "0.5.3",
     "esbuild": "0.24.0",
     "github-slugger": "^2.0.0",
     "got": "^14.4.3",
