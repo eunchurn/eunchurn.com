@@ -8,7 +8,7 @@ interface Props {
   content: Omit<History, '_id' | '_raw' | 'body'>
 }
 
-export default function AuthorLayout({ children, content }: Props) {
+export default function HistoryLayout({ children, content }: Props) {
   const { name, image } = content
 
   return (
