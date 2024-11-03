@@ -5,6 +5,7 @@ import 'remark-github-blockquote-alert/alert.css'
 import '@/css/notion.css'
 import '@/css/prism.css'
 import 'katex/dist/katex.css'
+import '@/css/list.css'
 
 import * as fonts from '@/css/fonts'
 import { Space_Grotesk } from 'next/font/google'

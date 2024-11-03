@@ -10,7 +10,7 @@ module.exports = {
     './src/pages/**/*.{js,ts,tsx}',
     './src/components/**/*.{js,ts,tsx}',
     './src/layouts/**/*.{js,ts,tsx}',
-    './src/data/**/*.mdx',
+    './data/**/*.mdx',
   ],
   darkMode: 'class',
   theme: {

@@ -1,6 +1,3 @@
-// import '@/css/prism.css'
-// import 'katex/dist/katex.css'
-
 import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/MDXComponents'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
@@ -14,6 +11,7 @@ import PostBanner from '@/layouts/PostBanner'
 import { Metadata } from 'next'
 import siteMetadata from '@/data/siteMetadata'
 import { notFound } from 'next/navigation'
+// import { MDXLayoutRenderer } from '@/components/history-item'
 
 export async function generateMetadata(props: {
   params: Promise<{ pageId: string }>
@@ -65,10 +63,14 @@ export default async function Page(props: { params: Promise<{ pageId: string }> 
   const next = sortedCoreContents[postIndex - 1]
   const post = allHistories.find((p) => p.slug === pageId) as History
   const mainContent = coreContent(post)
+  // add ul className
+  const ulCode = post.body.code.replaceAll('ul,{', 'ul,{className:"icon-list",')
+  // add li className
+  const code = ulCode.replaceAll('li,{', 'li,{className:"icon-list-item",')
   return (
     <>
       <HistoryLayout content={mainContent}>
-        <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
+        <MDXLayoutRenderer code={code} components={components} toc={post.toc} />
       </HistoryLayout>
     </>
   )

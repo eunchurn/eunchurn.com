@@ -25,7 +25,8 @@ export default function Projects() {
               >
                 <div className="p-3 text-center">
                   <div className="mb-4 flex justify-center">
-                    <svg
+                    <img src={d.image} alt={d.name} className="h-40 w-40 rounded-full" />
+                    {/* <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -43,14 +44,13 @@ export default function Projects() {
                         strokeLinejoin="round"
                         d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z"
                       />
-                    </svg>
+                    </svg> */}
                   </div>
                   <div className="mb-2 flex justify-center">
                     <h5 className="text-2xl font-semibold text-slate-800">{d.name}</h5>
                   </div>
                   <p className="mb-4 block max-w-lg font-light leading-normal text-slate-600">
-                    Because it&apos;s about motivating the doers. Because I&apos;m here to follow my
-                    dreams and inspire others.
+                    {d.summary}
                   </p>
                   <div className="text-center">
                     <Link href={`/history/${d.slug}`}>

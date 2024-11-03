@@ -1,5 +1,7 @@
 import pwa from 'next-pwa'
 import { withContentlayer } from 'next-contentlayer2'
+import bundleAnalyzer from '@next/bundle-analyzer'
+import { NextConfig } from 'next'
 
 const isProd = process.env.NODE_ENV === 'production'
 const withPWA = pwa({
@@ -13,9 +15,13 @@ const withPWA = pwa({
 
 // const { withContentlayer } = require('next-contentlayer2')
 
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
+const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 })
+
+// const withBundleAnalyzer = require('@next/bundle-analyzer')({
+//   enabled: process.env.ANALYZE === 'true',
+// })
 // const ContentSecurityPolicy = `
 //   script-src 'self' 'unsafe-eval' 'unsafe-inline' data: giscus.app youtube.com soundcloud.com googletagmanager.com;
 //   img-src * blob: data:;
@@ -76,12 +82,13 @@ const securityHeaders = [
 const output = process.env.EXPORT ? 'export' : undefined
 const basePath = process.env.BASE_PATH || undefined
 const unoptimized = process.env.UNOPTIMIZED ? true : undefined
-const plugins = [withContentlayer, withBundleAnalyzer, withPWA]
 
 /**
  * @type {import('next/dist/next-server/server/config').NextConfig}
  **/
 module.exports = () => {
+  const plugins = [withContentlayer, withBundleAnalyzer, withPWA]
+  // @ts-ignore
   return plugins.reduce((acc, next) => next(acc), {
     output,
     basePath,
@@ -128,25 +135,25 @@ module.exports = () => {
         },
       },
     },
-    // webpack: (config, options) => {
-    //   config.module.rules.push({
-    //     test: /\.(png|jpe?g|gif|mp4)$/i,
-    //     use: [
-    //       {
-    //         loader: 'file-loader',
-    //         options: {
-    //           publicPath: '/_next',
-    //           name: 'static/media/[name].[hash].[ext]',
-    //         },
-    //       },
-    //     ],
-    //   })
-    //   config.module.rules.push({
-    //     test: /\.svg$/,
-    //     use: ['@svgr/webpack'],
-    //   })
+    webpack: (config, options) => {
+      config.module.rules.push({
+        test: /\.(png|jpe?g|gif|mp4)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              publicPath: '/_next',
+              name: 'static/media/[name].[hash].[ext]',
+            },
+          },
+        ],
+      })
+      config.module.rules.push({
+        test: /\.svg$/,
+        use: ['@svgr/webpack'],
+      })
 
-    //   return config
-    // },
-  })
+      return config
+    },
+  } as NextConfig)
 }
