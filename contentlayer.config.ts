@@ -175,9 +175,22 @@ export const History = defineDocumentType(() => ({
   computedFields,
 }))
 
+export const Research = defineDocumentType(() => ({
+  name: 'Research',
+  filePathPattern: 'research/**/*.mdx',
+  contentType: 'mdx',
+  fields: {
+    name: { type: 'string', required: true },
+    summary: { type: 'string' },
+    image: { type: 'string' },
+    layout: { type: 'string' },
+  },
+  computedFields,
+}))
+
 export default makeSource({
   contentDirPath: 'data',
-  documentTypes: [Blog, Authors, History],
+  documentTypes: [Blog, Authors, History, Research],
   mdx: {
     cwd: process.cwd(),
     remarkPlugins: [

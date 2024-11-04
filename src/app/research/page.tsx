@@ -1,12 +1,12 @@
 import projectsData from '@/data/projectsData'
-import { History, allHistories } from 'contentlayer/generated'
+import { Research, allResearch } from 'contentlayer/generated'
 import Card from '@/components/Card'
 import { genPageMetadata } from '@/app/seo'
 import Link from '@/components/Link'
 
-export const metadata = genPageMetadata({ title: 'History' })
+export const metadata = genPageMetadata({ title: 'Research' })
 
-export default function Projects() {
+export default function ResearchPage() {
   return (
     <>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -15,12 +15,12 @@ export default function Projects() {
             Projects
           </h1> */}
           <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
-            Music-Related Career History
+            Academic Publications and Research
           </p>
         </div>
         <div className="container py-12">
           <div className="-m-4 flex flex-wrap justify-center">
-            {allHistories.map((d) => (
+            {allResearch.map((d) => (
               <div
                 key={d._id}
                 className="mx-2 my-6 flex min-h-80 w-full max-w-[333px] items-center justify-center rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:w-1/2"
@@ -55,7 +55,7 @@ export default function Projects() {
                     {d.summary}
                   </p>
                   <div className="text-center">
-                    <Link href={`/history/${d.slug}`}>
+                    <Link href={`/research/${d.slug}`}>
                       <button
                         className="min-w-32 rounded-md border border-transparent bg-slate-800 px-4 py-2 text-center text-sm text-white shadow-md transition-all hover:bg-slate-700 hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 active:shadow-none"
                         type="button"
