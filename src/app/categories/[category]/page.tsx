@@ -43,7 +43,7 @@ export default async function TagPage(props: { params: Promise<{ category: strin
   const filteredPosts = allCoreContent(
     sortPosts(
       filterNotDrafts(allBlogs).filter(
-        (post) => post.categories && post.tags.map((t) => slug(t)).includes(categories)
+        (post) => post.categories && post.categories.map((t) => slug(t)).includes(categories)
       )
     )
   )
