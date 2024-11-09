@@ -1,8 +1,8 @@
 ---
-date: '2023-01-15'
-title: 'tWIL 2023.01 2주차'
+date: "2023-01-15"
+title: "tWIL 2023.01 2주차"
 draft: false
-summary: 'Local state management with @apollo/client'
+summary: "Local state management with @apollo/client"
 featured: /static/images/eunchurn/sticker.PNG
 categories:
   - blog
@@ -58,12 +58,12 @@ tags:
 
 ```typescript
 export async function fetchCsv(path: string) {
-  const response = await fetch(path)
-  const reader = response.body?.getReader()
-  const decoder = new TextDecoder('utf-8')
-  if (!reader) throw new Error('No reader found')
-  const result = await reader.read()
-  return decoder.decode(result.value)
+  const response = await fetch(path);
+  const reader = response.body?.getReader();
+  const decoder = new TextDecoder("utf-8");
+  if (!reader) throw new Error("No reader found");
+  const result = await reader.read();
+  return decoder.decode(result.value);
 }
 ```
 
@@ -350,12 +350,12 @@ export function ApolloClientProvider({
 이 프로바이더를 `App`에 감싸주고 테스트 해보자. 우선 [`@tanstack/react-table`](https://tanstack.com/table/v8/docs/guide/installation)을 설치하여 Headless 테이블을 만들고, 생성된 타입으로 `columns`을 만들어준다.
 
 ```ts
-import { Field, Data } from 'generated/apollo'
-import { compact } from 'lodash'
+import { Field, Data } from "generated/apollo";
+import { compact } from "lodash";
 
-type OmittedData = Omit<Data, '__typename'>
+type OmittedData = Omit<Data, "__typename">;
 
-const columnHelper = createColumnHelper<OmittedData>()
+const columnHelper = createColumnHelper<OmittedData>();
 
 const columns = compact(
   Object.values(Field).map((columnKey) =>
@@ -364,22 +364,22 @@ const columns = compact(
       header: () => columnKey,
     })
   )
-)
+);
 ```
 
 그리고, `undefined`가 오는 경우 `defaultData`를 줄 수 있도록 한다. Lazy Query로 가져오기 때문에 기본 데이터가 있어야 한다.
 
 ```ts
 const defaultData: OmittedData[] = Object.values(Field).map((value) => ({
-  [value]: '',
-}))
+  [value]: "",
+}));
 
 function getData(data: GetDataByFieldQuery | undefined): OmittedData[] {
-  if (!data) return defaultData
-  const { getDataByField } = data
-  if (!getDataByField) return defaultData
-  const result = compact(getDataByField.map((data) => omitBy(data, '__typename'))) as OmittedData[]
-  return result
+  if (!data) return defaultData;
+  const { getDataByField } = data;
+  if (!getDataByField) return defaultData;
+  const result = compact(getDataByField.map((data) => omitBy(data, "__typename"))) as OmittedData[];
+  return result;
 }
 ```
 

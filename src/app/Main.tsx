@@ -1,17 +1,17 @@
-'use client'
-import Link from '@/components/Link'
-import Tag from '@/components/Tag'
-import Image from '@/components/Image'
-import siteMetadata from '@/data/siteMetadata'
-import { formatDate } from 'pliny/utils/formatDate'
-import NewsletterForm from 'pliny/ui/NewsletterForm'
+"use client";
+import Link from "@/components/Link";
+import Tag from "@/components/Tag";
+import Image from "@/components/Image";
+import siteMetadata from "@/data/siteMetadata";
+import { formatDate } from "pliny/utils/formatDate";
+import NewsletterForm from "pliny/ui/NewsletterForm";
 
-const MAX_DISPLAY = 5
+const MAX_DISPLAY = 5;
 
-const staticFolder = process.env.NEXT_PUBLIC_STATIC_FOLDER
+const staticFolder = process.env.NEXT_PUBLIC_STATIC_FOLDER;
 
 const blurDataUrl =
-  'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=='
+  "data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==";
 
 export default function Home({ posts }) {
   return (
@@ -26,9 +26,9 @@ export default function Home({ posts }) {
           </p>
         </div>
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-          {!posts.length && 'No posts found.'}
+          {!posts.length && "No posts found."}
           {posts.slice(0, MAX_DISPLAY).map((post) => {
-            const { slug, date, title, summary, tags, featured } = post
+            const { slug, date, title, summary, tags, featured } = post;
             return (
               <li key={slug} className="py-12">
                 <article>
@@ -46,7 +46,7 @@ export default function Home({ posts }) {
                               alt={title}
                               width={100}
                               height={100}
-                              style={{ objectFit: 'cover', height: 100 }}
+                              style={{ objectFit: "cover", height: 100 }}
                               className="rounded-full"
                               placeholder="blur"
                               blurDataURL={blurDataUrl}
@@ -90,7 +90,7 @@ export default function Home({ posts }) {
                   </div>
                 </article>
               </li>
-            )
+            );
           })}
         </ul>
       </div>
@@ -111,5 +111,5 @@ export default function Home({ posts }) {
         </div>
       )} */}
     </>
-  )
+  );
 }

@@ -1,5 +1,5 @@
-import { Blog } from 'contentlayer/generated'
+import { Blog } from "contentlayer/generated";
 
 export function filterNotDrafts(allBlogs: Blog[]) {
-  return allBlogs.filter((allBlogs) => allBlogs.draft !== true)
+  return allBlogs.filter((allBlogs) => allBlogs.draft !== true);
 }

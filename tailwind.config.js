@@ -1,30 +1,30 @@
 // @ts-check
-const { fontFamily } = require('tailwindcss/defaultTheme')
-const colors = require('tailwindcss/colors')
+const { fontFamily } = require("tailwindcss/defaultTheme");
+const colors = require("tailwindcss/colors");
 
 /** @type {import("tailwindcss/types").Config } */
 module.exports = {
   content: [
-    './node_modules/pliny/**/*.js',
-    './src/app/**/*.{js,ts,jsx,tsx}',
-    './src/pages/**/*.{js,ts,tsx}',
-    './src/components/**/*.{js,ts,tsx}',
-    './src/layouts/**/*.{js,ts,tsx}',
-    './data/**/*.mdx',
+    "./node_modules/pliny/**/*.js",
+    "./src/app/**/*.{js,ts,jsx,tsx}",
+    "./src/pages/**/*.{js,ts,tsx}",
+    "./src/components/**/*.{js,ts,tsx}",
+    "./src/layouts/**/*.{js,ts,tsx}",
+    "./data/**/*.mdx",
   ],
-  darkMode: 'class',
+  darkMode: "class",
   theme: {
     extend: {
       lineHeight: {
-        11: '2.75rem',
-        12: '3rem',
-        13: '3.25rem',
-        14: '3.5rem',
+        11: "2.75rem",
+        12: "3rem",
+        13: "3.25rem",
+        14: "3.5rem",
       },
       fontFamily: {
         sans: [
-          'var(--font-space-grotesk)',
-          'var(--font-nanum-square-neo-variable)',
+          "var(--font-space-grotesk)",
+          "var(--font-nanum-square-neo-variable)",
           ...fontFamily.sans,
         ],
       },
@@ -33,48 +33,48 @@ module.exports = {
         gray: colors.gray,
       },
       zIndex: {
-        60: '60',
-        70: '70',
-        80: '80',
+        60: "60",
+        70: "70",
+        80: "80",
       },
       typography: ({ theme }) => ({
         DEFAULT: {
           css: {
             a: {
-              color: theme('colors.primary.500'),
-              '&:hover': {
-                color: `${theme('colors.primary.600')}`,
+              color: theme("colors.primary.500"),
+              "&:hover": {
+                color: `${theme("colors.primary.600")}`,
               },
-              code: { color: theme('colors.primary.400') },
+              code: { color: theme("colors.primary.400") },
             },
-            'h1,h2': {
-              fontWeight: '700',
-              letterSpacing: theme('letterSpacing.tight'),
+            "h1,h2": {
+              fontWeight: "700",
+              letterSpacing: theme("letterSpacing.tight"),
             },
             h3: {
-              fontWeight: '600',
+              fontWeight: "600",
             },
             code: {
-              color: theme('colors.indigo.500'),
+              color: theme("colors.indigo.500"),
             },
           },
         },
         invert: {
           css: {
             a: {
-              color: theme('colors.primary.500'),
-              '&:hover': {
-                color: `${theme('colors.primary.400')}`,
+              color: theme("colors.primary.500"),
+              "&:hover": {
+                color: `${theme("colors.primary.400")}`,
               },
-              code: { color: theme('colors.primary.400') },
+              code: { color: theme("colors.primary.400") },
             },
-            'h1,h2,h3,h4,h5,h6': {
-              color: theme('colors.gray.100'),
+            "h1,h2,h3,h4,h5,h6": {
+              color: theme("colors.gray.100"),
             },
           },
         },
       }),
     },
   },
-  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
-}
+  plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
+};

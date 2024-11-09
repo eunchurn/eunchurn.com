@@ -1,8 +1,8 @@
 ---
-date: '2022-12-11'
-title: 'tWIL 2022.12 2주차'
+date: "2022-12-11"
+title: "tWIL 2022.12 2주차"
 draft: false
-summary: 'This week I learned'
+summary: "This week I learned"
 featured: /static/images/eunchurn/grafiti.PNG
 categories:
   - blog
@@ -182,8 +182,8 @@ export type EmailSend = (
   subject: string,
   message: string
 ) => {
-  [key in EmailSendEventType]: () => Promise<SentMessageInfo>
-}
+  [key in EmailSendEventType]: () => Promise<SentMessageInfo>;
+};
 ```
 
 함수 실행을 아래와 같이 객체로 분기시켰다.

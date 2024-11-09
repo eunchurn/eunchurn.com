@@ -1,15 +1,15 @@
-import { ReactNode } from 'react'
-import type { History } from 'contentlayer/generated'
-import SocialIcon from '@/components/social-icons'
-import Image from '@/components/Image'
+import { ReactNode } from "react";
+import type { History } from "contentlayer/generated";
+import SocialIcon from "@/components/social-icons";
+import Image from "@/components/Image";
 
 interface Props {
-  children: ReactNode
-  content: Omit<History, '_id' | '_raw' | 'body'>
+  children: ReactNode;
+  content: Omit<History, "_id" | "_raw" | "body">;
 }
 
 export default function HistoryLayout({ children, content }: Props) {
-  const { name, image } = content
+  const { name, image } = content;
 
   return (
     <>
@@ -37,5 +37,5 @@ export default function HistoryLayout({ children, content }: Props) {
         </div>
       </div>
     </>
-  )
+  );
 }

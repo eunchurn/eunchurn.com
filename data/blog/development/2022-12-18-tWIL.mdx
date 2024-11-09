@@ -1,8 +1,8 @@
 ---
-date: '2022-12-18'
-title: 'tWIL 2022.12 3주차'
+date: "2022-12-18"
+title: "tWIL 2022.12 3주차"
 draft: true
-summary: 'This week I learned'
+summary: "This week I learned"
 featured: /static/images/eunchurn/chrismas_present.png
 categories:
   - blog
@@ -65,29 +65,29 @@ export const handler = middy(lambdaHandler).use(injectLambdaContext(logger));
 기본적인 예제는 이렇다. `middy`에서 제공하는 [미들웨어](https://middy.js.org/docs/category/middlewares)들이 꽤 많다. 하지만 역시나 커스텀 미들웨어가 필요했다. TypeScript를 활용한 커스텀 미들웨어는 [참고](https://middy.js.org/docs/writing-middlewares/with-typescript)
 
 ```typescript
-import middy from '@middy/core'
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import middy from "@middy/core";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
 const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxyResult> => {
   const before: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
     request
   ): Promise<void> => {
     // Your middleware logic
-  }
+  };
 
   const after: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
     request
   ): Promise<void> => {
     // Your middleware logic
-  }
+  };
 
   return {
     before,
     after,
-  }
-}
+  };
+};
 
-export default middleware
+export default middleware;
 ```
 
 ## ChatGPT

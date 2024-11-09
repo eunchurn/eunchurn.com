@@ -1,10 +1,10 @@
-import projectsData from '@/data/projectsData'
-import { History, allHistories } from 'contentlayer/generated'
-import Card from '@/components/Card'
-import { genPageMetadata } from '@/app/seo'
-import Link from '@/components/Link'
+import projectsData from "@/data/projectsData";
+import { History, allHistories } from "contentlayer/generated";
+import Card from "@/components/Card";
+import { genPageMetadata } from "@/app/seo";
+import Link from "@/components/Link";
 
-export const metadata = genPageMetadata({ title: 'History' })
+export const metadata = genPageMetadata({ title: "History" });
 
 export default function Projects() {
   return (
@@ -84,5 +84,5 @@ export default function Projects() {
         </div> */}
       </div>
     </>
-  )
+  );
 }

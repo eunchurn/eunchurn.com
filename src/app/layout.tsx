@@ -1,28 +1,28 @@
-import '@/css/tailwind.css'
-import '@/css/vimeo.css'
-import 'pliny/search/algolia.css'
-import 'remark-github-blockquote-alert/alert.css'
-import '@/css/notion.css'
-import '@/css/prism.css'
-import 'katex/dist/katex.css'
-import '@/css/list.css'
+import "@/css/tailwind.css";
+import "@/css/vimeo.css";
+import "pliny/search/algolia.css";
+import "remark-github-blockquote-alert/alert.css";
+import "@/css/notion.css";
+import "@/css/prism.css";
+import "katex/dist/katex.css";
+import "@/css/list.css";
 
-import * as fonts from '@/css/fonts'
-import { Space_Grotesk } from 'next/font/google'
-import { Analytics, AnalyticsConfig } from 'pliny/analytics'
-import { SearchProvider, SearchConfig } from 'pliny/search'
-import Header from '@/components/Header'
-import SectionContainer from '@/components/SectionContainer'
-import Footer from '@/components/Footer'
-import siteMetadata from '@/data/siteMetadata'
-import { ThemeProviders } from './theme-providers'
-import { Metadata } from 'next'
+import * as fonts from "@/css/fonts";
+import { Space_Grotesk } from "next/font/google";
+import { Analytics, AnalyticsConfig } from "pliny/analytics";
+import { SearchProvider, SearchConfig } from "pliny/search";
+import Header from "@/components/Header";
+import SectionContainer from "@/components/SectionContainer";
+import Footer from "@/components/Footer";
+import siteMetadata from "@/data/siteMetadata";
+import { ThemeProviders } from "./theme-providers";
+import { Metadata } from "next";
 
 const space_grotesk = Space_Grotesk({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-space-grotesk',
-})
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-space-grotesk",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteMetadata.siteUrl),
@@ -34,16 +34,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: siteMetadata.title,
     description: siteMetadata.description,
-    url: './',
+    url: "./",
     siteName: siteMetadata.title,
     images: [siteMetadata.socialBanner],
-    locale: 'en_US',
-    type: 'website',
+    locale: "en_US",
+    type: "website",
   },
   alternates: {
-    canonical: './',
+    canonical: "./",
     types: {
-      'application/rss+xml': `${siteMetadata.siteUrl}/feed.xml`,
+      "application/rss+xml": `${siteMetadata.siteUrl}/feed.xml`,
     },
   },
   robots: {
@@ -52,27 +52,27 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   twitter: {
     title: siteMetadata.title,
-    card: 'summary_large_image',
+    card: "summary_large_image",
     images: [siteMetadata.socialBanner],
   },
-}
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const basePath = process.env.BASE_PATH || ''
+  const basePath = process.env.BASE_PATH || "";
 
   return (
     <html
       lang={siteMetadata.language}
       className={`${space_grotesk.variable} scroll-smooth ${Object.values(fonts)
         .map((font) => font.variable)
-        .join(' ')}`}
+        .join(" ")}`}
       suppressHydrationWarning
     >
       <link
@@ -115,5 +115,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </ThemeProviders>
       </body>
     </html>
-  )
+  );
 }

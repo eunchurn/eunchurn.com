@@ -1,10 +1,10 @@
-import projectsData from '@/data/projectsData'
-import { Research, allResearch } from 'contentlayer/generated'
-import Card from '@/components/Card'
-import { genPageMetadata } from '@/app/seo'
-import Link from '@/components/Link'
+import projectsData from "@/data/projectsData";
+import { Research, allResearch } from "contentlayer/generated";
+import Card from "@/components/Card";
+import { genPageMetadata } from "@/app/seo";
+import Link from "@/components/Link";
 
-export const metadata = genPageMetadata({ title: 'Research' })
+export const metadata = genPageMetadata({ title: "Research" });
 
 export default function ResearchPage() {
   return (
@@ -84,5 +84,5 @@ export default function ResearchPage() {
         </div> */}
       </div>
     </>
-  )
+  );
 }

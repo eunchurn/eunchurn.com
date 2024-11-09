@@ -1,8 +1,8 @@
 ---
-date: '2022-07-31'
-title: 'tWIL 2022.07 4주차'
+date: "2022-07-31"
+title: "tWIL 2022.07 4주차"
 draft: false
-summary: 'This week I learned'
+summary: "This week I learned"
 featured: /static/images/eunchurn/gray.png
 categories:
   - development
@@ -420,7 +420,7 @@ yarn generate
 이제 마지막으로 `src/schema/types/generated`에 생성된 코드의 `index.ts`를 `src/schema/types/index.ts`에서 `export` 해준다.
 
 ```typescript
-export * from './generated'
+export * from "./generated";
 ```
 
 #### 서버 실행
@@ -520,19 +520,19 @@ query FindFirstUser {
 `findReferredBlogs()` 함수는 현재 없다. (어딘가에서 서비스하고 있다면...) 당연히 `id`로 블로그의 리퍼럴을 찾을 수 있진 않겠지만 그런게 가능하도록 누군가가 SDK로 서비스한다면 아래와 같이 타입을 extend할 수 있다.
 
 ```typescript
-import { extendType } from 'nexus'
+import { extendType } from "nexus";
 
 export const referredBlog = extendType({
-  type: 'Post',
+  type: "Post",
   definition(t) {
-    t.list.string('referredBlogs', {
+    t.list.string("referredBlogs", {
       async resolve({ id }) {
-        const referredBlogsUrls = await findReferredBlogs(id)
-        return referredBlogsUrls
+        const referredBlogsUrls = await findReferredBlogs(id);
+        return referredBlogsUrls;
       },
-    })
+    });
   },
-})
+});
 ```
 
 이렇게 타입에 필드가 추가된다.

@@ -1,8 +1,8 @@
 ---
-date: '2023-02-12'
-title: 'tWIL 2023.02 2주차'
+date: "2023-02-12"
+title: "tWIL 2023.02 2주차"
 draft: false
-summary: '한 달 만에 tWIL'
+summary: "한 달 만에 tWIL"
 featured: /static/images/eunchurn/mist.png
 categories:
   - blog
@@ -81,21 +81,21 @@ tags:
 문제는 Redux 저장소의 유일성에 위배되는 사항이었다. 기존에는 `store`객체를 만들어 `export`했지만, Next.js에서는 `next-redux-wrapper`로 `createWrapper`를 사용해 `wrapper`를 만들어주어야 한다. 당연히 저장소가 브라우저에서 생성되어야 하기 때문에 필요한 부분이다. 여기서 문제는 Apollo Client의 Resolvers 함수가 이 생성된 `store`를 사용하지 못함에 있었다. Redux 는 아래와 같이 구성하고,
 
 ```typescript
-import { configureStore, Middleware } from '@reduxjs/toolkit'
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
-import { forgeSlice, curationSlice } from './features'
-import logger from 'redux-logger'
-import { createWrapper } from 'next-redux-wrapper'
+import { configureStore, Middleware } from "@reduxjs/toolkit";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import { forgeSlice, curationSlice } from "./features";
+import logger from "redux-logger";
+import { createWrapper } from "next-redux-wrapper";
 
-export * from './features'
+export * from "./features";
 
 const middlewares = (): Middleware[] => {
-  if (process.env.NODE_ENV !== 'production') {
-    return [logger]
+  if (process.env.NODE_ENV !== "production") {
+    return [logger];
   } else {
-    return []
+    return [];
   }
-}
+};
 
 const makeStore = () => {
   const store = configureStore({
@@ -105,22 +105,22 @@ const makeStore = () => {
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({ serializableCheck: false }).concat(middlewares()),
-    devTools: process.env.NODE_ENV !== 'production',
-  })
-  return store
-}
+    devTools: process.env.NODE_ENV !== "production",
+  });
+  return store;
+};
 
-export const wrapper = createWrapper(makeStore)
-export type RootState = ReturnType<ReturnType<typeof makeStore>['getState']>
+export const wrapper = createWrapper(makeStore);
+export type RootState = ReturnType<ReturnType<typeof makeStore>["getState"]>;
 
-export type AppDispatch = ReturnType<typeof makeStore>['dispatch']
+export type AppDispatch = ReturnType<typeof makeStore>["dispatch"];
 
-export type AppStore = ReturnType<typeof makeStore>
+export type AppStore = ReturnType<typeof makeStore>;
 
 /* Exporting the useDispatch hook from react-redux and giving it a type. */
-export const useAppDispatch: () => AppDispatch = useDispatch
+export const useAppDispatch: () => AppDispatch = useDispatch;
 /* Exporting the useSelector hook from react-redux and giving it a type. */
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 ```
 
 결국 해결한 방법은 동작해야할 이벤트 헨들러에 `dispatch`와 Apollo Hook으로 받은 함수를 인자로 내려주어 핸들러를 동작시키도록 하였다.

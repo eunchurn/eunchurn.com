@@ -16,7 +16,7 @@ li.icon-list-item {
 
 li.icon-list-item:before {
   /* content: '\f00c'; */
-  content: '📍';
+  content: "📍";
   font-family: FontAwesome;
   position: absolute;
   left: 0;

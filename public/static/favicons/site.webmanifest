@@ -1,22 +1,22 @@
 {
-    "scope": "/",
-    "start_url": "/",
-    "name": "eunchurn",
-    "short_name": "eunchurn",
-    "description": "all of works archive of Eunchurn Park - works diary, music, saram12saram, remixes, reworks, runway project, production note, interview archive, engineering, development and engineering research archive",
-    "icons": [
-        {
-            "src": "/static/favicons/android-chrome-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "/static/favicons/android-chrome-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ],
-    "theme_color": "#5bbad5",
-    "background_color": "#ffffff",
-    "display": "standalone"
+  "scope": "/",
+  "start_url": "/",
+  "name": "eunchurn",
+  "short_name": "eunchurn",
+  "description": "all of works archive of Eunchurn Park - works diary, music, saram12saram, remixes, reworks, runway project, production note, interview archive, engineering, development and engineering research archive",
+  "icons": [
+    {
+      "src": "/static/favicons/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/favicons/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#5bbad5",
+  "background_color": "#ffffff",
+  "display": "standalone"
 }
