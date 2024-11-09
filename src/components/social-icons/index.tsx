@@ -10,6 +10,8 @@ import {
   Threads,
   Instagram,
   Medium,
+  Mixcloud,
+  SoundCloud,
 } from "./icons";
 
 const components = {
@@ -24,6 +26,8 @@ const components = {
   threads: Threads,
   instagram: Instagram,
   medium: Medium,
+  mixcloud: Mixcloud,
+  soundcloud: SoundCloud,
 };
 
 type SocialIconProps = {

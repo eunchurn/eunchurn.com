@@ -157,6 +157,8 @@ export const Authors = defineDocumentType(() => ({
     twitter: { type: "string" },
     linkedin: { type: "string" },
     github: { type: "string" },
+    mixcloud: { type: "string" },
+    soundcloud: { type: "string" },
     layout: { type: "string" },
   },
   computedFields,
