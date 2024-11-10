@@ -36,8 +36,8 @@ tags:
 
 MVIO _SEOUL FASHION WEEK \_SPRING SUMMER _ 2011
 
-<div className="container flex justify-center">
-  ![seoul fashion week](/static/images/2010/10/main.jpg)
+<div className="container flex w-full justify-center">
+  <img src="/static/images/2010/10/main.jpg" alt="seoul fashion week" width="100%" />
 </div>
 
 ### M.V.R.C SEOUL \_
@@ -59,11 +59,16 @@ DARE TO RIDE \_ ON MY WAY TO YOU
 - original track by : _YOONSANG_
 - remix produced by : _EUNCHURN_
 
-<div className="aspect-ratio container flex justify-center">
+<div className="aspect-ratio container relative flex min-h-96 w-full justify-center bg-black">
   <iframe
     src="https://player.vimeo.com/video/34570776"
-    width="640"
-    height="483"
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+    }}
     frameBorder="0"
     webkitallowfullscreen="true"
     mozallowfullscreen="true"

@@ -2,10 +2,10 @@ import PageTitle from "@/components/PageTitle";
 import { components } from "@/components/MDXComponents";
 import { MDXLayoutRenderer } from "pliny/mdx-components";
 import { sortPosts, coreContent, allCoreContent } from "pliny/utils/contentlayer";
-import { allHistories } from "contentlayer/generated";
+import { allArchives } from "contentlayer/generated";
 import { filterNotDrafts } from "@/utils/filter-drafts";
-import type { Authors, Blog, History } from "contentlayer/generated";
-import HistoryLayout from "@/layouts/HistoryLayout";
+import type { Archive } from "contentlayer/generated";
+import ArchiveLayout from "@/layouts/ArchiveLayout";
 import PostLayout from "@/layouts/PostLayout";
 import PostBanner from "@/layouts/PostBanner";
 import { Metadata } from "next";
@@ -17,19 +17,19 @@ export async function generateMetadata(props: {
   params: Promise<{ pageId: string }>;
 }): Promise<Metadata | undefined> {
   const params = await props.params;
-  const history = allHistories.find((p) => p.slug === params.pageId);
-  if (!history) {
+  const archive = allArchives.find((p) => p.slug === params.pageId);
+  if (!archive) {
     return;
   }
-  const { image } = history;
+  const { image } = archive;
   const ogImage = siteMetadata.siteUrl + image;
 
   return {
-    title: history.name,
-    description: history.summary,
+    title: archive.name,
+    description: archive.summary,
     openGraph: {
-      title: history.name,
-      description: history.summary,
+      title: archive.name,
+      description: archive.summary,
       siteName: siteMetadata.title,
       locale: "en_US",
       type: "article",
@@ -38,22 +38,22 @@ export async function generateMetadata(props: {
     },
     twitter: {
       card: "summary_large_image",
-      title: history.name,
-      description: history.summary,
+      title: archive.name,
+      description: archive.summary,
       images: ogImage,
     },
   };
 }
 
 export const generateStaticParams = async () => {
-  return allHistories.map((p) => ({ slug: p.slug.split("/").map((name) => decodeURI(name)) }));
+  return allArchives.map((p) => ({ slug: p.slug.split("/").map((name) => decodeURI(name)) }));
 };
 
 export default async function Page(props: { params: Promise<{ pageId: string }> }) {
   const params = await props.params;
   const pageId = decodeURI(params.pageId);
   // Filter out drafts in production
-  const sortedCoreContents = allCoreContent(allHistories);
+  const sortedCoreContents = allCoreContent(allArchives);
   const postIndex = sortedCoreContents.findIndex((p) => p.slug === pageId);
   if (postIndex === -1) {
     return notFound();
@@ -61,17 +61,13 @@ export default async function Page(props: { params: Promise<{ pageId: string }> 
 
   const prev = sortedCoreContents[postIndex + 1];
   const next = sortedCoreContents[postIndex - 1];
-  const post = allHistories.find((p) => p.slug === pageId) as History;
+  const post = allArchives.find((p) => p.slug === pageId) as Archive;
   const mainContent = coreContent(post);
-  // add ul className
-  const ulCode = post.body.code.replaceAll("ul,{", 'ul,{className:"icon-list",');
-  // add li className
-  const code = ulCode.replaceAll("li,{", 'li,{className:"icon-list-item",');
   return (
     <>
-      <HistoryLayout content={mainContent}>
-        <MDXLayoutRenderer code={code} components={components} toc={post.toc} />
-      </HistoryLayout>
+      <ArchiveLayout content={mainContent}>
+        <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
+      </ArchiveLayout>
     </>
   );
 }

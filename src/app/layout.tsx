@@ -1,11 +1,11 @@
 import "@/css/tailwind.css";
 import "@/css/vimeo.css";
-import "pliny/search/algolia.css";
-import "remark-github-blockquote-alert/alert.css";
 import "@/css/notion.css";
 import "@/css/prism.css";
-import "katex/dist/katex.css";
 import "@/css/list.css";
+import "pliny/search/algolia.css";
+import "remark-github-blockquote-alert/alert.css";
+import "katex/dist/katex.css";
 
 import * as fonts from "@/css/fonts";
 import { Space_Grotesk } from "next/font/google";

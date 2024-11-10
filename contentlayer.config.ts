@@ -177,6 +177,19 @@ export const History = defineDocumentType(() => ({
   computedFields,
 }));
 
+export const Archive = defineDocumentType(() => ({
+  name: "Archive",
+  filePathPattern: "archives/**/*.mdx",
+  contentType: "mdx",
+  fields: {
+    name: { type: "string", required: true },
+    summary: { type: "string" },
+    image: { type: "string" },
+    layout: { type: "string" },
+  },
+  computedFields,
+}));
+
 export const Research = defineDocumentType(() => ({
   name: "Research",
   filePathPattern: "research/**/*.mdx",
@@ -192,7 +205,7 @@ export const Research = defineDocumentType(() => ({
 
 export default makeSource({
   contentDirPath: "data",
-  documentTypes: [Blog, Authors, History, Research],
+  documentTypes: [Blog, Authors, History, Research, Archive],
   mdx: {
     cwd: process.cwd(),
     remarkPlugins: [

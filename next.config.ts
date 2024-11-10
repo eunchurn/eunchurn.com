@@ -1,5 +1,6 @@
 import pwa from "next-pwa";
 import { withContentlayer } from "next-contentlayer2";
+import { withNextVideo } from "next-video/process";
 import bundleAnalyzer from "@next/bundle-analyzer";
 import { NextConfig } from "next";
 
@@ -35,7 +36,7 @@ const ContentSecurityPolicy = `
   script-src 'self' 'unsafe-eval' 'unsafe-inline' giscus.app analytics.umami.is youtube.com soundcloud.com mixcloud.com googletagmanager.com;
   style-src 'self' 'unsafe-inline' *.mixcloud.com;
   img-src * blob: data:;
-  media-src *.s3.amazonaws.com *.mixcloud.com;
+  media-src *.s3.amazonaws.com *.mixcloud.com *.vercel-storage.com;
   connect-src *;
   font-src 'self';
   frame-src giscus.app *.youtube.com *.soundcloud.com *.vimeo.com *.mixcloud.com;
@@ -89,7 +90,7 @@ const unoptimized = process.env.UNOPTIMIZED ? true : undefined;
 module.exports = () => {
   const plugins = [withContentlayer, withBundleAnalyzer, withPWA];
   // @ts-ignore
-  return plugins.reduce((acc, next) => next(acc), {
+  const config = plugins.reduce((acc, next) => next(acc), {
     output,
     basePath,
     reactStrictMode: true,
@@ -156,4 +157,5 @@ module.exports = () => {
       return config;
     },
   } as NextConfig);
+  return withNextVideo(config, { provider: "vercel-blob" });
 };

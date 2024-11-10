@@ -1,6 +1,6 @@
 import { NotionAPI } from "notion-client";
 import { ExtendedRecordMap } from "notion-types";
-import { getPreviewImageMap } from "./preview-images";
+// import { getPreviewImageMap } from "./preview-images";
 
 const notion = new NotionAPI();
 export default notion;

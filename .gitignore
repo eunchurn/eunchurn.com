@@ -43,6 +43,7 @@ yarn-error.log*
 
 # local env files
 # .env.local
+.env
 .env.development.local
 .env.test.local
 .env.production.local
@@ -50,3 +51,10 @@ yarn-error.log*
 # Contentlayer
 .contentlayer
 
+
+# next-video
+static/video/*
+!static/video/*.json
+!static/video/*.js
+!static/video/*.ts
+public/_next-video

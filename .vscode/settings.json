@@ -23,7 +23,14 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[markdown]": {
-    "editor.wordBasedSuggestions": "matchingDocuments"
+    "editor.wordBasedSuggestions": "matchingDocuments",
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[mdx]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
   },
   "workbench.editor.languageDetectionHints": {
     "untitledEditors": true,
