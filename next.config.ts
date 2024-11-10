@@ -109,8 +109,8 @@ module.exports = () => {
         { protocol: "https", hostname: "images.unsplash.com" },
         { protocol: "https", hostname: "pbs.twimg.com" },
       ],
-      // unoptimized,
-      unoptimized: process.env.NODE_ENV !== "production",
+      unoptimized,
+      // unoptimized: process.env.NODE_ENV !== "production",
     },
     publicRuntimeConfig: {
       staticFolder: "",
