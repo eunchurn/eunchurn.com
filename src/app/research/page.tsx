@@ -27,7 +27,7 @@ export default function ResearchPage() {
               >
                 <a
                   key={d._id}
-                  href={`/history/${d.slug}`}
+                  href={`/research/${d.slug}`}
                   className="flex h-full w-full justify-center"
                 >
                   <div className="group my-6 flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg">
