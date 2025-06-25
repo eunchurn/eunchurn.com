@@ -98,6 +98,13 @@ module.exports = () => {
     eslint: {
       dirs: ["app", "components", "layouts", "scripts"],
     },
+    // Optimize static generation
+    experimental: {
+      staticGenerationMaxConcurrency: 1, // Limit concurrent static generation
+      staticGenerationRetryCount: 2, // Reduce retry count
+    },
+    // Add build timeout configuration
+    staticPageGenerationTimeout: 120, // 2 minutes timeout
     images: {
       remotePatterns: [
         {

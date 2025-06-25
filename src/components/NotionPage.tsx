@@ -47,7 +47,30 @@ export const NotionPage = ({
   rootPageId?: string;
 }) => {
   if (!recordMap) {
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h2 className="mb-2 text-xl font-semibold">Loading...</h2>
+          <p className="text-gray-600">Please wait while we load the content.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if recordMap has content
+  const hasBlocks = recordMap.block && Object.keys(recordMap.block).length > 0;
+
+  if (!hasBlocks) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h2 className="mb-2 text-xl font-semibold">Content Unavailable</h2>
+          <p className="text-gray-600">
+            This page content is temporarily unavailable. Please try again later.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const title = getPageTitle(recordMap);
