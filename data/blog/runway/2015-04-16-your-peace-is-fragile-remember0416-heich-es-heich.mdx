@@ -41,16 +41,20 @@ tags:
   />
 </div>
 
-<div className="aspect-ratio container flex w-full justify-center">
+<div className="aspect-ratio container relative flex min-h-96 w-full justify-center bg-black">
   <iframe
+    src="https://player.vimeo.com/video/1096276617?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
     style={{
-      aspectRatio: "16/9",
+      position: "absolute",
+      top: 0,
+      left: 0,
       width: "100%",
       height: "100%",
     }}
-    src="https://www.youtube.com/embed/RXh5Wxi2nB8?rel=0&amp;showinfo=0"
-    frameBorder="0"
-    allow="autoplay; encrypted-media"
+    frameborder="0"
+    webkitallowfullscreen="true"
+    mozallowfullscreen="true"
     allowFullScreen
+    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
   ></iframe>
 </div>
