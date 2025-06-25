@@ -1,0 +1,6 @@
+onlyBuiltDependencies:
+  - canvas
+  - contentlayer2
+  - esbuild
+  - protobufjs
+  - sharp
