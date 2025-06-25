@@ -27,7 +27,7 @@ export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
   try {
     console.log(`Fetching page ${pageId} from Notion API...`);
     // Add timeout to prevent build hanging
-    const recordMap = await withTimeout(notion.getPage(pageId), 45000); // 45 seconds timeout
+    const recordMap = await withTimeout(notion.getPage(pageId), 120000); // 120 seconds timeout
 
     // Cache successful result
     setCachedPage(pageId, recordMap);
