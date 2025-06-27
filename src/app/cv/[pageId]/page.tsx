@@ -7,6 +7,8 @@ const rootNotionPageId = "1a91b7f9da0d443f888aec63234a0d8a";
 // Enable ISR with 1 hour revalidation
 export const revalidate = 3600;
 
+export const maxDuration = 300; // 5 minutes
+
 export async function generateStaticParams() {
   // Return params synchronously to avoid API calls during build
   const staticParams = [
