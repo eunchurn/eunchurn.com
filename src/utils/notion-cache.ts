@@ -3,8 +3,8 @@ import { ExtendedRecordMap } from "notion-types";
 // Simple in-memory cache for build time
 const cache = new Map<string, { data: ExtendedRecordMap; timestamp: number }>();
 
-// Cache for 30 minutes during build
-const CACHE_DURATION = 30 * 60 * 1000;
+// Cache for 2 hours during build for better performance
+const CACHE_DURATION = 2 * 60 * 60 * 1000;
 
 export function getCachedPage(pageId: string): ExtendedRecordMap | null {
   const cached = cache.get(pageId);

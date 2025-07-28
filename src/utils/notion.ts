@@ -24,31 +24,49 @@ export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
     return cached;
   }
 
-  try {
-    console.log(`Fetching page ${pageId} from Notion API...`);
-    // Reduce timeout for faster failure and retry
-    const recordMap = await withTimeout(notion.getPage(pageId), 30000); // 30 seconds timeout
+  // Retry logic for better reliability
+  let lastError: Error | null = null;
+  const maxRetries = 2;
 
-    // Cache successful result
-    setCachedPage(pageId, recordMap);
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Fetching page ${pageId} from Notion API... (attempt ${attempt}/${maxRetries})`);
 
-    // console.log({ recordMap })
-    // const previewImageMap = await getPreviewImageMap(recordMap)
-    // // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // ;(recordMap as any).preview_images = previewImageMap
+      // Progressive timeout - start with shorter timeout, increase on retry
+      const timeout = attempt === 1 ? 20000 : 45000; // 20s first, then 45s
+      const recordMap = await withTimeout(notion.getPage(pageId), timeout);
 
-    return recordMap;
-  } catch (error) {
-    console.error(`Failed to fetch Notion page ${pageId}:`, error);
-    // Return a minimal fallback recordMap structure
-    return {
-      block: {},
-      collection: {},
-      collection_view: {},
-      collection_query: {},
-      notion_user: {},
-      comment: {},
-      signed_urls: {},
-    } as ExtendedRecordMap;
+      // Validate the response
+      if (!recordMap || typeof recordMap !== "object") {
+        throw new Error("Invalid response from Notion API");
+      }
+
+      // Cache successful result
+      setCachedPage(pageId, recordMap);
+      console.log(`Successfully fetched and cached page ${pageId}`);
+
+      return recordMap;
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(`Attempt ${attempt} failed for page ${pageId}:`, error);
+
+      // Wait before retry (except on last attempt)
+      if (attempt < maxRetries) {
+        console.log(`Waiting 2s before retry...`);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    }
   }
+
+  console.error(`All attempts failed for Notion page ${pageId}:`, lastError);
+  // Return a minimal fallback recordMap structure
+  return {
+    block: {},
+    collection: {},
+    collection_view: {},
+    collection_query: {},
+    notion_user: {},
+    comment: {},
+    signed_urls: {},
+  } as ExtendedRecordMap;
 }

@@ -91,6 +91,12 @@ export const NotionPage = ({
         mapPageUrl={(pageId) => {
           // Use raw pageId instead of canonical page id to avoid title in URL
           const cleanPageId = pageId.replace(/-/g, ""); // Remove dashes for consistency
+
+          // If it's the root CV page, redirect to /cv
+          if (cleanPageId === rootPageId) {
+            return "/cv";
+          }
+
           return `/cv/${cleanPageId}`;
         }}
         previewImages

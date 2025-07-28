@@ -1,6 +1,7 @@
 import * as React from "react";
 import { NotionPage } from "@/components/NotionPage";
 import { getPage } from "@/utils/notion";
+import { redirect } from "next/navigation";
 
 const rootNotionPageId = "1a91b7f9da0d443f888aec63234a0d8a";
 
@@ -11,6 +12,7 @@ export const maxDuration = 60; // 1 minute timeout
 
 export async function generateStaticParams() {
   // Return all possible params to force static generation
+  // Exclude root page ID since it's handled by /cv route
   const staticParams = [
     { pageId: "38279f2737c944c4b7cad33d92942852" }, // Backend stack
     { pageId: "144e260d9fef425fadfb9994016d57da" }, // Frontend stack
@@ -24,7 +26,6 @@ export async function generateStaticParams() {
   console.log("Generated static params for CV pages:", staticParams);
   return staticParams;
 }
-
 export default async function Page(props: { params: Promise<{ pageId?: string }> }) {
   const { pageId } = await props.params;
   const id = (() => {
@@ -46,6 +47,11 @@ export default async function Page(props: { params: Promise<{ pageId?: string }>
     console.warn(`Could not extract UUID from pageId: ${pageId}, using as is`);
     return pageId as string;
   })();
+
+  // If this is the root page ID, redirect to /cv
+  if (id === rootNotionPageId) {
+    redirect("/cv");
+  }
 
   try {
     console.log(`Loading CV page: ${id}`);
