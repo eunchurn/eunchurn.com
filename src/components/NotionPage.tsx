@@ -6,7 +6,7 @@ import Link from "next/link";
 // import { Pdf } from "react-notion-x/build/third-party/pdf";
 // import { NotionRenderer } from "react-notion-x";
 import { ExtendedRecordMap } from "notion-types";
-import { getPageTitle, getCanonicalPageId } from "notion-utils";
+import { getPageTitle } from "notion-utils";
 import dynamic from "next/dynamic";
 import TweetEmbed from "react-tweet-embed";
 import { NotionRenderer } from "react-notion-x";
@@ -89,8 +89,9 @@ export const NotionPage = ({
         rootPageId={rootPageId}
         disableHeader={true}
         mapPageUrl={(pageId) => {
-          const canonicalPageId = getCanonicalPageId(pageId, recordMap);
-          return `/cv/${canonicalPageId}`;
+          // Use raw pageId instead of canonical page id to avoid title in URL
+          const cleanPageId = pageId.replace(/-/g, ""); // Remove dashes for consistency
+          return `/cv/${cleanPageId}`;
         }}
         previewImages
         components={{

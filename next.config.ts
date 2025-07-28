@@ -101,10 +101,10 @@ module.exports = () => {
     // Optimize static generation
     experimental: {
       staticGenerationMaxConcurrency: 1, // Limit concurrent static generation
-      staticGenerationRetryCount: 2, // Reduce retry count
+      staticGenerationRetryCount: 1, // Reduce retry count for faster builds
     },
-    // Add build timeout configuration
-    staticPageGenerationTimeout: 120, // 2 minutes timeout
+    // Reduce build timeout for faster feedback
+    staticPageGenerationTimeout: 60, // 1 minute timeout
     images: {
       remotePatterns: [
         {

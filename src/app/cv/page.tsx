@@ -4,8 +4,8 @@ import { getPage } from "@/utils/notion";
 
 const rootNotionPageId = "1a91b7f9da0d443f888aec63234a0d8a";
 
-// Enable ISR with 1 hour revalidation
-export const revalidate = 3600;
+// Force static generation
+export const dynamic = "force-static";
 
 export default async function Page() {
   const recordMap = await getPage(rootNotionPageId);
