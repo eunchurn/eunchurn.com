@@ -3,4 +3,5 @@ onlyBuiltDependencies:
   - contentlayer2
   - esbuild
   - protobufjs
+  - puppeteer
   - sharp

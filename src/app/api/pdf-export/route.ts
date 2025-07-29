@@ -58,9 +58,9 @@ export async function POST(req: Request) {
     const page = await browser.newPage();
 
     const url = new URL(req.url);
-    const { slug } = (await req.json()) as { slug: string[] };
+    const { pageId } = (await req.json()) as { pageId: string };
 
-    const targetURL = `${url.origin}/mdx-page/${slug.join("/")}`;
+    const targetURL = `${url.origin}/cv-export/${pageId}`;
     await page.goto(targetURL, { waitUntil: "networkidle0" });
     await page.emulateMediaType("screen");
     await autoScroll(page);
