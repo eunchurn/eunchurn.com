@@ -1,10 +1,10 @@
 "use client";
+
 import * as React from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 // import { Pdf } from "react-notion-x/build/third-party/pdf";
-// import { NotionRenderer } from "react-notion-x";
 import { ExtendedRecordMap } from "notion-types";
 import { getPageTitle } from "notion-utils";
 import dynamic from "next/dynamic";
@@ -15,7 +15,6 @@ import { Collection } from "react-notion-x/build/third-party/collection";
 import { Equation } from "react-notion-x/build/third-party/equation";
 import { useParams, usePathname } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import cn from "@/utils/cn";
 import fileSaver from "file-saver";
 // const NotionRenderer = dynamic(() => import('react-notion-x').then((m) => m.NotionRenderer))
 
@@ -70,6 +69,13 @@ export const NotionPage = ({
     );
   }
 
+  // Uncomment to debug
+  // recordMap.block &&
+  //   Object.values(recordMap.block).map((block) => {
+  //     // console.log("block", block.value);
+  //     console.log(JSON.stringify(block.value.properties, null, 2));
+  //   });
+
   // Check if recordMap has content
   const hasBlocks = recordMap.block && Object.keys(recordMap.block).length > 0;
 
@@ -120,6 +126,25 @@ export const NotionPage = ({
       setPrinting(false);
     }
   }, [title, params, toast]);
+  React.useEffect(() => {
+    if (isExport) {
+      const openAllToggles = () => {
+        const detailsElements = document.querySelectorAll("details");
+        detailsElements.forEach((el) => el.setAttribute("open", "true"));
+      };
+
+      openAllToggles();
+
+      // 선택적으로 MutationObserver로 동적 추가도 감지
+      const observer = new MutationObserver(() => openAllToggles());
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+
+      return () => observer.disconnect();
+    }
+  }, []);
   return (
     <>
       <Head>
@@ -149,7 +174,8 @@ export const NotionPage = ({
       <NotionRenderer
         recordMap={recordMap}
         fullPage={true}
-        // darkMode={false}
+        showCollectionViewDropdown={isExport}
+        darkMode={false}
         rootPageId={rootPageId}
         disableHeader={true}
         mapPageUrl={(pageId) => {

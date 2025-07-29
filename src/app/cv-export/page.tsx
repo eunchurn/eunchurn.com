@@ -9,5 +9,6 @@ export const dynamic = "force-static";
 
 export default async function Page() {
   const recordMap = await getPage(rootNotionPageId);
+
   return <NotionPage recordMap={recordMap} rootPageId={rootNotionPageId} isExport />;
 }
