@@ -1,0 +1,32 @@
+@keyframes indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  50% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.progress-indeterminate {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.progress-indeterminate::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #5de4c7;
+  animation: indeterminate 1.5s ease-in-out infinite;
+  /* width: 50%; */
+  z-index: 2;
+}

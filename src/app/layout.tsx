@@ -3,6 +3,7 @@ import "@/css/vimeo.css";
 import "@/css/notion.css";
 import "@/css/prism.css";
 import "@/css/list.css";
+import "@/css/toast.css";
 import "pliny/search/algolia.css";
 import "remark-github-blockquote-alert/alert.css";
 import "katex/dist/katex.css";
@@ -18,6 +19,7 @@ import Footer from "@/components/Footer";
 import siteMetadata from "@/data/siteMetadata";
 import { ThemeProviders } from "./theme-providers";
 import { Metadata } from "next";
+import { Toaster } from "@/components/ui/toaster";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -88,6 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SearchProvider searchConfig={siteMetadata.search as SearchConfig}>
             <Analytics analyticsConfig={siteMetadata.analytics as unknown as AnalyticsConfig} />
             {children}
+            <Toaster />
           </SearchProvider>
         </ThemeProviders>
       </body>
