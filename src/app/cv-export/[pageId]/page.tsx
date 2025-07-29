@@ -50,7 +50,7 @@ export default async function Page(props: { params: Promise<{ pageId?: string }>
 
   // If this is the root page ID, redirect to /cv
   if (id === rootNotionPageId) {
-    redirect("/cv");
+    redirect("/cv-export");
   }
 
   try {
