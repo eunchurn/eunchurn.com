@@ -81,7 +81,6 @@ const securityHeaders = [
 ];
 
 const output = process.env.EXPORT ? "export" : undefined;
-const basePath = process.env.BASE_PATH || undefined;
 const unoptimized = process.env.UNOPTIMIZED ? true : undefined;
 
 /**
@@ -92,7 +91,7 @@ module.exports = () => {
   // @ts-ignore
   const config = plugins.reduce((acc, next) => next(acc), {
     output,
-    basePath,
+    // basePath,
     reactStrictMode: true,
     pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
     eslint: {
@@ -115,6 +114,8 @@ module.exports = () => {
         { protocol: "https", hostname: "notion.so" },
         { protocol: "https", hostname: "images.unsplash.com" },
         { protocol: "https", hostname: "pbs.twimg.com" },
+        { protocol: "http", hostname: "localhost" },
+        { protocol: "https", hostname: "eunchurn.com" },
       ],
       unoptimized,
       // unoptimized: process.env.NODE_ENV !== "production",
