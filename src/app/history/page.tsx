@@ -10,7 +10,7 @@ export default function Projects() {
   return (
     <>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        <div className="space-y-2 pb-8 pt-6 md:space-y-5">
+        <div className="space-y-2 pt-6 pb-8 md:space-y-5">
           <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
             Music-Related Career History
           </p>
@@ -20,14 +20,14 @@ export default function Projects() {
             {allHistories.map((d) => (
               <div
                 key={d._id}
-                className="flex min-h-[380px] w-full max-w-[333px] flex-col items-center justify-between gap-4 p-4 shadow-sm sm:flex-col md:w-1/2 md:flex-row"
+                className="flex min-h-[380px] w-full max-w-[333px] flex-col items-center justify-between gap-4 p-4 shadow-xs sm:flex-col md:w-1/2 md:flex-row"
               >
                 <a
                   key={d._id}
                   href={`/history/${d.slug}`}
                   className="flex h-full w-full justify-center"
                 >
-                  <div className="group my-6 flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg">
+                  <div className="group my-6 flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-slate-200 bg-white p-3 shadow-xs transition-shadow duration-300 hover:shadow-lg">
                     <div className="m-2.5 h-40 max-h-[300px] w-40 overflow-hidden rounded-full text-white">
                       <img
                         src={d.image}
@@ -38,7 +38,7 @@ export default function Projects() {
                     <div className="mb-2 flex justify-center">
                       <h5 className="text-2xl font-semibold text-slate-800">{d.name}</h5>
                     </div>
-                    <p className="mb-4 block max-w-lg font-light leading-normal text-slate-600">
+                    <p className="mb-4 block max-w-lg leading-normal font-light text-slate-600">
                       {d.summary}
                     </p>
                     <div className="text-center">
