@@ -1,7 +1,6 @@
 import "@/css/tailwind.css";
 import "@/css/vimeo.css";
 import "@/css/notion.css";
-import "@/css/prism.css";
 import "@/css/list.css";
 import "@/css/toast.css";
 import "pliny/search/algolia.css";

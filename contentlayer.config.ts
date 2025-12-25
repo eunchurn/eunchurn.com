@@ -118,6 +118,7 @@ export const Blog = defineDocumentType(() => ({
     lastmod: { type: "date" },
     draft: { type: "boolean" },
     summary: { type: "string" },
+    description: { type: "string" },
     images: { type: "json" },
     authors: { type: "list", of: { type: "string" } },
     layout: { type: "string" },
@@ -125,6 +126,9 @@ export const Blog = defineDocumentType(() => ({
     canonicalUrl: { type: "string" },
     featured: { type: "string" },
     categories: { type: "list", of: { type: "string" }, default: [] },
+    link: { type: "string" },
+    publish: { type: "boolean" },
+    slug: { type: "string" },
   },
   computedFields: {
     ...computedFields,
@@ -182,10 +186,16 @@ export const Archive = defineDocumentType(() => ({
   filePathPattern: "archives/**/*.mdx",
   contentType: "mdx",
   fields: {
-    name: { type: "string", required: true },
+    name: { type: "string" },
+    title: { type: "string" },
+    date: { type: "date" },
+    draft: { type: "boolean" },
     summary: { type: "string" },
+    description: { type: "string" },
     image: { type: "string" },
     layout: { type: "string" },
+    categories: { type: "list", of: { type: "string" }, default: [] },
+    tags: { type: "list", of: { type: "string" }, default: [] },
   },
   computedFields,
 }));
@@ -199,6 +209,7 @@ export const Research = defineDocumentType(() => ({
     summary: { type: "string" },
     image: { type: "string" },
     layout: { type: "string" },
+    bibliography: { type: "string" },
   },
   computedFields,
 }));
