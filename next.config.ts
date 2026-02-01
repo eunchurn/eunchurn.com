@@ -94,9 +94,6 @@ module.exports = () => {
     // basePath,
     reactStrictMode: true,
     pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
-    eslint: {
-      dirs: ["app", "components", "layouts", "scripts"],
-    },
     // Optimize static generation
     experimental: {
       staticGenerationMaxConcurrency: 1, // Limit concurrent static generation
@@ -119,12 +116,6 @@ module.exports = () => {
       ],
       unoptimized,
       // unoptimized: process.env.NODE_ENV !== "production",
-    },
-    publicRuntimeConfig: {
-      staticFolder: "",
-    },
-    serverRuntimeConfig: {
-      staticFolder: "",
     },
     async headers() {
       return [
