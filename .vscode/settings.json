@@ -58,24 +58,10 @@
     "**/.hg/store/**": true,
     "**/dist/**": true
   },
-  "cSpell.enabled": true,
-  "cSpell.enabledLanguageIds": [
-    "csharp",
-    "go",
-    "javascript",
-    "javascriptreact",
-    "markdown",
-    "php",
-    "plaintext",
-    "typescript",
-    "typescriptreact",
-    "yml"
-  ],
   "explorer.fileNesting.enabled": true,
   "[svg]": {
-    "editor.defaultFormatter": "jock.svg"
+    "editor.defaultFormatter": "SimonSiefke.svg-preview"
   },
-  "cSpell.words": ["Contentlayer", "eunchurn", "unist", "unoptimized", "vfile"],
   "[dotenv]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   }

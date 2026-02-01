@@ -14,12 +14,12 @@ export default function ArchiveLayout({ children, content }: Props) {
   return (
     <>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        <div className="space-y-2 pb-8 pt-6 md:space-y-5">
-          <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
+        <div className="space-y-2 pt-6 pb-8 md:space-y-5">
+          <h1 className="text-3xl leading-9 font-extrabold tracking-tight text-gray-900 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14 dark:text-gray-100">
             {name}
           </h1>
         </div>
-        <div className="items-start space-y-2 xl:grid xl:grid-cols-3 xl:gap-x-8 xl:space-y-0">
+        <div className="items-start space-y-2 xl:grid xl:grid-cols-3 xl:space-y-0 xl:gap-x-8">
           {/* <div className="flex flex-col items-center space-x-2 pt-8">
             {image && (
               <Image
@@ -31,7 +31,7 @@ export default function ArchiveLayout({ children, content }: Props) {
               />
             )}
           </div> */}
-          <div className="prose max-w-none pb-8 pt-8 dark:prose-invert xl:col-span-4">
+          <div className="prose dark:prose-invert max-w-none pt-8 pb-8 xl:col-span-4">
             {children}
           </div>
         </div>
