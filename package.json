@@ -29,7 +29,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "contentlayer2": "0.5.8",
-    "esbuild": "0.27.2",
+    "esbuild": "0.27.3",
     "file-saver": "^2.0.5",
     "github-slugger": "^2.0.0",
     "got": "^14.6.6",
