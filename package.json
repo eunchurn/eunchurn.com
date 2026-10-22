@@ -16,7 +16,7 @@
     "postinstall": "contentlayer2 build"
   },
   "dependencies": {
-    "@headlessui/react": "2.2.9",
+    "@headlessui/react": "2.2.10",
     "@next/bundle-analyzer": "16.1.6",
     "@next/env": "^16.1.6",
     "@radix-ui/react-toast": "^1.2.15",
