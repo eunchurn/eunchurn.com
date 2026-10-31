@@ -36,7 +36,7 @@ const ContentSecurityPolicy = `
   script-src 'self' 'unsafe-eval' 'unsafe-inline' giscus.app analytics.umami.is youtube.com soundcloud.com mixcloud.com googletagmanager.com;
   style-src 'self' 'unsafe-inline' *.mixcloud.com;
   img-src * blob: data:;
-  media-src *.s3.amazonaws.com *.mixcloud.com *.vercel-storage.com;
+  media-src *.s3.amazonaws.com *.mixcloud.com *.vercel-storage.com www.notion.so file.notion.so;
   connect-src *;
   font-src 'self';
   frame-src giscus.app *.youtube.com *.soundcloud.com *.vimeo.com *.mixcloud.com;
