@@ -14,6 +14,7 @@ import { Code } from "react-notion-x/build/third-party/code";
 import { Collection } from "react-notion-x/build/third-party/collection";
 import { Equation } from "react-notion-x/build/third-party/equation";
 import { useParams, usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import fileSaver from "file-saver";
 // const NotionRenderer = dynamic(() => import('react-notion-x').then((m) => m.NotionRenderer))
@@ -57,6 +58,9 @@ export const NotionPage = ({
   const pathname = usePathname();
   const isPDFPrinting = pathname.startsWith("/cv-export");
   const [printing, setPrinting] = React.useState(false);
+  // resolvedTheme is undefined until mounted, so SSR and the first client render both use light
+  const { resolvedTheme } = useTheme();
+  const darkMode = !isExport && resolvedTheme === "dark";
 
   if (!recordMap) {
     return (
@@ -175,7 +179,7 @@ export const NotionPage = ({
         recordMap={recordMap}
         fullPage={true}
         showCollectionViewDropdown={isExport}
-        darkMode={false}
+        darkMode={darkMode}
         rootPageId={rootPageId}
         disableHeader={true}
         mapPageUrl={(pageId) => {
