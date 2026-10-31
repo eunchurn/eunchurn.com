@@ -1,6 +1,6 @@
-// Fetch the Notion CV pages from a machine Notion does not block and store them as JSON.
-// Vercel build hosts get 403 from www.notion.so, so the build reads these snapshots instead.
-// Run: bun run notion:sync
+// Fetch the Notion CV pages and store them as JSON for the build to read.
+// www.notion.so answers 403 to Node's fetch (so `next build` on Vercel cannot fetch),
+// but Bun's fetch gets through. Run with Bun: bun run notion:sync
 import { NotionAPI } from "notion-client";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";

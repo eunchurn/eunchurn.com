@@ -1,0 +1,2914 @@
+{
+  "__version__": 3,
+  "block": {
+    "38279f27-37c9-44c4-b7ca-d33d92942852": {
+      "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+      "value": {
+        "value": {
+          "id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "version": 152,
+          "type": "page",
+          "properties": { "title": [["더보기"]] },
+          "content": [
+            "081a74bf-a555-47e4-8dc1-805930104ade",
+            "e1a519fe-ea20-48d2-8b17-0813298758fe",
+            "2b893d1e-8128-46e5-88d2-fc7540dd963a",
+            "1581c78a-6b57-4bdd-ad11-d88be709acb4",
+            "cec847e2-12e3-4672-a1c2-016f22990fe3",
+            "e1266c64-64e8-42c4-a1d4-9aadb83b5b6f",
+            "6ca9386c-f4f9-4894-a74a-4dc886712692",
+            "5a60aea0-4e27-44ef-86ac-2ccf0447bd0e",
+            "b3df69be-7872-4af3-8e0b-5d87888ba017",
+            "c02e08fa-efd4-4945-ad72-62d429b1e8b6",
+            "babaac0d-520a-4e8f-9482-7b87f422524e",
+            "a9c5d957-5626-41b8-a4f7-f81d823ec178",
+            "f18b2aec-5152-4add-a235-df5b1ed00e69",
+            "9710ce15-c361-494b-b7f3-146e59f6856a",
+            "80f19267-10ae-4321-89d7-625f74645f10",
+            "cd704673-f04f-405c-a5b5-df83d1f0258b",
+            "1823f569-26cb-47e9-bd1b-78dada4103dc",
+            "ada96a1c-f7ba-4c9e-b72a-2ce8d80bcada",
+            "b7220441-fc14-4a82-9245-3f96835fcf89",
+            "e12c12db-d672-4f93-805c-97f722c4537f",
+            "01219688-c3f3-4616-8d06-2eefa3979797",
+            "2db62bed-7381-4ebd-a5db-125d4989723f",
+            "11f8c949-b5c5-4884-b0fd-0062c837c7b5",
+            "0ca0f325-4926-4975-9590-61837cdb66ce",
+            "dd031f7a-5678-422a-b1c0-d2cf6ad0abf8",
+            "e0b68797-840b-4c62-bc69-52e3a696568e",
+            "0c642337-ff06-430a-99d3-612f978f466c",
+            "b69ad3ca-6aba-4272-9edd-5df36ad9d391",
+            "ffe6a900-c7cb-407b-959b-c9c6553aa3e0",
+            "a60549f0-6695-4fdf-b524-3f98d5a874a7",
+            "3fa24736-51b1-492a-83bf-30e094598891",
+            "fb71e034-94fd-478d-b709-d3ae372c1c09",
+            "c0543578-fd8b-4089-90cf-9653be7ab4bd",
+            "07aa69fd-6b72-4ff8-8d56-d6c5d0277e49",
+            "8f243e92-9cc1-4d4f-8640-535bbabf22d0",
+            "3b891546-dc61-4012-9433-7d4a4469ed94",
+            "95663bc0-8200-4283-91fc-1d0519524207",
+            "f07535d2-44b8-49cb-81d0-d6db7a4a4121",
+            "11c43f71-df58-4a55-8e46-73dab40ab22a",
+            "1bcdc45a-7498-4047-8880-b2f503c128b0",
+            "70afd98e-8d9a-4e09-a289-d5e1826f6688",
+            "f82ed877-b25d-418b-a8c0-152b7e270c48",
+            "fd560304-820e-4b18-aa21-c1c6ca6e7a09",
+            "09b83715-35ef-497b-a2cf-4d7a3a1aae84",
+            "d7ca8dd3-8f44-4ec7-8c44-fcad0c58695c",
+            "d3c9bcbc-fbcb-44c5-9039-a3b3fc231e02",
+            "d9b4fd8a-c3f0-45fa-aa8a-f91344858a1b",
+            "2e8ad1c7-e877-4322-863a-30a6fe446229",
+            "3bedc527-f877-4471-8bae-61e1d66aeb77",
+            "f0e0f8c6-a910-44e6-8b71-a287c75ddde2",
+            "5fe0f406-b0ac-42fa-8e77-82999a860ef3"
+          ],
+          "format": {
+            "page_icon": "🔒",
+            "copied_from_pointer": {
+              "id": "1dfbfdb5-7fdd-44be-a702-404b8d0e6123",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705939718634,
+          "last_edited_time": 1705943160519,
+          "parent_id": "3c3ce15b-4b48-42a8-9935-241b29be00d1",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "1dfbfdb5-7fdd-44be-a702-404b8d0e6123",
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "LWP3Vihc5p4ZXzw0GQ4cGA,\"start\",\"end\"",
+              "n": {
+                "LWP3Vihc5p4ZXzw0GQ4cGA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "LWP3Vihc5p4ZXzw0GQ4cGA",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["2p-DBihTf6sg", 1], "o": "start", "l": 3, "c": "더보기" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "3c3ce15b-4b48-42a8-9935-241b29be00d1": {
+      "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+      "value": {
+        "value": {
+          "id": "3c3ce15b-4b48-42a8-9935-241b29be00d1",
+          "version": 12,
+          "type": "column",
+          "content": [
+            "266d38f8-2c47-4fa9-bd04-99d1b438eeaf",
+            "3df16cc4-90c9-4a76-ac58-61db1fd57424",
+            "2b837af0-f1c8-4b5c-a60c-693082e6e61a",
+            "1dfbfdb5-7fdd-44be-a702-404b8d0e6123",
+            "38279f27-37c9-44c4-b7ca-d33d92942852",
+            "a048abce-2d4b-4439-b6a1-46fbfa42fc19"
+          ],
+          "format": {
+            "column_ratio": 0.375,
+            "copied_from_pointer": {
+              "id": "bb8bc6ec-ce0e-49f8-9ed9-668c909f006b",
+              "table": "block",
+              "spaceId": "29e167f8-cf96-45b9-a56c-9c95684649b3"
+            }
+          },
+          "created_time": 1705855401311,
+          "last_edited_time": 1705939718639,
+          "parent_id": "520f0362-9ef3-4b1b-afa6-dc92cd1d7da2",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "bb8bc6ec-ce0e-49f8-9ed9-668c909f006b",
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "wuFjECHEI_B_2iexoQ1WBA,\"start\",\"end\"",
+              "n": {
+                "wuFjECHEI_B_2iexoQ1WBA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "wuFjECHEI_B_2iexoQ1WBA",
+                    "i": [{ "t": "s" }, { "t": "e" }],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "520f0362-9ef3-4b1b-afa6-dc92cd1d7da2": {
+      "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+      "value": {
+        "value": {
+          "id": "520f0362-9ef3-4b1b-afa6-dc92cd1d7da2",
+          "version": 4,
+          "type": "column_list",
+          "content": [
+            "67aca924-4dc3-4eff-9785-59f0118793e5",
+            "3c3ce15b-4b48-42a8-9935-241b29be00d1",
+            "94f795bf-5c2e-4689-bc1e-e5e70b2136bb"
+          ],
+          "format": {
+            "copied_from_pointer": {
+              "id": "4d14c482-7bba-431c-b3c0-a491c8363423",
+              "table": "block",
+              "spaceId": "29e167f8-cf96-45b9-a56c-9c95684649b3"
+            }
+          },
+          "created_time": 1705855401308,
+          "last_edited_time": 1705855401326,
+          "parent_id": "1a91b7f9-da0d-443f-888a-ec63234a0d8a",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "4d14c482-7bba-431c-b3c0-a491c8363423",
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "r_a4G06JHuj6anzBO820VA,\"start\",\"end\"",
+              "n": {
+                "r_a4G06JHuj6anzBO820VA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "r_a4G06JHuj6anzBO820VA",
+                    "i": [{ "t": "s" }, { "t": "e" }],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "1a91b7f9-da0d-443f-888a-ec63234a0d8a": {
+      "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+      "value": {
+        "value": {
+          "id": "1a91b7f9-da0d-443f-888a-ec63234a0d8a",
+          "version": 1031,
+          "type": "page",
+          "properties": { "title": [["박은천"]] },
+          "content": [
+            "f2a1457f-5cbc-4af5-bc89-cb08ae709bbb",
+            "af23ea77-f09b-4157-8b5d-cf0e733e533f",
+            "59654883-f274-422a-8f5f-8266bb5ee28f",
+            "520f0362-9ef3-4b1b-afa6-dc92cd1d7da2",
+            "cc0f477d-4f23-4bd6-b1e9-9a9b2c6b591d",
+            "4588e63e-a757-4590-8573-d43d9006a6ae",
+            "84ade4c2-36a5-4013-b54b-db55d1465a09",
+            "ea5b0d64-c8f4-43a2-a740-deb3a675dedd",
+            "4f10750a-3dc4-404e-806e-9f51bac0ceba",
+            "7b46c047-0ac5-4f44-a6b2-4855340b8e81",
+            "f05ce0df-2015-49f1-a1f7-65396c7e128b",
+            "d3ecc895-f1da-4443-a400-cfc03acaca6a",
+            "3c443531-db66-4065-82b0-7a19e2fa70ce",
+            "57af85be-0805-4141-857e-2e876d8982f1",
+            "4a7f8d81-8906-4723-954d-14b13d92113f",
+            "44d43752-0afa-47df-ac14-faac31406ea9",
+            "3275c4ce-ec69-44e0-927f-8de1e73dc7be",
+            "bf311c5d-2b0a-41c1-8226-edbbd044bb11",
+            "0552516c-b9bc-4a50-970a-f9f335526fd3",
+            "998ccf4a-2f59-41c4-bbbc-fc0ae0928ee6",
+            "f1a8d461-b2b2-4d99-b42b-c969cce9e299",
+            "954aadf5-a1c9-4274-bc14-c1709b6f7393",
+            "86997bfc-5228-41ad-bf10-378f7f9acca0",
+            "830ccf2d-3e86-4a2f-8736-fe3051376511",
+            "57622d77-4f83-4e21-9d50-a910dd27088b",
+            "cafd7fc8-3f4c-46fb-8b1a-80a6a4afb697",
+            "03d09ed5-4aaa-4cf7-9519-feda588a4093",
+            "686a020e-08a6-47c1-9322-03efb7b97c21",
+            "6730c69f-5095-4829-add7-d6a284c34681",
+            "f955d144-00c2-4f6d-a77d-a816e0eaa9b4",
+            "83913379-ac83-48d2-9ef1-3cfa3fdc6010",
+            "4d62f628-52ae-4d90-afb4-8bcad24e3952",
+            "eb056f7c-fa38-408f-b32a-6838396fdb16",
+            "aa67e92c-1021-4894-9527-664ab868c77a",
+            "12f889a0-adaa-4f98-9836-91c691d60722",
+            "3bf21f8a-dfc0-42b8-8c25-07f702bbd364",
+            "1a60f082-f72c-481b-b45f-010231e7056c",
+            "37f23130-58d5-479a-bfff-e15023b738a7",
+            "ed223346-b024-46ea-ba6d-f1066672ba7d",
+            "3a32fff3-3a63-452a-8d9f-9e38a9225991",
+            "20f5c174-a249-4740-ac26-32f473350162",
+            "284e4d40-0a5e-46f7-9632-dbf265efc596",
+            "bc3db06c-6297-48b1-9481-3d7367a2e21a",
+            "726fe8b3-1069-4eec-91b3-c914400aff0f",
+            "94f3bd84-8eff-4710-92a5-d96607f2c7d8",
+            "5fba2420-f65f-4678-857d-41c12c204530",
+            "711c83da-bc4c-4933-90db-ec12a998b640",
+            "e2482107-5c4c-4194-b408-c54a7c40a3d1",
+            "1328ec01-3dd1-4628-86b2-c8a7382cb3c7",
+            "c8d5dcc0-6b58-4ce8-8fdb-fae26a71e920",
+            "e9fb4112-be86-4359-b8cd-ba9ce8499ed6",
+            "9ce1ecf1-86f7-4b3a-8475-54a1766eeda5",
+            "05e78d6a-704c-4475-b4d1-a68d7acf47bf",
+            "f4817109-333f-4726-be0e-8d11bbbbe642"
+          ],
+          "format": {
+            "site_id": "1b5a8290-edaa-81be-97c5-00797a5abcf7",
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/5f1a3246-53a7-45d8-8046-f2158bb7695b/PNG_%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5_17.png",
+            "page_cover": "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb",
+            "block_locked": false,
+            "block_locked_by": "7e15233e-fb39-488b-abeb-69a8a65bdfd0",
+            "page_full_width": false,
+            "page_small_text": true,
+            "copied_from_pointer": {
+              "id": "53774d45-93ee-45d0-af1d-68f0843d2574",
+              "table": "block",
+              "spaceId": "29e167f8-cf96-45b9-a56c-9c95684649b3"
+            },
+            "page_cover_position": 0.5,
+            "last_edited_attribution": {
+              "source": { "kind": "mcp", "mcpClientType": "claude" },
+              "triggeredBy": {
+                "id": "7e15233e-fb39-488b-abeb-69a8a65bdfd0",
+                "table": "notion_user"
+              }
+            },
+            "page_section_visibility": { "comments": "section_hide", "backlinks": "section_hide" }
+          },
+          "permissions": [
+            {
+              "role": "reader",
+              "type": "public_permission",
+              "is_site": true,
+              "added_timestamp": 1705855687099
+            }
+          ],
+          "created_time": 1705855401307,
+          "last_edited_time": 1793470136039,
+          "parent_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "parent_table": "space",
+          "alive": true,
+          "copied_from": "53774d45-93ee-45d0-af1d-68f0843d2574",
+          "file_ids": ["5f1a3246-53a7-45d8-8046-f2158bb7695b"],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "nav_parent_table": "space",
+          "nav_parent_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_data": {
+            "title": {
+              "r": "Xcyh7GqxksGdMpwLPlRyKw,\"start\",\"end\"",
+              "n": {
+                "Xcyh7GqxksGdMpwLPlRyKw,\"start\",\"end\"": {
+                  "s": {
+                    "x": "Xcyh7GqxksGdMpwLPlRyKw",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["44jkSgqeIFu9", 1], "o": "start", "l": 3, "c": "박은천" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "081a74bf-a555-47e4-8dc1-805930104ade": {
+      "value": {
+        "value": {
+          "id": "081a74bf-a555-47e4-8dc1-805930104ade",
+          "version": 62,
+          "type": "sub_header",
+          "properties": { "title": [["Programming Language"]] },
+          "created_time": 1705941556674,
+          "last_edited_time": 1705941563386,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "LrWqGBBkhj3juxFE17tn4A,\"start\",\"end\"",
+              "n": {
+                "LrWqGBBkhj3juxFE17tn4A,\"start\",\"end\"": {
+                  "s": {
+                    "x": "LrWqGBBkhj3juxFE17tn4A",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["TsraUKEuGp0f", 1],
+                        "o": "start",
+                        "l": 20,
+                        "c": "Programming Language"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "e1a519fe-ea20-48d2-8b17-0813298758fe": {
+      "value": {
+        "value": {
+          "id": "e1a519fe-ea20-48d2-8b17-0813298758fe",
+          "version": 33,
+          "type": "callout",
+          "properties": { "title": [["TypeScript"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/d1dbbf53-f61c-4591-bf1e-58f4f84484bd/Typescript_logo_2020.svg.png",
+            "block_color": "gray_background"
+          },
+          "created_time": 1705941563819,
+          "last_edited_time": 1705941597339,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "file_ids": [
+            "1471fe14-ad06-4aad-abf8-66fc08f42a60",
+            "d1dbbf53-f61c-4591-bf1e-58f4f84484bd"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "_tP5YN0esuzhbOqxAw9xrQ,\"start\",\"end\"",
+              "n": {
+                "_tP5YN0esuzhbOqxAw9xrQ,\"start\",\"end\"": {
+                  "s": {
+                    "x": "_tP5YN0esuzhbOqxAw9xrQ",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["3BjkLxC4W2RV", 1],
+                        "o": "start",
+                        "l": 10,
+                        "c": "TypeScript"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "2b893d1e-8128-46e5-88d2-fc7540dd963a": {
+      "value": {
+        "value": {
+          "id": "2b893d1e-8128-46e5-88d2-fc7540dd963a",
+          "version": 28,
+          "type": "callout",
+          "properties": { "title": [["JavaScript"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/d39fd971-0618-4c48-b586-af8e588aa631/JavaScript-logo.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "e1a519fe-ea20-48d2-8b17-0813298758fe",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705941616109,
+          "last_edited_time": 1705941627170,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "e1a519fe-ea20-48d2-8b17-0813298758fe",
+          "file_ids": [
+            "d1dbbf53-f61c-4591-bf1e-58f4f84484bd",
+            "d39fd971-0618-4c48-b586-af8e588aa631"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "ztk-WlVkV7H-KvDPf5xDvw,\"start\",\"end\"",
+              "n": {
+                "ztk-WlVkV7H-KvDPf5xDvw,\"start\",\"end\"": {
+                  "s": {
+                    "x": "ztk-WlVkV7H-KvDPf5xDvw",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["TCYCyCm8R5ZO", 1],
+                        "o": "start",
+                        "l": 10,
+                        "c": "JavaScript"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "1581c78a-6b57-4bdd-ad11-d88be709acb4": {
+      "value": {
+        "value": {
+          "id": "1581c78a-6b57-4bdd-ad11-d88be709acb4",
+          "version": 20,
+          "type": "callout",
+          "properties": { "title": [["Python"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/68a23ba6-459d-40bf-9420-d960219fc0f2/Python-logo-notext.svg.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "2b893d1e-8128-46e5-88d2-fc7540dd963a",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705941651510,
+          "last_edited_time": 1705941665067,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "2b893d1e-8128-46e5-88d2-fc7540dd963a",
+          "file_ids": [
+            "d39fd971-0618-4c48-b586-af8e588aa631",
+            "68a23ba6-459d-40bf-9420-d960219fc0f2"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "8P_u75bOh6ssp1p4is-m6w,\"start\",\"end\"",
+              "n": {
+                "8P_u75bOh6ssp1p4is-m6w,\"start\",\"end\"": {
+                  "s": {
+                    "x": "8P_u75bOh6ssp1p4is-m6w",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["tYOVRaqmRyvG", 1], "o": "start", "l": 6, "c": "Python" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "cec847e2-12e3-4672-a1c2-016f22990fe3": {
+      "value": {
+        "value": {
+          "id": "cec847e2-12e3-4672-a1c2-016f22990fe3",
+          "version": 52,
+          "type": "sub_header",
+          "properties": { "title": [["ORM & GraphQL Tools"]] },
+          "created_time": 1705940894973,
+          "last_edited_time": 1705940907162,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "7QbRVnXuwJYxVREEHg_Trg,\"start\",\"end\"",
+              "n": {
+                "7QbRVnXuwJYxVREEHg_Trg,\"start\",\"end\"": {
+                  "s": {
+                    "x": "7QbRVnXuwJYxVREEHg_Trg",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["M3nfVP4Zdlg2", 1],
+                        "o": "start",
+                        "l": 19,
+                        "c": "ORM & GraphQL Tools"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "e1266c64-64e8-42c4-a1d4-9aadb83b5b6f": {
+      "value": {
+        "value": {
+          "id": "e1266c64-64e8-42c4-a1d4-9aadb83b5b6f",
+          "version": 37,
+          "type": "callout",
+          "properties": { "title": [["Prisma"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/90ce8bb5-2e00-4222-8068-6d3c0e4c6f0c/39b2e4ad77c23a2c11e5950a7dfa2aec.png",
+            "block_color": "gray_background"
+          },
+          "created_time": 1705940101807,
+          "last_edited_time": 1705940191830,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "file_ids": [
+            "22bd4c98-9063-4845-bcb9-f8e0223c5290",
+            "90ce8bb5-2e00-4222-8068-6d3c0e4c6f0c"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "_8PVMSPDLayjs2Ij8x5ucg,\"start\",\"end\"",
+              "n": {
+                "_8PVMSPDLayjs2Ij8x5ucg,\"start\",\"end\"": {
+                  "s": {
+                    "x": "_8PVMSPDLayjs2Ij8x5ucg",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["kaCqbHvvL7hA", 1], "o": "start", "l": 6, "c": "Prisma" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "6ca9386c-f4f9-4894-a74a-4dc886712692": {
+      "value": {
+        "value": {
+          "id": "6ca9386c-f4f9-4894-a74a-4dc886712692",
+          "version": 45,
+          "type": "callout",
+          "properties": { "title": [["Nexus GraphQL"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/b1736c58-5739-4209-ab7d-532434f58057/Y5BgDGl.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "e1266c64-64e8-42c4-a1d4-9aadb83b5b6f",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940200277,
+          "last_edited_time": 1705940240024,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "e1266c64-64e8-42c4-a1d4-9aadb83b5b6f",
+          "file_ids": [
+            "90ce8bb5-2e00-4222-8068-6d3c0e4c6f0c",
+            "b1736c58-5739-4209-ab7d-532434f58057"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "naBHVDz9csMNxYDxhldHDg,\"start\",\"end\"",
+              "n": {
+                "naBHVDz9csMNxYDxhldHDg,\"start\",\"end\"": {
+                  "s": {
+                    "x": "naBHVDz9csMNxYDxhldHDg",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["MMQfbLLMx3FV", 1],
+                        "o": "start",
+                        "l": 13,
+                        "c": "Nexus GraphQL"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "5a60aea0-4e27-44ef-86ac-2ccf0447bd0e": {
+      "value": {
+        "value": {
+          "id": "5a60aea0-4e27-44ef-86ac-2ccf0447bd0e",
+          "version": 65,
+          "type": "callout",
+          "properties": { "title": [["Apollo GraphQL (Server)"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/b6c58a47-31f6-48ae-a590-7b753096e7ae/25bd5104d61020fe4dc0777a5919cd009bca633e.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "6ca9386c-f4f9-4894-a74a-4dc886712692",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940244127,
+          "last_edited_time": 1705940317779,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "6ca9386c-f4f9-4894-a74a-4dc886712692",
+          "file_ids": [
+            "b1736c58-5739-4209-ab7d-532434f58057",
+            "b6c58a47-31f6-48ae-a590-7b753096e7ae"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "bGs9fbfNYBip7sFRPtNKNw,\"start\",\"end\"",
+              "n": {
+                "bGs9fbfNYBip7sFRPtNKNw,\"start\",\"end\"": {
+                  "s": {
+                    "x": "bGs9fbfNYBip7sFRPtNKNw",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["ykWWTNMColpa", 1],
+                        "o": "start",
+                        "l": 23,
+                        "c": "Apollo GraphQL (Server)"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "b3df69be-7872-4af3-8e0b-5d87888ba017": {
+      "value": {
+        "value": {
+          "id": "b3df69be-7872-4af3-8e0b-5d87888ba017",
+          "version": 37,
+          "type": "sub_header",
+          "properties": { "title": [["Metric tools"]] },
+          "created_time": 1705940920309,
+          "last_edited_time": 1705940929830,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "sNDjEs80EtXk3TY2ddgUKQ,\"start\",\"end\"",
+              "n": {
+                "sNDjEs80EtXk3TY2ddgUKQ,\"start\",\"end\"": {
+                  "s": {
+                    "x": "sNDjEs80EtXk3TY2ddgUKQ",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["oER1y3Rb-SYW", 1],
+                        "o": "start",
+                        "l": 12,
+                        "c": "Metric tools"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "c02e08fa-efd4-4945-ad72-62d429b1e8b6": {
+      "value": {
+        "value": {
+          "id": "c02e08fa-efd4-4945-ad72-62d429b1e8b6",
+          "version": 28,
+          "type": "callout",
+          "properties": { "title": [["OpenSearch"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/edfb4c91-4d0e-4b9d-8c45-d6c447772cde/opensearch-icon-2048x2048-pyunzhi7.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "5a60aea0-4e27-44ef-86ac-2ccf0447bd0e",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940322225,
+          "last_edited_time": 1705940370867,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "5a60aea0-4e27-44ef-86ac-2ccf0447bd0e",
+          "file_ids": [
+            "b6c58a47-31f6-48ae-a590-7b753096e7ae",
+            "edfb4c91-4d0e-4b9d-8c45-d6c447772cde"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "0RMJdNwYFvVu2aaHlTl9KA,\"start\",\"end\"",
+              "n": {
+                "0RMJdNwYFvVu2aaHlTl9KA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "0RMJdNwYFvVu2aaHlTl9KA",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["AZPTYE5ZvHp8", 1],
+                        "o": "start",
+                        "l": 10,
+                        "c": "OpenSearch"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "babaac0d-520a-4e8f-9482-7b87f422524e": {
+      "value": {
+        "value": {
+          "id": "babaac0d-520a-4e8f-9482-7b87f422524e",
+          "version": 26,
+          "type": "callout",
+          "properties": { "title": [["OpenTelemetry"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/851977a6-b027-4c61-832e-bb598fd02232/opentelemetry-logo-2DC4F51D47-seeklogo.com.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "c02e08fa-efd4-4945-ad72-62d429b1e8b6",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940375464,
+          "last_edited_time": 1705940410387,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "c02e08fa-efd4-4945-ad72-62d429b1e8b6",
+          "file_ids": [
+            "edfb4c91-4d0e-4b9d-8c45-d6c447772cde",
+            "851977a6-b027-4c61-832e-bb598fd02232"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "zocwygKEWA23EqRHSNi8aA,\"start\",\"end\"",
+              "n": {
+                "zocwygKEWA23EqRHSNi8aA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "zocwygKEWA23EqRHSNi8aA",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["gBb8uoVgVWpj", 1],
+                        "o": "start",
+                        "l": 13,
+                        "c": "OpenTelemetry"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "a9c5d957-5626-41b8-a4f7-f81d823ec178": {
+      "value": {
+        "value": {
+          "id": "a9c5d957-5626-41b8-a4f7-f81d823ec178",
+          "version": 20,
+          "type": "callout",
+          "properties": { "title": [["Sentry"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/0b36409b-0a96-4f02-a7b5-6407dd3c2b3e/sentry-logo.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "babaac0d-520a-4e8f-9482-7b87f422524e",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940415874,
+          "last_edited_time": 1705940463999,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "babaac0d-520a-4e8f-9482-7b87f422524e",
+          "file_ids": [
+            "851977a6-b027-4c61-832e-bb598fd02232",
+            "0b36409b-0a96-4f02-a7b5-6407dd3c2b3e"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "uRgI2cwsQbOrLza90-EV2Q,\"start\",\"end\"",
+              "n": {
+                "uRgI2cwsQbOrLza90-EV2Q,\"start\",\"end\"": {
+                  "s": {
+                    "x": "uRgI2cwsQbOrLza90-EV2Q",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["Jh0fZjPXye6v", 1], "o": "start", "l": 6, "c": "Sentry" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "f18b2aec-5152-4add-a235-df5b1ed00e69": {
+      "value": {
+        "value": {
+          "id": "f18b2aec-5152-4add-a235-df5b1ed00e69",
+          "version": 25,
+          "type": "callout",
+          "properties": { "title": [["Grafana"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/ff000f23-a8d1-49b4-9628-4981b58c012e/grafana_logo_icon_171048.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "0ca0f325-4926-4975-9590-61837cdb66ce",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940705902,
+          "last_edited_time": 1705941127641,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "0ca0f325-4926-4975-9590-61837cdb66ce",
+          "file_ids": [
+            "fe21bfd0-545e-447a-915b-717a851cdeb8",
+            "ff000f23-a8d1-49b4-9628-4981b58c012e"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "jcbO6m-ZjPxMD6he96ZgNA,\"start\",\"end\"",
+              "n": {
+                "jcbO6m-ZjPxMD6he96ZgNA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "jcbO6m-ZjPxMD6he96ZgNA",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["iOaxGr8RbBsu", 1], "o": "start", "l": 7, "c": "Grafana" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "9710ce15-c361-494b-b7f3-146e59f6856a": {
+      "value": {
+        "value": {
+          "id": "9710ce15-c361-494b-b7f3-146e59f6856a",
+          "version": 31,
+          "type": "callout",
+          "properties": { "title": [["Prometheus"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/561464d2-8db9-4d95-a55e-c1f84d7ad7e4/Prometheus_software_logo.svg.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "f18b2aec-5152-4add-a235-df5b1ed00e69",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940751977,
+          "last_edited_time": 1705941133081,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "f18b2aec-5152-4add-a235-df5b1ed00e69",
+          "file_ids": [
+            "ff000f23-a8d1-49b4-9628-4981b58c012e",
+            "561464d2-8db9-4d95-a55e-c1f84d7ad7e4"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "FAtxXAk1XEr247tGg4mZAA,\"start\",\"end\"",
+              "n": {
+                "FAtxXAk1XEr247tGg4mZAA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "FAtxXAk1XEr247tGg4mZAA",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["iznq85yrqcxt", 1],
+                        "o": "start",
+                        "l": 10,
+                        "c": "Prometheus"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "80f19267-10ae-4321-89d7-625f74645f10": {
+      "value": {
+        "value": {
+          "id": "80f19267-10ae-4321-89d7-625f74645f10",
+          "version": 25,
+          "type": "sub_header",
+          "properties": { "title": [["Schema"]] },
+          "created_time": 1705940940038,
+          "last_edited_time": 1705940947774,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "awWQy0NyB8JHOnPkhvsz0w,\"start\",\"end\"",
+              "n": {
+                "awWQy0NyB8JHOnPkhvsz0w,\"start\",\"end\"": {
+                  "s": {
+                    "x": "awWQy0NyB8JHOnPkhvsz0w",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["c6Wn939nwH7e", 1], "o": "start", "l": 6, "c": "Schema" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "cd704673-f04f-405c-a5b5-df83d1f0258b": {
+      "value": {
+        "value": {
+          "id": "cd704673-f04f-405c-a5b5-df83d1f0258b",
+          "version": 48,
+          "type": "callout",
+          "properties": { "title": [["AJV Schema Validator"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/78916cc1-0516-4127-a3e5-ac2bd3457b44/ajv.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "a9c5d957-5626-41b8-a4f7-f81d823ec178",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940488071,
+          "last_edited_time": 1705940503616,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "a9c5d957-5626-41b8-a4f7-f81d823ec178",
+          "file_ids": [
+            "0b36409b-0a96-4f02-a7b5-6407dd3c2b3e",
+            "78916cc1-0516-4127-a3e5-ac2bd3457b44"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "aSFetc8dzJwOXt3PEulK4g,\"start\",\"end\"",
+              "n": {
+                "aSFetc8dzJwOXt3PEulK4g,\"start\",\"end\"": {
+                  "s": {
+                    "x": "aSFetc8dzJwOXt3PEulK4g",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["Af7lAL0qW_xW", 1],
+                        "o": "start",
+                        "l": 20,
+                        "c": "AJV Schema Validator"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "1823f569-26cb-47e9-bd1b-78dada4103dc": {
+      "value": {
+        "value": {
+          "id": "1823f569-26cb-47e9-bd1b-78dada4103dc",
+          "version": 22,
+          "type": "callout",
+          "properties": { "title": [["OpenAPI"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/68e27ca9-1a3b-4cf6-a56a-121f4b49e25d/openapi-1.svg",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "cd704673-f04f-405c-a5b5-df83d1f0258b",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940525037,
+          "last_edited_time": 1705940539630,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "cd704673-f04f-405c-a5b5-df83d1f0258b",
+          "file_ids": [
+            "78916cc1-0516-4127-a3e5-ac2bd3457b44",
+            "68e27ca9-1a3b-4cf6-a56a-121f4b49e25d"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "U-WDG4v2sJF4wsCo93jGUQ,\"start\",\"end\"",
+              "n": {
+                "U-WDG4v2sJF4wsCo93jGUQ,\"start\",\"end\"": {
+                  "s": {
+                    "x": "U-WDG4v2sJF4wsCo93jGUQ",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["d8Z4Bn6LlCkV", 1], "o": "start", "l": 7, "c": "OpenAPI" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "ada96a1c-f7ba-4c9e-b72a-2ce8d80bcada": {
+      "value": {
+        "value": {
+          "id": "ada96a1c-f7ba-4c9e-b72a-2ce8d80bcada",
+          "version": 99,
+          "type": "sub_header",
+          "properties": { "title": [["Customer Identity Access Management"]] },
+          "created_time": 1705940963322,
+          "last_edited_time": 1705940982036,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "mYUX6Pp1-OWMBXOFkIHVIQ,\"start\",\"end\"",
+              "n": {
+                "mYUX6Pp1-OWMBXOFkIHVIQ,\"start\",\"end\"": {
+                  "s": {
+                    "x": "mYUX6Pp1-OWMBXOFkIHVIQ",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["2IWXdOc8F3qB", 1],
+                        "o": "start",
+                        "l": 35,
+                        "c": "Customer Identity Access Management"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "b7220441-fc14-4a82-9245-3f96835fcf89": {
+      "value": {
+        "value": {
+          "id": "b7220441-fc14-4a82-9245-3f96835fcf89",
+          "version": 30,
+          "type": "callout",
+          "properties": { "title": [["SuperTokens"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/87beed0b-5c7f-4773-96f9-fc2502f0ffcb/50478857.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "1823f569-26cb-47e9-bd1b-78dada4103dc",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940575804,
+          "last_edited_time": 1705940589023,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "1823f569-26cb-47e9-bd1b-78dada4103dc",
+          "file_ids": [
+            "68e27ca9-1a3b-4cf6-a56a-121f4b49e25d",
+            "87beed0b-5c7f-4773-96f9-fc2502f0ffcb"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "d6nSZlrqUMxOZvQ-IVKvdQ,\"start\",\"end\"",
+              "n": {
+                "d6nSZlrqUMxOZvQ-IVKvdQ,\"start\",\"end\"": {
+                  "s": {
+                    "x": "d6nSZlrqUMxOZvQ-IVKvdQ",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["xKeXlu1relLK", 1],
+                        "o": "start",
+                        "l": 11,
+                        "c": "SuperTokens"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "e12c12db-d672-4f93-805c-97f722c4537f": {
+      "value": {
+        "value": {
+          "id": "e12c12db-d672-4f93-805c-97f722c4537f",
+          "version": 30,
+          "type": "callout",
+          "properties": { "title": [["AWS Cognito"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/f1903294-c209-41f6-9271-47eb463b35be/aws-cognito.svg",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "b7220441-fc14-4a82-9245-3f96835fcf89",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705942008572,
+          "last_edited_time": 1705942037807,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "b7220441-fc14-4a82-9245-3f96835fcf89",
+          "file_ids": [
+            "87beed0b-5c7f-4773-96f9-fc2502f0ffcb",
+            "f1903294-c209-41f6-9271-47eb463b35be"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "vmSV3w-87i-Isd-39vHbtQ,\"start\",\"end\"",
+              "n": {
+                "vmSV3w-87i-Isd-39vHbtQ,\"start\",\"end\"": {
+                  "s": {
+                    "x": "vmSV3w-87i-Isd-39vHbtQ",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["qWsutqZ-C9EL", 1],
+                        "o": "start",
+                        "l": 11,
+                        "c": "AWS Cognito"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "01219688-c3f3-4616-8d06-2eefa3979797": {
+      "value": {
+        "value": {
+          "id": "01219688-c3f3-4616-8d06-2eefa3979797",
+          "version": 37,
+          "type": "sub_header",
+          "properties": { "title": [["Testing Tool"]] },
+          "created_time": 1705940955751,
+          "last_edited_time": 1705940989101,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "1rVlHyLN8BYR58RnY4k5Tw,\"start\",\"end\"",
+              "n": {
+                "1rVlHyLN8BYR58RnY4k5Tw,\"start\",\"end\"": {
+                  "s": {
+                    "x": "1rVlHyLN8BYR58RnY4k5Tw",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["AAsV_QyvXBUj", 1],
+                        "o": "start",
+                        "l": 12,
+                        "c": "Testing Tool"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "2db62bed-7381-4ebd-a5db-125d4989723f": {
+      "value": {
+        "value": {
+          "id": "2db62bed-7381-4ebd-a5db-125d4989723f",
+          "version": 16,
+          "type": "callout",
+          "properties": { "title": [["Jest"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/b72a35e7-ab63-4141-81c7-953ccead89f0/jest-logo-png-transparent.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "b7220441-fc14-4a82-9245-3f96835fcf89",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940646605,
+          "last_edited_time": 1705940663023,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "b7220441-fc14-4a82-9245-3f96835fcf89",
+          "file_ids": [
+            "87beed0b-5c7f-4773-96f9-fc2502f0ffcb",
+            "b72a35e7-ab63-4141-81c7-953ccead89f0"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "JfrDushluBR1YmYSDTLQ6w,\"start\",\"end\"",
+              "n": {
+                "JfrDushluBR1YmYSDTLQ6w,\"start\",\"end\"": {
+                  "s": {
+                    "x": "JfrDushluBR1YmYSDTLQ6w",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["rGuqQiYOxYQO", 1], "o": "start", "l": 4, "c": "Jest" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "11f8c949-b5c5-4884-b0fd-0062c837c7b5": {
+      "value": {
+        "value": {
+          "id": "11f8c949-b5c5-4884-b0fd-0062c837c7b5",
+          "version": 37,
+          "type": "sub_header",
+          "properties": { "title": [["SQL Database"]] },
+          "created_time": 1705940999576,
+          "last_edited_time": 1705941012292,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "76e62nBuIRJ_b5jB07dDvg,\"start\",\"end\"",
+              "n": {
+                "76e62nBuIRJ_b5jB07dDvg,\"start\",\"end\"": {
+                  "s": {
+                    "x": "76e62nBuIRJ_b5jB07dDvg",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["wJ-psMWDqHK4", 1],
+                        "o": "start",
+                        "l": 12,
+                        "c": "SQL Database"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "0ca0f325-4926-4975-9590-61837cdb66ce": {
+      "value": {
+        "value": {
+          "id": "0ca0f325-4926-4975-9590-61837cdb66ce",
+          "version": 44,
+          "type": "callout",
+          "properties": { "title": [["PostgreSQL"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/fe21bfd0-545e-447a-915b-717a851cdeb8/Postgresql_elephant.svg.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "2db62bed-7381-4ebd-a5db-125d4989723f",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940686938,
+          "last_edited_time": 1705940997743,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "2db62bed-7381-4ebd-a5db-125d4989723f",
+          "file_ids": [
+            "b72a35e7-ab63-4141-81c7-953ccead89f0",
+            "fe21bfd0-545e-447a-915b-717a851cdeb8"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "amnWjuikSnqa5H7afplz7Q,\"start\",\"end\"",
+              "n": {
+                "amnWjuikSnqa5H7afplz7Q,\"start\",\"end\"": {
+                  "s": {
+                    "x": "amnWjuikSnqa5H7afplz7Q",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["ZEg76PtyM2iJ", 1],
+                        "o": "start",
+                        "l": 10,
+                        "c": "PostgreSQL"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "dd031f7a-5678-422a-b1c0-d2cf6ad0abf8": {
+      "value": {
+        "value": {
+          "id": "dd031f7a-5678-422a-b1c0-d2cf6ad0abf8",
+          "version": 18,
+          "type": "callout",
+          "properties": { "title": [["MySQL"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/5e447849-32a2-4f34-9816-1ea6cc90b4bf/62debc4fff3c6e4b8b5de8d3.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "0ca0f325-4926-4975-9590-61837cdb66ce",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705941015880,
+          "last_edited_time": 1705941043174,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "0ca0f325-4926-4975-9590-61837cdb66ce",
+          "file_ids": [
+            "fe21bfd0-545e-447a-915b-717a851cdeb8",
+            "5e447849-32a2-4f34-9816-1ea6cc90b4bf"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "38q3BEJbX1Ohwbh3NhVQtg,\"start\",\"end\"",
+              "n": {
+                "38q3BEJbX1Ohwbh3NhVQtg,\"start\",\"end\"": {
+                  "s": {
+                    "x": "38q3BEJbX1Ohwbh3NhVQtg",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["LBZaohWKGyHn", 1], "o": "start", "l": 5, "c": "MySQL" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "e0b68797-840b-4c62-bc69-52e3a696568e": {
+      "value": {
+        "value": {
+          "id": "e0b68797-840b-4c62-bc69-52e3a696568e",
+          "version": 18,
+          "type": "callout",
+          "properties": { "title": [["Turso"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/24095faa-062b-44e2-9738-8a38b3428696/139391156.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "dd031f7a-5678-422a-b1c0-d2cf6ad0abf8",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705941073844,
+          "last_edited_time": 1705941086208,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "dd031f7a-5678-422a-b1c0-d2cf6ad0abf8",
+          "file_ids": [
+            "5e447849-32a2-4f34-9816-1ea6cc90b4bf",
+            "24095faa-062b-44e2-9738-8a38b3428696"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "9iC6cvvJ1AttMNPgcjsPjA,\"start\",\"end\"",
+              "n": {
+                "9iC6cvvJ1AttMNPgcjsPjA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "9iC6cvvJ1AttMNPgcjsPjA",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["p_5BlWaOI5t0", 1], "o": "start", "l": 5, "c": "Turso" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "0c642337-ff06-430a-99d3-612f978f466c": {
+      "value": {
+        "value": {
+          "id": "0c642337-ff06-430a-99d3-612f978f466c",
+          "version": 76,
+          "type": "sub_header",
+          "properties": { "title": [["Document Database & NoSQL"]] },
+          "created_time": 1705940991398,
+          "last_edited_time": 1705941381871,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "h6FdwHaO8WhhqYe4DqKxGA,\"start\",\"end\"",
+              "n": {
+                "h6FdwHaO8WhhqYe4DqKxGA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "h6FdwHaO8WhhqYe4DqKxGA",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["BYMP06SbEs6g", 1],
+                        "o": "start",
+                        "l": 25,
+                        "c": "Document Database & NoSQL"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "b69ad3ca-6aba-4272-9edd-5df36ad9d391": {
+      "value": {
+        "value": {
+          "id": "b69ad3ca-6aba-4272-9edd-5df36ad9d391",
+          "version": 25,
+          "type": "callout",
+          "properties": { "title": [["MongoDB"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/7d2cf304-ddb3-4471-ad69-f5980ffe1e7f/png-transparent-mongodb-plain-wordmark-logo-icon.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "a60549f0-6695-4fdf-b524-3f98d5a874a7",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705941365403,
+          "last_edited_time": 1705941385604,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "a60549f0-6695-4fdf-b524-3f98d5a874a7",
+          "file_ids": [
+            "58d15e11-ba18-4360-8dc5-e67afdcc98d0",
+            "7d2cf304-ddb3-4471-ad69-f5980ffe1e7f"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "w2AWx9vqEfYGKNkLbmlKJA,\"start\",\"end\"",
+              "n": {
+                "w2AWx9vqEfYGKNkLbmlKJA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "w2AWx9vqEfYGKNkLbmlKJA",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["o2UiF_kfo-aj", 1], "o": "start", "l": 7, "c": "MongoDB" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "ffe6a900-c7cb-407b-959b-c9c6553aa3e0": {
+      "value": {
+        "value": {
+          "id": "ffe6a900-c7cb-407b-959b-c9c6553aa3e0",
+          "version": 18,
+          "type": "callout",
+          "properties": { "title": [["Redis"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/9602ff4f-7310-4d7b-8495-b54bf8cb665d/redis.jpg",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "b69ad3ca-6aba-4272-9edd-5df36ad9d391",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705941402098,
+          "last_edited_time": 1705941414449,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "b69ad3ca-6aba-4272-9edd-5df36ad9d391",
+          "file_ids": [
+            "7d2cf304-ddb3-4471-ad69-f5980ffe1e7f",
+            "9602ff4f-7310-4d7b-8495-b54bf8cb665d"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "xoZzbalI-7npS6A6akFnDg,\"start\",\"end\"",
+              "n": {
+                "xoZzbalI-7npS6A6akFnDg,\"start\",\"end\"": {
+                  "s": {
+                    "x": "xoZzbalI-7npS6A6akFnDg",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["vnf-ad_hb684", 1], "o": "start", "l": 5, "c": "Redis" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "a60549f0-6695-4fdf-b524-3f98d5a874a7": {
+      "value": {
+        "value": {
+          "id": "a60549f0-6695-4fdf-b524-3f98d5a874a7",
+          "version": 24,
+          "type": "callout",
+          "properties": { "title": [["InfluxDB"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/58d15e11-ba18-4360-8dc5-e67afdcc98d0/influxdb-logo-67443AEDE0-seeklogo.com.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "0ca0f325-4926-4975-9590-61837cdb66ce",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940806993,
+          "last_edited_time": 1705940820251,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "0ca0f325-4926-4975-9590-61837cdb66ce",
+          "file_ids": [
+            "fe21bfd0-545e-447a-915b-717a851cdeb8",
+            "58d15e11-ba18-4360-8dc5-e67afdcc98d0"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "fF2YjTwryQeBMvYLNHorvw,\"start\",\"end\"",
+              "n": {
+                "fF2YjTwryQeBMvYLNHorvw,\"start\",\"end\"": {
+                  "s": {
+                    "x": "fF2YjTwryQeBMvYLNHorvw",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["DGRJMhk5bMy1", 1], "o": "start", "l": 8, "c": "InfluxDB" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "3fa24736-51b1-492a-83bf-30e094598891": {
+      "value": {
+        "value": {
+          "id": "3fa24736-51b1-492a-83bf-30e094598891",
+          "version": 31,
+          "type": "callout",
+          "properties": { "title": [["ReductStore"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/d74c0ef9-dc68-4281-a6ad-f2ea91bb44fa/default_a28aa26599d11f50ccfd099acc45b4aceaf9517e.jpg",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "a60549f0-6695-4fdf-b524-3f98d5a874a7",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705942111147,
+          "last_edited_time": 1705942121324,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "a60549f0-6695-4fdf-b524-3f98d5a874a7",
+          "file_ids": [
+            "58d15e11-ba18-4360-8dc5-e67afdcc98d0",
+            "d74c0ef9-dc68-4281-a6ad-f2ea91bb44fa"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "07n0Ijhc2PbFtfq3iE5EYw,\"start\",\"end\"",
+              "n": {
+                "07n0Ijhc2PbFtfq3iE5EYw,\"start\",\"end\"": {
+                  "s": {
+                    "x": "07n0Ijhc2PbFtfq3iE5EYw",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["corpj_24F-x2", 1],
+                        "o": "start",
+                        "l": 11,
+                        "c": "ReductStore"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "fb71e034-94fd-478d-b709-d3ae372c1c09": {
+      "value": {
+        "value": {
+          "id": "fb71e034-94fd-478d-b709-d3ae372c1c09",
+          "version": 69,
+          "type": "sub_header",
+          "properties": { "title": [["Infrastructure as Code"]] },
+          "created_time": 1705941147976,
+          "last_edited_time": 1705941156471,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "SZGG9HV7W1cFxX4-svYPGA,\"start\",\"end\"",
+              "n": {
+                "SZGG9HV7W1cFxX4-svYPGA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "SZGG9HV7W1cFxX4-svYPGA",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["8BS--CLA3RDy", 1],
+                        "o": "start",
+                        "l": 22,
+                        "c": "Infrastructure as Code"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "c0543578-fd8b-4089-90cf-9653be7ab4bd": {
+      "value": {
+        "value": {
+          "id": "c0543578-fd8b-4089-90cf-9653be7ab4bd",
+          "version": 38,
+          "type": "callout",
+          "properties": { "title": [["Terraform"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/7a1b968b-7859-44a0-b6e6-464ed727e56f/terraform-icon-1803x2048-hodrzd3t.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "a60549f0-6695-4fdf-b524-3f98d5a874a7",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705940873612,
+          "last_edited_time": 1705940889042,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "a60549f0-6695-4fdf-b524-3f98d5a874a7",
+          "file_ids": [
+            "58d15e11-ba18-4360-8dc5-e67afdcc98d0",
+            "7a1b968b-7859-44a0-b6e6-464ed727e56f"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "alUjuIizR_cNUJABSACrXw,\"start\",\"end\"",
+              "n": {
+                "alUjuIizR_cNUJABSACrXw,\"start\",\"end\"": {
+                  "s": {
+                    "x": "alUjuIizR_cNUJABSACrXw",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["15k7L_NuTxPS", 1],
+                        "o": "start",
+                        "l": 9,
+                        "c": "Terraform"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "07aa69fd-6b72-4ff8-8d56-d6c5d0277e49": {
+      "value": {
+        "value": {
+          "id": "07aa69fd-6b72-4ff8-8d56-d6c5d0277e49",
+          "version": 22,
+          "type": "callout",
+          "properties": { "title": [["AWS CDK"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/2e736b64-fe7e-4a87-b270-1d3b9ba3875f/cdkdevlogo.svg",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "c0543578-fd8b-4089-90cf-9653be7ab4bd",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705941187874,
+          "last_edited_time": 1705941198535,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "c0543578-fd8b-4089-90cf-9653be7ab4bd",
+          "file_ids": [
+            "7a1b968b-7859-44a0-b6e6-464ed727e56f",
+            "2e736b64-fe7e-4a87-b270-1d3b9ba3875f"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "_rZNCAG7zLr2U7n8iuC8cA,\"start\",\"end\"",
+              "n": {
+                "_rZNCAG7zLr2U7n8iuC8cA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "_rZNCAG7zLr2U7n8iuC8cA",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["AhKE_O9xuMEq", 1], "o": "start", "l": 7, "c": "AWS CDK" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "8f243e92-9cc1-4d4f-8640-535bbabf22d0": {
+      "value": {
+        "value": {
+          "id": "8f243e92-9cc1-4d4f-8640-535bbabf22d0",
+          "version": 21,
+          "type": "callout",
+          "properties": { "title": [["AWS Copilot"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/7f985f33-4bcb-40c9-971c-57d317da7708/1_jQmnqxx8dTdM0RW4dlm8Vg.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "07aa69fd-6b72-4ff8-8d56-d6c5d0277e49",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705941277233,
+          "last_edited_time": 1705941290594,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "07aa69fd-6b72-4ff8-8d56-d6c5d0277e49",
+          "file_ids": [
+            "2e736b64-fe7e-4a87-b270-1d3b9ba3875f",
+            "7f985f33-4bcb-40c9-971c-57d317da7708"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "CdoKAYTQfm6hIiGJIZBSdw,\"start\",\"end\"",
+              "n": {
+                "CdoKAYTQfm6hIiGJIZBSdw,\"start\",\"end\"": {
+                  "s": {
+                    "x": "CdoKAYTQfm6hIiGJIZBSdw",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["GNMzdjAFeyeZ", 1],
+                        "o": "start",
+                        "l": 11,
+                        "c": "AWS Copilot"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "3b891546-dc61-4012-9433-7d4a4469ed94": {
+      "value": {
+        "value": {
+          "id": "3b891546-dc61-4012-9433-7d4a4469ed94",
+          "version": 28,
+          "type": "callout",
+          "properties": { "title": [["Serverless"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/304c4018-2744-4567-bc2e-03becc95c040/serverless_logo_icon_168838.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "8f243e92-9cc1-4d4f-8640-535bbabf22d0",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705941326594,
+          "last_edited_time": 1705941340414,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "8f243e92-9cc1-4d4f-8640-535bbabf22d0",
+          "file_ids": [
+            "7f985f33-4bcb-40c9-971c-57d317da7708",
+            "304c4018-2744-4567-bc2e-03becc95c040"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "4YToEE0yH1tg1VQDah9V7g,\"start\",\"end\"",
+              "n": {
+                "4YToEE0yH1tg1VQDah9V7g,\"start\",\"end\"": {
+                  "s": {
+                    "x": "4YToEE0yH1tg1VQDah9V7g",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["jsXBme5SKGjq", 1],
+                        "o": "start",
+                        "l": 10,
+                        "c": "Serverless"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "95663bc0-8200-4283-91fc-1d0519524207": {
+      "value": {
+        "value": {
+          "id": "95663bc0-8200-4283-91fc-1d0519524207",
+          "version": 42,
+          "type": "sub_header",
+          "properties": { "title": [["CI/CD"]] },
+          "created_time": 1705943004872,
+          "last_edited_time": 1705943017952,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "JHPMELCKTw7xDvBcdG0juA,\"start\",\"end\"",
+              "n": {
+                "JHPMELCKTw7xDvBcdG0juA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "JHPMELCKTw7xDvBcdG0juA",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["60Jei2E2VfHy", 1], "o": "start", "l": 5, "c": "CI/CD" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "f07535d2-44b8-49cb-81d0-d6db7a4a4121": {
+      "value": {
+        "value": {
+          "id": "f07535d2-44b8-49cb-81d0-d6db7a4a4121",
+          "version": 67,
+          "type": "callout",
+          "properties": { "title": [["Github Action"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/49cfae84-3c4e-425c-a642-cf5e5f127728/44036562.png",
+            "block_color": "gray_background"
+          },
+          "created_time": 1705943019829,
+          "last_edited_time": 1705943078832,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "file_ids": [
+            "f78ec4f0-843b-48be-844d-b2b1586edb92",
+            "bb9dd3c3-f496-4ce9-b0d6-e26d99f279f3",
+            "49cfae84-3c4e-425c-a642-cf5e5f127728"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "7hLvux_SbeGgBCIdM1usoQ,\"start\",\"end\"",
+              "n": {
+                "7hLvux_SbeGgBCIdM1usoQ,\"start\",\"end\"": {
+                  "s": {
+                    "x": "7hLvux_SbeGgBCIdM1usoQ",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["Q0mB1NbFGIsi", 1],
+                        "o": "start",
+                        "l": 13,
+                        "c": "Github Action"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "11c43f71-df58-4a55-8e46-73dab40ab22a": {
+      "value": {
+        "value": {
+          "id": "11c43f71-df58-4a55-8e46-73dab40ab22a",
+          "version": 4,
+          "type": "callout",
+          "properties": { "title": [["ArgoCD"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/bb9dd3c3-f496-4ce9-b0d6-e26d99f279f3/img_(2).png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "f07535d2-44b8-49cb-81d0-d6db7a4a4121",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705943068269,
+          "last_edited_time": 1705943068273,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "f07535d2-44b8-49cb-81d0-d6db7a4a4121",
+          "file_ids": ["bb9dd3c3-f496-4ce9-b0d6-e26d99f279f3"],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "HTEb3wNAtV-8djRwc64JkA,\"start\",\"end\"",
+              "n": {
+                "HTEb3wNAtV-8djRwc64JkA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "HTEb3wNAtV-8djRwc64JkA",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["lTyYyVxyF7q6", 1], "o": "start", "l": 6, "c": "ArgoCD" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "1bcdc45a-7498-4047-8880-b2f503c128b0": {
+      "value": {
+        "value": {
+          "id": "1bcdc45a-7498-4047-8880-b2f503c128b0",
+          "version": 67,
+          "type": "callout",
+          "properties": { "title": [["AWS CodePipeline"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/77e0f351-c141-497a-b904-39fdb4f30f3b/download_(1).png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "11c43f71-df58-4a55-8e46-73dab40ab22a",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705943082681,
+          "last_edited_time": 1705943217354,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "11c43f71-df58-4a55-8e46-73dab40ab22a",
+          "file_ids": [
+            "bb9dd3c3-f496-4ce9-b0d6-e26d99f279f3",
+            "bb04a294-9243-4400-a0fc-b42e03b4238c",
+            "77e0f351-c141-497a-b904-39fdb4f30f3b"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "jLXtl8lbo-lg0KHZnRHx9A,\"start\",\"end\"",
+              "n": {
+                "jLXtl8lbo-lg0KHZnRHx9A,\"start\",\"end\"": {
+                  "s": {
+                    "x": "jLXtl8lbo-lg0KHZnRHx9A",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["ko-StdzEzcV1", 1],
+                        "o": "start",
+                        "l": 16,
+                        "c": "AWS CodePipeline"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "70afd98e-8d9a-4e09-a289-d5e1826f6688": {
+      "value": {
+        "value": {
+          "id": "70afd98e-8d9a-4e09-a289-d5e1826f6688",
+          "version": 25,
+          "type": "callout",
+          "properties": { "title": [["AWS CodeBuild"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/8a991b20-fb83-4d13-87fd-76e721220604/download.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "1bcdc45a-7498-4047-8880-b2f503c128b0",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705943125566,
+          "last_edited_time": 1705943162041,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "1bcdc45a-7498-4047-8880-b2f503c128b0",
+          "file_ids": [
+            "bb04a294-9243-4400-a0fc-b42e03b4238c",
+            "8a991b20-fb83-4d13-87fd-76e721220604"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "Kue6_nkrShWyGPRVh9DFtg,\"start\",\"end\"",
+              "n": {
+                "Kue6_nkrShWyGPRVh9DFtg,\"start\",\"end\"": {
+                  "s": {
+                    "x": "Kue6_nkrShWyGPRVh9DFtg",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["LZyMWFjcD1M0", 1],
+                        "o": "start",
+                        "l": 13,
+                        "c": "AWS CodeBuild"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "f82ed877-b25d-418b-a8c0-152b7e270c48": {
+      "value": {
+        "value": {
+          "id": "f82ed877-b25d-418b-a8c0-152b7e270c48",
+          "version": 27,
+          "type": "callout",
+          "properties": { "title": [["AWS CodeDeploy"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/c1d893dd-a67c-4267-80fb-73d5bdfe2fec/aws-codedeploy-icon-1695x2048-vwtpaab7.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "70afd98e-8d9a-4e09-a289-d5e1826f6688",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705943185061,
+          "last_edited_time": 1705943197625,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "70afd98e-8d9a-4e09-a289-d5e1826f6688",
+          "file_ids": [
+            "8a991b20-fb83-4d13-87fd-76e721220604",
+            "c1d893dd-a67c-4267-80fb-73d5bdfe2fec"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "2f8ayAyPqbQk1epg8fLKYw,\"start\",\"end\"",
+              "n": {
+                "2f8ayAyPqbQk1epg8fLKYw,\"start\",\"end\"": {
+                  "s": {
+                    "x": "2f8ayAyPqbQk1epg8fLKYw",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["gDog7KJMI9Xl", 1],
+                        "o": "start",
+                        "l": 14,
+                        "c": "AWS CodeDeploy"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "fd560304-820e-4b18-aa21-c1c6ca6e7a09": {
+      "value": {
+        "value": {
+          "id": "fd560304-820e-4b18-aa21-c1c6ca6e7a09",
+          "version": 58,
+          "type": "sub_header",
+          "properties": { "title": [["Object Storage Service"]] },
+          "created_time": 1705940193850,
+          "last_edited_time": 1705941450716,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "dNV4DTBs35CHAbz0GNMcSQ,\"start\",\"end\"",
+              "n": {
+                "dNV4DTBs35CHAbz0GNMcSQ,\"start\",\"end\"": {
+                  "s": {
+                    "x": "dNV4DTBs35CHAbz0GNMcSQ",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["G-C7J0_6DrrV", 1],
+                        "o": "start",
+                        "l": 22,
+                        "c": "Object Storage Service"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "09b83715-35ef-497b-a2cf-4d7a3a1aae84": {
+      "value": {
+        "value": {
+          "id": "09b83715-35ef-497b-a2cf-4d7a3a1aae84",
+          "version": 46,
+          "type": "callout",
+          "properties": { "title": [["AWS S3"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/1471fe14-ad06-4aad-abf8-66fc08f42a60/Amazon-S3-Logo.svg.png",
+            "block_color": "gray_background"
+          },
+          "created_time": 1705941452401,
+          "last_edited_time": 1705941527049,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "file_ids": [
+            "9602ff4f-7310-4d7b-8495-b54bf8cb665d",
+            "35df2157-1851-4f8c-b7c9-4665915f9114",
+            "33e399ee-d31d-46b0-b000-023eb49d8c94",
+            "1471fe14-ad06-4aad-abf8-66fc08f42a60"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "9UrzQZ9pUs9s7piWHvPjPA,\"start\",\"end\"",
+              "n": {
+                "9UrzQZ9pUs9s7piWHvPjPA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "9UrzQZ9pUs9s7piWHvPjPA",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["fDQE7KXTobzi", 1], "o": "start", "l": 6, "c": "AWS S3" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "d7ca8dd3-8f44-4ec7-8c44-fcad0c58695c": {
+      "value": {
+        "value": {
+          "id": "d7ca8dd3-8f44-4ec7-8c44-fcad0c58695c",
+          "version": 4,
+          "type": "callout",
+          "properties": { "title": [["MINIO"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/33e399ee-d31d-46b0-b000-023eb49d8c94/w9l593yvqnusnz7stqcq6fcnvf6o.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "09b83715-35ef-497b-a2cf-4d7a3a1aae84",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705941498308,
+          "last_edited_time": 1705941498309,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "09b83715-35ef-497b-a2cf-4d7a3a1aae84",
+          "file_ids": ["33e399ee-d31d-46b0-b000-023eb49d8c94"],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "EGEtzm5JOq2wgz0O7-W9bw,\"start\",\"end\"",
+              "n": {
+                "EGEtzm5JOq2wgz0O7-W9bw,\"start\",\"end\"": {
+                  "s": {
+                    "x": "EGEtzm5JOq2wgz0O7-W9bw",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["SIOKFzZHqCXz", 1], "o": "start", "l": 5, "c": "MINIO" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "d3c9bcbc-fbcb-44c5-9039-a3b3fc231e02": {
+      "value": {
+        "value": {
+          "id": "d3c9bcbc-fbcb-44c5-9039-a3b3fc231e02",
+          "version": 64,
+          "type": "sub_header",
+          "properties": { "title": [["Container orchestration"]] },
+          "created_time": 1705941745688,
+          "last_edited_time": 1705941756433,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "cBB7v0aUnbkolX2MDc6MPg,\"start\",\"end\"",
+              "n": {
+                "cBB7v0aUnbkolX2MDc6MPg,\"start\",\"end\"": {
+                  "s": {
+                    "x": "cBB7v0aUnbkolX2MDc6MPg",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["3J_XR5tnYA1v", 1],
+                        "o": "start",
+                        "l": 23,
+                        "c": "Container orchestration"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "d9b4fd8a-c3f0-45fa-aa8a-f91344858a1b": {
+      "value": {
+        "value": {
+          "id": "d9b4fd8a-c3f0-45fa-aa8a-f91344858a1b",
+          "version": 85,
+          "type": "callout",
+          "properties": { "title": [["Docker, Docker Compose, Docker Swarm"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/87980f22-711d-45a1-bfaa-6a511a8fdedd/4844483.png",
+            "block_color": "gray_background"
+          },
+          "created_time": 1705941757013,
+          "last_edited_time": 1705941799359,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "file_ids": [
+            "68a23ba6-459d-40bf-9420-d960219fc0f2",
+            "87980f22-711d-45a1-bfaa-6a511a8fdedd"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "Y4Sf2kI_RxZoaA4chpeOtA,\"start\",\"end\"",
+              "n": {
+                "Y4Sf2kI_RxZoaA4chpeOtA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "Y4Sf2kI_RxZoaA4chpeOtA",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["8bq0Lrlkmq32", 1],
+                        "o": "start",
+                        "l": 36,
+                        "c": "Docker, Docker Compose, Docker Swarm"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "2e8ad1c7-e877-4322-863a-30a6fe446229": {
+      "value": {
+        "value": {
+          "id": "2e8ad1c7-e877-4322-863a-30a6fe446229",
+          "version": 28,
+          "type": "callout",
+          "properties": { "title": [["Kubernetes"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/796bc9b9-9298-4c93-81fb-44901b999feb/Kubernetes_logo_without_workmark.svg.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "d9b4fd8a-c3f0-45fa-aa8a-f91344858a1b",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705941801760,
+          "last_edited_time": 1705941825288,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "d9b4fd8a-c3f0-45fa-aa8a-f91344858a1b",
+          "file_ids": [
+            "87980f22-711d-45a1-bfaa-6a511a8fdedd",
+            "796bc9b9-9298-4c93-81fb-44901b999feb"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "La895fkkta3P5N8w6K44xg,\"start\",\"end\"",
+              "n": {
+                "La895fkkta3P5N8w6K44xg,\"start\",\"end\"": {
+                  "s": {
+                    "x": "La895fkkta3P5N8w6K44xg",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["L033TXx5pM_E", 1],
+                        "o": "start",
+                        "l": 10,
+                        "c": "Kubernetes"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "3bedc527-f877-4471-8bae-61e1d66aeb77": {
+      "value": {
+        "value": {
+          "id": "3bedc527-f877-4471-8bae-61e1d66aeb77",
+          "version": 62,
+          "type": "sub_header",
+          "properties": { "title": [["Kubernetes Tools"]] },
+          "created_time": 1705941827889,
+          "last_edited_time": 1705942150406,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "s4bXgttTgbx62D1Y_ueh3A,\"start\",\"end\"",
+              "n": {
+                "s4bXgttTgbx62D1Y_ueh3A,\"start\",\"end\"": {
+                  "s": {
+                    "x": "s4bXgttTgbx62D1Y_ueh3A",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["IleooOAYhqx5", 1],
+                        "o": "start",
+                        "l": 16,
+                        "c": "Kubernetes Tools"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "f0e0f8c6-a910-44e6-8b71-a287c75ddde2": {
+      "value": {
+        "value": {
+          "id": "f0e0f8c6-a910-44e6-8b71-a287c75ddde2",
+          "version": 31,
+          "type": "callout",
+          "properties": { "title": [["OpenLens"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/f78ec4f0-843b-48be-844d-b2b1586edb92/lens-logo.png",
+            "block_color": "gray_background",
+            "copied_from_pointer": {
+              "id": "5fe0f406-b0ac-42fa-8e77-82999a860ef3",
+              "table": "block",
+              "spaceId": "b76a8290-edaa-47fa-b7b9-20facb5ad210"
+            }
+          },
+          "created_time": 1705942898262,
+          "last_edited_time": 1705942914529,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "copied_from": "5fe0f406-b0ac-42fa-8e77-82999a860ef3",
+          "file_ids": [
+            "d0858295-a414-4cb0-b87e-950805b136d8",
+            "f78ec4f0-843b-48be-844d-b2b1586edb92"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "7gcT60JZ-vuHkFtXR_jfFw,\"start\",\"end\"",
+              "n": {
+                "7gcT60JZ-vuHkFtXR_jfFw,\"start\",\"end\"": {
+                  "s": {
+                    "x": "7gcT60JZ-vuHkFtXR_jfFw",
+                    "i": [
+                      { "t": "s" },
+                      { "t": "t", "i": ["OaK9tkMhOEpX", 1], "o": "start", "l": 8, "c": "OpenLens" },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    },
+    "5fe0f406-b0ac-42fa-8e77-82999a860ef3": {
+      "value": {
+        "value": {
+          "id": "5fe0f406-b0ac-42fa-8e77-82999a860ef3",
+          "version": 70,
+          "type": "callout",
+          "properties": { "title": [["Vault: Secret Manager"]] },
+          "format": {
+            "page_icon": "https://prod-files-secure.s3.us-west-2.amazonaws.com/b76a8290-edaa-47fa-b7b9-20facb5ad210/d0858295-a414-4cb0-b87e-950805b136d8/vault_logo_icon_249285.png",
+            "block_color": "gray_background"
+          },
+          "created_time": 1705942152747,
+          "last_edited_time": 1705942419407,
+          "parent_id": "38279f27-37c9-44c4-b7ca-d33d92942852",
+          "parent_table": "block",
+          "alive": true,
+          "file_ids": [
+            "d74c0ef9-dc68-4281-a6ad-f2ea91bb44fa",
+            "d0858295-a414-4cb0-b87e-950805b136d8"
+          ],
+          "space_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
+          "crdt_format_version": 1,
+          "crdt_data": {
+            "title": {
+              "r": "8r69QFw3qNnJBHFALTtHFA,\"start\",\"end\"",
+              "n": {
+                "8r69QFw3qNnJBHFALTtHFA,\"start\",\"end\"": {
+                  "s": {
+                    "x": "8r69QFw3qNnJBHFALTtHFA",
+                    "i": [
+                      { "t": "s" },
+                      {
+                        "t": "t",
+                        "i": ["dWj5HO622576", 1],
+                        "o": "start",
+                        "l": 21,
+                        "c": "Vault: Secret Manager"
+                      },
+                      { "t": "e" }
+                    ],
+                    "l": ""
+                  },
+                  "c": []
+                }
+              }
+            }
+          }
+        },
+        "role": "reader"
+      }
+    }
+  },
+  "collection": {},
+  "collection_view": {},
+  "notion_user": {},
+  "collection_query": {},
+  "signed_urls": {}
+}
