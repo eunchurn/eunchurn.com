@@ -13,6 +13,7 @@
     "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts",
     "prepare": "husky",
     "typecheck": "tsc --noEmit",
+    "notion:sync": "node scripts/notion-sync.mjs",
     "postinstall": "contentlayer2 build"
   },
   "dependencies": {

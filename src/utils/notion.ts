@@ -16,12 +16,33 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   ]);
 }
 
+// Snapshots written by scripts/notion-sync.mjs. The Vercel build host is blocked by Notion (403),
+// so a committed snapshot is the primary source and the live API is the fallback.
+async function getSnapshotPage(pageId: string): Promise<ExtendedRecordMap | null> {
+  try {
+    const { readFile } = await import("node:fs/promises");
+    const path = await import("node:path");
+    const file = path.join(process.cwd(), "data", "notion", `${pageId.replace(/-/g, "")}.json`);
+    const recordMap = JSON.parse(await readFile(file, "utf8")) as ExtendedRecordMap;
+    return Object.keys(recordMap.block ?? {}).length > 0 ? recordMap : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
   // Check cache first
   const cached = getCachedPage(pageId);
   if (cached) {
     console.log(`Using cached data for page ${pageId}`);
     return cached;
+  }
+
+  const snapshot = await getSnapshotPage(pageId);
+  if (snapshot) {
+    console.log(`Using snapshot data for page ${pageId}`);
+    setCachedPage(pageId, snapshot);
+    return snapshot;
   }
 
   // Retry logic for better reliability
