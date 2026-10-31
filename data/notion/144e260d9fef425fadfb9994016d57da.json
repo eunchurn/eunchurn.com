@@ -179,7 +179,7 @@
       "value": {
         "value": {
           "id": "1a91b7f9-da0d-443f-888a-ec63234a0d8a",
-          "version": 1034,
+          "version": 1037,
           "type": "page",
           "properties": { "title": [["박은천"]] },
           "content": [
@@ -270,7 +270,7 @@
             }
           ],
           "created_time": 1705855401307,
-          "last_edited_time": 1793475660835,
+          "last_edited_time": 1793475851500,
           "parent_id": "b76a8290-edaa-47fa-b7b9-20facb5ad210",
           "parent_table": "space",
           "alive": true,
