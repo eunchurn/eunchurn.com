@@ -5885,7 +5885,11 @@
           "type": "video",
           "properties": {
             "title": [["AURA_demo.mp4"]],
-            "source": [["attachment:18e91ea6-4705-4ccf-a410-8d0e76b25530:AURA_demo.mp4"]],
+            "source": [
+              [
+                "https://www.notion.so/signed/attachment%3A18e91ea6-4705-4ccf-a410-8d0e76b25530%3AAURA_demo.mp4?table=block&id=2c49dc90-4545-454d-aa9f-025dbf4ed780"
+              ]
+            ],
             "caption": [["AURA 시연 영상 (3분 34초)"]]
           },
           "format": {
@@ -8466,7 +8470,11 @@
           "type": "video",
           "properties": {
             "title": [["GAIT_demo.mp4"]],
-            "source": [["attachment:309ae595-049d-48b1-b67b-c20c0afed8c1:GAIT_demo.mp4"]],
+            "source": [
+              [
+                "https://www.notion.so/signed/attachment%3A309ae595-049d-48b1-b67b-c20c0afed8c1%3AGAIT_demo.mp4?table=block&id=06d8dfd7-25bd-4b60-97ab-0f8d13e8eff1"
+              ]
+            ],
             "caption": [["GAIT 시연 영상 (4분 56초)"]]
           },
           "format": {

@@ -22,6 +22,15 @@ for (const id of PAGE_IDS) {
   if (blocks === 0) throw new Error(`Notion returned no blocks for ${id}`);
   // Signed asset URLs expire within hours; drop them so the renderer falls back to notion.so proxies.
   recordMap.signed_urls = {};
+  // Uploaded videos use an "attachment:" source the browser cannot load. notion.so/signed/ proxies
+  // it to a freshly signed file URL on every request, so point the block there instead.
+  for (const [blockId, entry] of Object.entries(recordMap.block)) {
+    const value = entry?.value?.value ?? entry?.value;
+    const source = value?.properties?.source?.[0]?.[0];
+    if (value?.type === "video" && typeof source === "string" && source.startsWith("attachment:")) {
+      value.properties.source[0][0] = `https://www.notion.so/signed/${encodeURIComponent(source)}?table=block&id=${blockId}`;
+    }
+  }
   const file = path.join(outDir, `${id}.json`);
   await writeFile(file, JSON.stringify(recordMap));
   console.log(`${id}: ${blocks} blocks -> ${path.relative(process.cwd(), file)}`);
