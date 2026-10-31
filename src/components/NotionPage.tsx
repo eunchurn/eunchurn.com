@@ -58,9 +58,13 @@ export const NotionPage = ({
   const pathname = usePathname();
   const isPDFPrinting = pathname.startsWith("/cv-export");
   const [printing, setPrinting] = React.useState(false);
-  // resolvedTheme is undefined until mounted, so SSR and the first client render both use light
+  // The static HTML is rendered light. next-themes already knows the stored theme on the first
+  // client render, and React does not patch a mismatched className during hydration, so the
+  // dark class must be applied only after mount (false -> true triggers a real DOM update).
   const { resolvedTheme } = useTheme();
-  const darkMode = !isExport && resolvedTheme === "dark";
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  const darkMode = mounted && !isExport && resolvedTheme === "dark";
 
   if (!recordMap) {
     return (
