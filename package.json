@@ -36,7 +36,7 @@
     "got": "^14.6.6",
     "gray-matter": "^4.0.3",
     "hast-util-from-html-isomorphic": "^2.0.0",
-    "image-size": "2.0.2",
+    "image-size": "2.1.0",
     "katex": "^0.16.28",
     "lqip-modern": "^2.2.1",
     "lucide-react": "^0.564.0",
